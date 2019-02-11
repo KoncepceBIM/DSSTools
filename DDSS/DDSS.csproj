@@ -5,4 +5,8 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Xbim.Ifc" Version="5.0.219" />
+  </ItemGroup>
+
 </Project>
