@@ -13,6 +13,10 @@ namespace DDSS.Utils
 {
     public class Validator
     {
+        public IEnumerable<ValidationResult> SchemaErrors { get; private set; } = new ValidationResult[0];
+        public IEnumerable<ValidationResult> TemplateErrors { get; private set; } = new ValidationResult[0];
+        public IEnumerable<ValidationResult> PropertyErrors { get; private set; } = new ValidationResult[0];
+
         public bool Check(IModel model)
         {
             // check for parser exceptions
@@ -21,14 +25,15 @@ namespace DDSS.Utils
                 ValidateLevel = ValidationFlags.All,
                 CreateEntityHierarchy = true
             };
-            var schemaErrors = v.Validate(model.Instances);
-            var templateErrors = CheckPropertyTemplateTypesAndUnits(model);
-            var propErrors = CheckPropertyUnits(model);
+
+            SchemaErrors = v.Validate(model.Instances).ToList();
+            TemplateErrors = CheckPropertyTemplateTypesAndUnits(model).ToList();
+            PropertyErrors = CheckPropertyUnits(model).ToList();
 
             foreach (var err in
-                schemaErrors
-                .Concat(templateErrors)
-                .Concat(propErrors))
+                SchemaErrors
+                .Concat(TemplateErrors)
+                .Concat(PropertyErrors))
             {
                 var identity = err.Item.GetType().Name;
                 if (err.Item is IPersistEntity entity)
@@ -58,7 +63,7 @@ namespace DDSS.Utils
                 Log.Error(msg.ToString());
             }
 
-            return !schemaErrors.Any() && !templateErrors.Any() && !propErrors.Any();
+            return !SchemaErrors.Any() && !TemplateErrors.Any() && !PropertyErrors.Any();
         }
 
         private IEnumerable<ValidationResult> CheckPropertyUnits(IModel model)

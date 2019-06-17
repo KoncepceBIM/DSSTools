@@ -1,5 +1,6 @@
 ﻿using DDSS.Utils;
 using Serilog;
+using System;
 using System.IO;
 using Xbim.Common;
 using Xbim.Common.Step21;
@@ -13,6 +14,7 @@ using Xbim.Ifc4.ProcessExtension;
 using Xbim.Ifc4.ProductExtension;
 using Xbim.Ifc4.SharedMgmtElements;
 using Xbim.IO;
+using Xbim.IO.Memory;
 
 namespace DDSS
 {
@@ -42,12 +44,14 @@ namespace DDSS
                .CreateLogger();
             XbimLogging.LoggerFactory.AddSerilog();
 
-            IfcStore.ModelProviderFactory.UseMemoryModelProvider();
-            using (var model = IfcStore.Create(editor, XbimSchemaVersion.Ifc4, XbimStoreType.InMemoryModel))
+            using (var model = new MemoryModel(new Xbim.Ifc4.EntityFactoryIfc4()))
             { 
                 var i = model.Instances;
-                using (var txn = model.BeginTransaction())
+                using (var txn = model.BeginTransaction("Model creation"))
                 {
+                    // hook event listeners to set up GUIDs and owner history objects
+                    model.Init(editor);
+
                     // these will keep cache of units and enums
                     // units have to be defined in the source of 'UnitMap' (compile time) while
                     // enumerations are to be defined in runtime based on the values in the DB
@@ -183,12 +187,23 @@ namespace DDSS
                 var validator = new Validator();
                 var valid = validator.Check(model);
                 if (!valid)
-                    throw new System.Exception("Invalid model shouldn't be stored and used for any purposes.");
+                    throw new Exception("Invalid model shouldn't be stored and used for any purposes.");
 
-                model.SaveAs(ifcFile);
+                // this is stdout if you want to use it
+                var stdout = Console.OpenStandardOutput();
 
-                //var xmlFile = Path.ChangeExtension(ifcFile, ".ifcxml");
-                //model.SaveAs(xmlFile);
+                // writing to stream (any stream)
+                using (var stream = File.Create(ifcFile))
+                {
+                    model.SaveAsIfc(stream);
+                }
+
+
+                // var xmlFile = Path.ChangeExtension(ifcFile, ".ifcxml");
+                // using (var stream = File.Create(xmlFile))
+                // {
+                //     model.SaveAsIfcXml(stream);
+                // }
             }
         }
     }
