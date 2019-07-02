@@ -12,4 +12,10 @@
     <PackageReference Include="Xbim.Ifc" Version="5.1.259" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Pepova_klasifikace.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

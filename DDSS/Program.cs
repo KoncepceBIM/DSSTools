@@ -52,6 +52,9 @@ namespace DDSS
                     // hook event listeners to set up GUIDs and owner history objects
                     model.Init(editor);
 
+                    // create classification hierarchy
+                    var classificationMap = ClassificationImporter.ImportInto(model);
+
                     // these will keep cache of units and enums
                     // units have to be defined in the source of 'UnitMap' (compile time) while
                     // enumerations are to be defined in runtime based on the values in the DB
@@ -110,16 +113,8 @@ namespace DDSS
                     i.New<IfcRelAssociatesClassification>(rel =>
                     {
                         rel.RelatedObjects.Add(loin);
-                        rel.RelatingClassification =
-                            i.New<IfcClassificationReference>(c => {
-                                c.Identification = "801 31";
-                                c.Name = "Budovy mateřských škol";
-                                c.ReferencedSource = i.New<IfcClassification>(cs => {
-                                    cs.Name = "JKSO";
-                                    cs.Description = "Klasifikace stavebních objektů";
-                                    cs.Source = "https://www.cs-urs.cz/ciselniky-online/jkso/?cil=8013";
-                                });
-                            });
+                        // 5006 would be a database identifier of the original classification item
+                        rel.RelatingClassification = classificationMap[5006];
                     });
 
                     // Declared data requirements / templates
