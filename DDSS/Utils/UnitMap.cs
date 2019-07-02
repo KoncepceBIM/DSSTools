@@ -53,7 +53,7 @@ namespace DDSS.Utils
             unitString = unitString.Replace("\n", "");
             unitString = unitString.Replace("\t", ".");
             unitString = unitString.Replace(" ", ".");
-            unitString = new Regex("\\.*").Replace(unitString, ".");
+            unitString = new Regex("\\.+").Replace(unitString, ".");
 
             // normalize multiplication
             unitString = unitString.Replace("·", "."); // Middle dot U+00B7
