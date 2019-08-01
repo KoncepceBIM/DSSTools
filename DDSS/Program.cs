@@ -194,11 +194,11 @@ namespace DDSS
                 }
 
 
-                // var xmlFile = Path.ChangeExtension(ifcFile, ".ifcxml");
-                // using (var stream = File.Create(xmlFile))
-                // {
-                //     model.SaveAsIfcXml(stream);
-                // }
+                var xmlFile = Path.ChangeExtension(ifcFile, ".ifcxml");
+                using (var stream = File.Create(xmlFile))
+                {
+                    model.SaveAsIfcXml(stream);
+                }
             }
         }
     }

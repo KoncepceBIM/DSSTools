@@ -208,6 +208,36 @@ namespace DDSS.Utils
                 });
                 _unitsMap.Add("W/m2.K", unit);
             }
+
+            { // kV · A
+                var kV = i.New<IfcSIUnit>(u =>
+                {
+                    u.Prefix = IfcSIPrefix.KILO;
+                    u.Name = IfcSIUnitName.VOLT;
+                    u.UnitType = IfcUnitEnum.ELECTRICVOLTAGEUNIT;
+                });
+                var A = i.New<IfcSIUnit>(u =>
+                {
+                    u.Name = IfcSIUnitName.AMPERE;
+                    u.UnitType = IfcUnitEnum.ELECTRICCURRENTUNIT;
+                });
+                
+                var unit = i.New<IfcDerivedUnit>(du =>
+                {
+                    du.UnitType = IfcDerivedUnitEnum.USERDEFINED;
+                    du.Elements.AddRange(new[] {
+                        i.New<IfcDerivedUnitElement>(e => {
+                            e.Unit = kV;
+                            e.Exponent = 1;
+                        }),
+                        i.New<IfcDerivedUnitElement>(e => {
+                            e.Unit = A;
+                            e.Exponent = 1;
+                        }),
+                    });
+                });
+                _unitsMap.Add("kVA", unit);
+            }
             //...
 
         }
