@@ -8,13 +8,22 @@ namespace LOIN
 {
     public abstract class AbstractLoinEntity
     {
-        public abstract IModel Model { get; }
+        public Model Model { get; private set; }
+
+        internal AbstractLoinEntity(Model model)
+        {
+            Model = model;
+        }
     }
 
     public abstract class AbstractLoinEntity<T>: AbstractLoinEntity where T: IPersistEntity
     {
-        public abstract T Entity { get; }
+        public T Entity { get; }
 
-        public override IModel Model => Entity.Model;
+
+        internal AbstractLoinEntity(T entity, Model model): base(model)
+        {
+            Entity = entity;
+        }
     }
 }

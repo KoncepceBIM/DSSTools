@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
-namespace LOIN
+namespace LOIN.Context
 {
-    public class Milestone : RelatedLoinEntity<IIfcRelAssignsToProcess, IIfcTask>
+    public class Reason : AbstractLoinEntity<IIfcActionRequest>
     {
-        public Milestone(IIfcRelAssignsToProcess relationship) : base(relationship)
+        public static readonly Reason Any = new Reason(null, null);
+
+        internal Reason(IIfcActionRequest request, Model model) : base(request, model)
         {
         }
-
-        protected override Func<IIfcRelAssignsToProcess, IIfcTask> Accessor =>
-            r => r.RelatingProcess as IIfcTask;
 
         public string Name
         {

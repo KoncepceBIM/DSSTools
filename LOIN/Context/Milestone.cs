@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
-namespace LOIN
+namespace LOIN.Context
 {
-    public class Reason : RelatedLoinEntity<IIfcRelAssignsToControl, IIfcActionRequest>
+    public class Milestone : AbstractLoinEntity<IIfcTask>
     {
-        public Reason(IIfcRelAssignsToControl relationship) : base(relationship)
+        public static readonly Milestone Any = new Milestone(null, null);
+
+        internal Milestone(IIfcTask task, Model model) : base(task, model)
         {
         }
-
-        protected override Func<IIfcRelAssignsToControl, IIfcActionRequest> Accessor =>
-            r => r.RelatingControl as IIfcActionRequest;
 
         public string Name
         {

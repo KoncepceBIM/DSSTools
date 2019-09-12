@@ -1,20 +1,17 @@
-﻿using System;
+﻿using LOIN.Context;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xbim.Ifc4.Interfaces;
 
-namespace LOIN
+namespace LOIN.Requirements
 {
-    class RequirementsSet : AbstractLoinEntity<IIfcProjectLibrary>
+    public class RequirementsSet : AbstractLoinEntity<IIfcProjectLibrary>
     {
-        private readonly IIfcProjectLibrary lib;
 
-        public RequirementsSet(IIfcProjectLibrary lib)
+        internal RequirementsSet(IIfcProjectLibrary lib, Model model): base(lib, model)
         {
-            this.lib = lib;
         }
-
-        public override IIfcProjectLibrary Entity => lib;
 
         // context
         public Actor Actor => throw new NotImplementedException();

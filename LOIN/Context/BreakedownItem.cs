@@ -2,37 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
-namespace LOIN
+namespace LOIN.Context
 {
-    public class BreakedownItem: RelatedLoinEntity<IIfcRelAssociatesClassification, IIfcClassificationSelect>
+    public class BreakedownItem : AbstractLoinEntity<IIfcClassificationSelect>
     {
-        public BreakedownItem(IIfcRelAssociatesClassification rel): base(rel)
+        public static readonly BreakedownItem Any = new BreakedownItem(null, null);
+
+        internal BreakedownItem(IIfcClassificationSelect classification, Model model) : base(classification, model)
         {
 
         }
 
         public BreakedownItem Parent { get; private set; }
 
-        private List<BreakedownItem> _children;
+        private List<BreakedownItem> _children = new List<BreakedownItem>();
         public IEnumerable<BreakedownItem> Children => _children;
 
-        internal void CreateStructure(IEnumerable<BreakedownItem> allItems)
+        internal static IEnumerable<BreakedownItem> CreateBreakdownStructure(Model model)
         {
+            var allItems = model.IfcModel.Instances
+                .OfType<IIfcClassificationSelect>()
+                .Select(c => new BreakedownItem(c, model))
+                .ToList();
             var lookUp = allItems.ToDictionary(i => i.Entity.EntityLabel);
-
             foreach (var item in allItems)
             {
                 if (!(item.Entity is IIfcClassificationReference reference))
                     continue;
 
-                if (reference.ReferencedSource == null)
+                var parentEntity = reference.ReferencedSource;
+                // root entity
+                if (parentEntity == null)
                     continue;
 
-                var parentEntity = reference.ReferencedSource;
                 if (!lookUp.TryGetValue(parentEntity.EntityLabel, out BreakedownItem parentItem))
                 {
+                    throw new Exception("Unexpected type");
                 }
 
                 // build both directions
@@ -41,24 +49,23 @@ namespace LOIN
                     parentItem._children = new List<BreakedownItem>();
                 parentItem._children.Add(item);
             }
+            return allItems;
         }
 
-        protected override Func<IIfcRelAssociatesClassification, IIfcClassificationSelect> Accessor => 
-            r => r.RelatingClassification;
 
         public string Code
         {
-            get =>  Entity is IIfcClassificationReference r ? r.Identification?.ToString() : (Entity as IIfcClassification)?.Edition?.ToString();
+            get => Entity is IIfcClassificationReference r ? r.Identification?.ToString() : (Entity as IIfcClassification)?.Edition?.ToString();
         }
 
         public string Uri
         {
-            get =>  Entity is IIfcClassificationReference r ? r.Location?.ToString() : (Entity as IIfcClassification)?.Location?.ToString();
+            get => Entity is IIfcClassificationReference r ? r.Location?.ToString() : (Entity as IIfcClassification)?.Location?.ToString();
         }
 
         public string Name
         {
-            get =>  Entity is IIfcClassificationReference r ? r.Name?.ToString() : (Entity as IIfcClassification)?.Name.ToString();
+            get => Entity is IIfcClassificationReference r ? r.Name?.ToString() : (Entity as IIfcClassification)?.Name.ToString();
         }
 
         public string Description
