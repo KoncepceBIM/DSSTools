@@ -3,8 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Xbim.Ifc4" Version="5.1.259" />
+    <PackageReference Include="Xbim.MvdXML" Version="5.1.103-develop" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Validation\mvdXML_V1.1.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>

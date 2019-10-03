@@ -2,35 +2,54 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LOIN.Requirements;
 using Xbim.Common;
+using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Interfaces;
+using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Context
 {
-    public class BreakedownItem : AbstractLoinEntity<IIfcClassificationSelect>
+    public class BreakedownItem : AbstractLoinEntity<IfcClassificationSelect>, IContextEntity
     {
-        public static readonly BreakedownItem Any = new BreakedownItem(null, null);
+        private readonly List<IfcRelAssociatesClassification> _relations;
+        private readonly HashSet<int> _cache;
 
-        internal BreakedownItem(IIfcClassificationSelect classification, Model model) : base(classification, model)
+        internal BreakedownItem(IfcClassificationSelect classification, Model model, List<IfcRelAssociatesClassification> relations) : base(classification, model)
         {
-
+            _relations = relations;
+            _cache = new HashSet<int>(_relations.SelectMany(r => r.RelatedObjects).Select(o => o.EntityLabel));
         }
 
-        public BreakedownItem Parent { get; private set; }
+        public BreakedownItem Parent { get; internal set; }
 
         private List<BreakedownItem> _children = new List<BreakedownItem>();
         public IEnumerable<BreakedownItem> Children => _children;
 
-        internal static IEnumerable<BreakedownItem> CreateBreakdownStructure(Model model)
+        internal void AddChild(BreakedownItem child)
         {
-            var allItems = model.IfcModel.Instances
-                .OfType<IIfcClassificationSelect>()
-                .Select(c => new BreakedownItem(c, model))
+            _children.Add(child);
+        }
+
+        internal static IEnumerable<BreakedownItem> GetBreakdownStructure(Model model)
+        {
+            var cache = new Dictionary<IfcClassificationSelect, List<IfcRelAssociatesClassification>>();
+            foreach (var cls in model.Internal.Instances.OfType<IfcClassificationSelect>())
+                cache.Add(cls, new List<IfcRelAssociatesClassification>());
+            foreach (var rel in model.Internal.Instances.OfType<IfcRelAssociatesClassification>())
+            {
+                if (rel.RelatingClassification == null)
+                    continue;
+                cache[rel.RelatingClassification].Add(rel);
+            }
+
+            var allItems = cache
+                .Select(kvp => new BreakedownItem(kvp.Key, model, kvp.Value))
                 .ToList();
             var lookUp = allItems.ToDictionary(i => i.Entity.EntityLabel);
             foreach (var item in allItems)
             {
-                if (!(item.Entity is IIfcClassificationReference reference))
+                if (!(item.Entity is IfcClassificationReference reference))
                     continue;
 
                 var parentEntity = reference.ReferencedSource;
@@ -52,25 +71,60 @@ namespace LOIN.Context
             return allItems;
         }
 
+        public bool Contains(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
+
+        public bool Remove(Requirements.RequirementsSet requirements)
+        {
+            var lib = requirements.Entity;
+            // it is there already
+            if (!Contains(requirements))
+                return false;
+
+            foreach (var rel in _relations)
+                rel.RelatedObjects.Remove(lib);
+
+            _cache.Remove(lib.EntityLabel);
+            return true;
+        }
+
+        public bool Add(Requirements.RequirementsSet requirements)
+        {
+            // it is there already
+            if (Contains(requirements))
+                return false;
+
+            var lib = requirements.Entity;
+
+            if (!_relations.Any())
+            {
+                var rel = Model.Internal.Instances.New<IfcRelAssociatesClassification>(r => r.RelatingClassification = Entity);
+                _relations.Add(rel);
+            }
+
+            var relation = _relations.FirstOrDefault();
+            relation.RelatedObjects.Add(lib);
+            _cache.Add(lib.EntityLabel);
+            return true;
+        }
 
         public string Code
         {
-            get => Entity is IIfcClassificationReference r ? r.Identification?.ToString() : (Entity as IIfcClassification)?.Edition?.ToString();
+            get => Entity is IfcClassificationReference r ? r.Identification?.ToString() : (Entity as IfcClassification)?.Edition?.ToString();
         }
 
         public string Uri
         {
-            get => Entity is IIfcClassificationReference r ? r.Location?.ToString() : (Entity as IIfcClassification)?.Location?.ToString();
+            get => Entity is IfcClassificationReference r ? r.Location?.ToString() : (Entity as IfcClassification)?.Location?.ToString();
         }
 
         public string Name
         {
-            get => Entity is IIfcClassificationReference r ? r.Name?.ToString() : (Entity as IIfcClassification)?.Name.ToString();
+            get => Entity is IfcClassificationReference r ? r.Name?.ToString() : (Entity as IfcClassification)?.Name.ToString();
         }
 
         public string Description
         {
-            get => Entity is IIfcClassificationReference r ? r.Description?.ToString() : (Entity as IIfcClassification)?.Description?.ToString();
+            get => Entity is IfcClassificationReference r ? r.Description?.ToString() : (Entity as IfcClassification)?.Description?.ToString();
         }
 
     }

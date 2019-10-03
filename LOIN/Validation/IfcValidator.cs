@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +9,9 @@ using Xbim.Common.ExpressValidation;
 using Xbim.Common.Metadata;
 using Xbim.Ifc4.Interfaces;
 
-namespace DDSS.Utils
+namespace LOIN.Validation
 {
-    public class Validator
+    public class IfcValidator
     {
         public IEnumerable<ValidationResult> SchemaErrors { get; private set; } = new ValidationResult[0];
         public IEnumerable<ValidationResult> TemplateErrors { get; private set; } = new ValidationResult[0];
@@ -19,6 +19,8 @@ namespace DDSS.Utils
 
         public bool Check(IModel model)
         {
+            ILogger log = Xbim.Common.XbimLogging.CreateLogger<IfcValidator>();
+
             // check for parser exceptions
             var v = new Xbim.Common.ExpressValidation.Validator
             {
@@ -60,7 +62,7 @@ namespace DDSS.Utils
                         msg.AppendLine($"http://www.buildingsmart-tech.org/ifc/IFC4/Add2/html/link/{source}.htm");
                     }
                 }
-                Log.Error(msg.ToString());
+                log.LogError(msg.ToString());
             }
 
             return !SchemaErrors.Any() && !TemplateErrors.Any() && !PropertyErrors.Any();

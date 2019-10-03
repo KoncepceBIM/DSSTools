@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDSS", "DDSS\DDSS.csproj", "{D963B44A-13F2-4F4D-A5A4-8A3CA5E76FA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN", "LOIN\LOIN.csproj", "{1514F21D-3866-45BC-86AE-E6171A0A2962}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN", "LOIN\LOIN.csproj", "{1514F21D-3866-45BC-86AE-E6171A0A2962}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN.Tests", "LOIN.Tests\LOIN.Tests.csproj", "{A4961F09-574E-4E3A-B528-22FF5F2F18D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{1514F21D-3866-45BC-86AE-E6171A0A2962}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1514F21D-3866-45BC-86AE-E6171A0A2962}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1514F21D-3866-45BC-86AE-E6171A0A2962}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4961F09-574E-4E3A-B528-22FF5F2F18D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4961F09-574E-4E3A-B528-22FF5F2F18D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4961F09-574E-4E3A-B528-22FF5F2F18D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4961F09-574E-4E3A-B528-22FF5F2F18D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
