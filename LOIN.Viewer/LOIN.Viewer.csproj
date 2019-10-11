@@ -20,16 +20,4 @@
     <Resource Include="xml.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Images\ifc_16.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="Images\ifc_32.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="Images\ifc_64.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
