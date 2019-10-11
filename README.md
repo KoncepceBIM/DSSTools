@@ -42,3 +42,11 @@ using (var model = Model.Open(file))
 }
 
 ```
+
+This library provides simplified access to requirements defined according to LOIN methodology in IFC.
+
+Following diagram shows access objects structure:
+![LOIN C# diagram](LOINDiagram.png)
+
+This is how LOIN is expressed in IFC using this library:
+![LOIN as IFC](LOIN_as_IFC_en.svg)
