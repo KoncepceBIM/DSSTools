@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xbim.Ifc4.ActorResource;
+using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Context
 {
     public class Actor : AbstractLoinEntity<IfcActor>, IContextEntity
     {
-        public bool Contains(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
+        public bool IsContextFor(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
 
-        public bool Remove(Requirements.RequirementsSet requirements)
+        public bool RemoveFromContext(Requirements.RequirementsSet requirements)
         {
             var lib = requirements.Entity;
             // it is there already
-            if (!Contains(requirements))
+            if (!IsContextFor(requirements))
                 return false;
 
             foreach (var rel in _relations)
@@ -24,21 +25,52 @@ namespace LOIN.Context
             return true;
         }
 
-        public bool Add(Requirements.RequirementsSet requirements)
+        public bool AddToContext(Requirements.RequirementsSet requirements)
+        {
+            return AddToContext(requirements, null as IfcActorRole);
+        }
+
+        public bool AddToContext(Requirements.RequirementsSet requirements, IfcRoleEnum role)
+        {
+            var actorRole = Entity.Model.Instances.FirstOrDefault<IfcActorRole>(r => r.Role == role);
+            if (actorRole == null)
+                actorRole = Model.New<IfcActorRole>(r => { r.Role = role; });
+            
+            return AddToContext(requirements, actorRole);
+        }
+
+        public bool AddToContext(Requirements.RequirementsSet requirements, string role)
+        {
+            var actorRole = Entity.Model.Instances.FirstOrDefault<IfcActorRole>(r => r.UserDefinedRole == role);
+            if (actorRole == null)
+                actorRole = Model.New<IfcActorRole>(r => { 
+                    r.Role = IfcRoleEnum.USERDEFINED;
+                    r.UserDefinedRole = role;
+                });
+
+            return AddToContext(requirements, actorRole);
+        }
+
+        public bool AddToContext(Requirements.RequirementsSet requirements, IfcActorRole role)
         {
             // it is there already
-            if (Contains(requirements))
+            if (IsContextFor(requirements))
                 return false;
 
             var lib = requirements.Entity;
+            var relations = role != null ? _relations.Where(r => r.ActingRole == role) : _relations;
 
-            if (!_relations.Any())
+            if (!relations.Any())
             {
-                var rel = Model.Internal.Instances.New<IfcRelAssignsToActor>(r => r.RelatingActor = Entity);
+                var rel = Model.Internal.Instances.New<IfcRelAssignsToActor>(r => {
+                    r.RelatingActor = Entity;
+                    r.ActingRole = role;
+                });
+                relations = new[] { rel };
                 _relations.Add(rel);
             }
 
-            var relation = _relations.FirstOrDefault();
+            var relation = relations.FirstOrDefault();
             relation.RelatedObjects.Add(lib);
             _cache.Add(lib.EntityLabel);
             return true;
@@ -95,6 +127,11 @@ namespace LOIN.Context
         {
             get => Entity.TheActor;
             set => Entity.TheActor = value;
+        }
+
+        public IEnumerable<IfcActorRole> GetRoles(Requirements.RequirementsSet requirements)
+        {
+            return _relations.Where(r => r.RelatedObjects.Contains(requirements.Entity)).Select(r => r.ActingRole);
         }
     }
 }

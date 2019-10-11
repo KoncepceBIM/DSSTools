@@ -13,5 +13,13 @@ namespace LOIN.Viewer
     /// </summary>
     public partial class App : Application
     {
+        public string StartupFile { get; private set; }
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            if (e.Args.Length > 0)
+                StartupFile = e.Args[0];
+        }
     }
 }

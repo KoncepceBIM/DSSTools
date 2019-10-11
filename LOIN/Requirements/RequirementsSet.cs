@@ -25,18 +25,18 @@ namespace LOIN.Requirements
                 cache.Add(lib, new List<IfcRelDeclares>());
             foreach (var rel in model.Internal.Instances.OfType<IfcRelDeclares>())
             {
-                if (!(rel.RelatingContext is IfcProjectLibrary l))
+                if (!(rel.RelatingContext is IfcProjectLibrary lib))
                     continue;
-                cache[l].Add(rel);
+                cache[lib].Add(rel);
             }
             return cache.Select(kvp => new RequirementsSet(kvp.Key, model, kvp.Value));
         }
 
         // context
-        public IEnumerable<Actor> Actors => Model.Actors.Where(a => a.Contains(this));
-        public IEnumerable<BreakedownItem> BreakedownItems => Model.BreakdownStructure.Where(a => a.Contains(this));
-        public IEnumerable<Milestone> Milestones => Model.Milestones.Where(a => a.Contains(this));
-        public IEnumerable<Reason> Reasons => Model.Reasons.Where(a => a.Contains(this));
+        public IEnumerable<Actor> Actors => Model.Actors.Where(a => a.IsContextFor(this));
+        public IEnumerable<BreakedownItem> BreakedownItems => Model.BreakdownStructure.Where(a => a.IsContextFor(this));
+        public IEnumerable<Milestone> Milestones => Model.Milestones.Where(a => a.IsContextFor(this));
+        public IEnumerable<Reason> Reasons => Model.Reasons.Where(a => a.IsContextFor(this));
 
         // requirements
         public IEnumerable<IfcPropertySetTemplate> Requirements => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertySetTemplate>());

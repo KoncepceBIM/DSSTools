@@ -48,7 +48,7 @@ namespace LOIN.Tests
 
             var context = new IContextEntity[] { actor, milestone, reason, item };
             foreach (var contextItem in context)
-                contextItem.Add(requirements);
+                contextItem.AddToContext(requirements);
 
             txn.Commit();
 

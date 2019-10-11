@@ -5,15 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LOIN.Viewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Name="self"
+        Title="LOIN Viewer" Height="700" Width="1000" Icon="/ifc.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
-            <MenuItem Header="File">
-                <MenuItem Header="Open"/>
+            <MenuItem Header="_File">
+                <MenuItem Header="Open" Click="OpenFile_Click">
+                    <MenuItem.Icon>
+                        <Image Source="ifc.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Create MVD XML">
+                    <MenuItem.Icon>
+                        <Image Source="xml.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -25,34 +35,86 @@
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TreeView Grid.Row="0" Name="twBreakDownStructure">
-                    
+                <Label Grid.Row="0">Breakedown Structure</Label>
+                <TreeView Grid.Row="1" Name="twBreakDownStructure" ItemsSource="{Binding ElementName=self, Path=BreakedownItems}">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"></CheckBox>
+                                <Label Content="{Binding ShowName}"></Label>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
                 </TreeView>
-                <DataGrid Grid.Row="1" Name="dgReasons">
-                    
+                <Label Grid.Row="2">Reasons</Label>
+                <DataGrid Grid.Row="3" Name="dgReasons"  ItemsSource="{Binding ElementName=self, Path=Reasons}"
+                          AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Description" Width="*" IsReadOnly="True"/>
+                    </DataGrid.Columns>
                 </DataGrid>
-                <DataGrid Grid.Row="2" Name="dgActors">
-
+                <Label Grid.Row="4">Actors</Label>
+                <DataGrid Grid.Row="5" Name="dgActors" ItemsSource="{Binding ElementName=self, Path=Actors}"
+                           AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Description" Width="*" IsReadOnly="True"/>
+                    </DataGrid.Columns>
                 </DataGrid>
-                <DataGrid Grid.Row="3" Name="dgMilestones">
-
+                <Label Grid.Row="6">Milestones</Label>
+                <DataGrid Grid.Row="7" Name="dgMilestones" ItemsSource="{Binding ElementName=self, Path=Milestones}"
+                           AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True"/>
+                    </DataGrid.Columns>
                 </DataGrid>
             </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="4*"/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="6*"/>
                 </Grid.RowDefinitions>
-                <DataGrid Grid.Row="0" Name="dgPSets">
-
+                <DockPanel>
+                    <DockPanel  DockPanel.Dock="Right">
+                        <Label>Include upper categories</Label>
+                        <CheckBox IsChecked="{Binding ElementName=self, Path=ContextSelector.IncludeUpperBreakdown}" VerticalAlignment="Center" 
+                                  Padding="0 0 5 0"/>
+                    </DockPanel>
+                    <Label Grid.Row="0">Requirement sets</Label>
+                </DockPanel>
+                <DataGrid Grid.Row="1" Name="dgPSets" ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
+                           AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True"/>
+                    </DataGrid.Columns>
                 </DataGrid>
-                <DataGrid Grid.Row="1" Name="dgProps">
-
+                <Label Grid.Row="2">Requirements</Label>
+                <DataGrid Grid.Row="3" Name="dgProps" ItemsSource="{Binding ElementName=dgPSets, Path=SelectedItem.Requirements}"
+                    AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding ValueType}" Header="Value Type" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Unit" IsReadOnly="True"/>
+                    </DataGrid.Columns>
                 </DataGrid>
             </Grid>
         </Grid>

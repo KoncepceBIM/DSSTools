@@ -47,13 +47,13 @@ namespace LOIN.Context
             set => Entity.Description = value;
         }
 
-        public bool Contains(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
+        public bool IsContextFor(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
 
-        public bool Remove(Requirements.RequirementsSet requirements)
+        public bool RemoveFromContext(Requirements.RequirementsSet requirements)
         {
             var lib = requirements.Entity;
             // it is there already
-            if (!Contains(requirements))
+            if (!IsContextFor(requirements))
                 return false;
 
             foreach (var rel in _relations)
@@ -63,10 +63,10 @@ namespace LOIN.Context
             return true;
         }
 
-        public bool Add(Requirements.RequirementsSet requirements)
+        public bool AddToContext(Requirements.RequirementsSet requirements)
         {
             // it is there already
-            if (Contains(requirements))
+            if (IsContextFor(requirements))
                 return false;
 
             var lib = requirements.Entity;

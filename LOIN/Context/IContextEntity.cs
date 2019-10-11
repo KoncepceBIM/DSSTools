@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LOIN.Context
+﻿namespace LOIN.Context
 {
     public interface IContextEntity
     {
-        bool Contains(Requirements.RequirementsSet requirements);
-        bool Remove(Requirements.RequirementsSet requirements);
-        bool Add(Requirements.RequirementsSet requirements);
+        bool IsContextFor(Requirements.RequirementsSet requirements);
+        bool RemoveFromContext(Requirements.RequirementsSet requirements);
+        bool AddToContext(Requirements.RequirementsSet requirements);
+
+        string Name { get; }
+        string Description { get; }
 
     }
 }

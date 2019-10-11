@@ -7,7 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ifc.ico" />
+    <None Remove="xml.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LOIN\LOIN.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="ifc.ico" />
+    <Resource Include="xml.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Images\ifc_16.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\ifc_32.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\ifc_64.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

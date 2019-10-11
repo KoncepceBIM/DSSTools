@@ -79,7 +79,7 @@ namespace LOIN
         /// <returns></returns>
         public IEnumerable<RequirementsSet> GetRequirements(params IContextEntity[] context)
         {
-            return Requirements.Where(r => context.All(c => c.Contains(r)));
+            return Requirements.Where(r => context.All(c => c.IsContextFor(r)));
         }
 
         /// <summary>
