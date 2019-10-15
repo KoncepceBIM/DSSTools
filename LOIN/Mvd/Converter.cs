@@ -383,31 +383,206 @@ namespace LOIN.Mvd
                 uuid = NewGuid(),
                 name = name,
                 Templates = new[] {
-                    new ConceptTemplate {
-                        uuid = objectsAndTypesUuid,
-                        name= "Property Sets and Classification References for Objects and Types",
-                        applicableSchema = schemas,
-                        applicableEntity = new[] { nameof(IfcObject) },
-                        Rules = new[] {
-                            new AttributeRule {
-                                AttributeName = nameof(IfcObject.IsDefinedBy),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{
-                                            EntityName = nameof(IfcRelDefinesByProperties),
-                                            AttributeRules = new EntityRuleAttributeRules{
-                                                AttributeRule = new []{
-                                                    new AttributeRule {
-                                                        AttributeName = nameof(IfcRelDefinesByProperties.RelatingPropertyDefinition),
-                                                        EntityRules = new AttributeRuleEntityRules{
-                                                            EntityRule = new []{
-                                                                new EntityRule {
-                                                                    EntityName = nameof(IfcPropertySet),
-                                                                    References = new EntityRuleReferences{
-                                                                        IdPrefix = "O_",
-                                                                        Template = new GenericReference{ @ref = psetsUuid}
-                                                                    }
-                                                                }
+                    InitObjectConceptTemplate(),
+                    InitClassificationReferenceConceptTemplate(),
+                    InitSimpleValueConceptTemplate(),
+                    InitPropertyConceptTemplate(),
+                    InitPSetConceptTemplate()
+                },
+                Views = new[] {
+                    _view = new ModelView{
+                        applicableSchema = IFC4,
+                        uuid = NewGuid(),
+                        name = name,
+                        code = code,
+                        Definitions = new []{
+                            new DefinitionsDefinition{
+                                Body = new DefinitionsDefinitionBody{ lang = _language, Value = definition}
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private ConceptTemplate InitPSetConceptTemplate()
+        {
+            return new ConceptTemplate
+            {
+                uuid = psetsUuid,
+                name = "Property Sets",
+                applicableSchema = schemas,
+                applicableEntity = new[] { nameof(IfcPropertySet) },
+                isPartial = true,
+                Rules = new[]{
+                    new AttributeRule {
+                        RuleID = "PsetName",
+                        AttributeName = nameof(IfcPropertySet.Name),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule { EntityName = nameof(IfcLabel)}
+                            }
+                        }
+                    },
+                    new AttributeRule{
+                        RuleID = "PsetDescription",
+                        AttributeName = nameof(IfcPropertySet.Description),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{ EntityName = nameof(IfcText)}
+                            }
+                        }
+                    },
+                    new AttributeRule{
+                        AttributeName = nameof(IfcPropertySet.HasProperties),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new[]{
+                                new EntityRule {
+                                    EntityName = nameof(IfcProperty),
+                                    References = new EntityRuleReferences{
+                                        Template = new GenericReference{ @ref = propertyUuid}
+                                    }
+                                },
+                                new EntityRule {
+                                    EntityName = nameof(IfcPropertySingleValue),
+                                    References = new EntityRuleReferences{
+                                        Template = new GenericReference{ @ref = singleValueUuid}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private ConceptTemplate InitPropertyConceptTemplate()
+        {
+            return new ConceptTemplate
+            {
+                uuid = propertyUuid,
+                name = "Property",
+                applicableSchema = schemas,
+                applicableEntity = new[] { nameof(IfcProperty) },
+                isPartial = true,
+                Rules = new[]{
+                    new AttributeRule{
+                        RuleID = "PName",
+                        AttributeName = nameof(IfcProperty.Name),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{ EntityName = nameof(IfcIdentifier)}
+                            }
+                        }
+                    },
+                    new AttributeRule{
+                        RuleID = "PDescription",
+                        AttributeName = nameof(IfcProperty.Description),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{ EntityName = nameof(IfcText)}
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private ConceptTemplate InitSimpleValueConceptTemplate()
+        {
+            return new ConceptTemplate
+            {
+                uuid = singleValueUuid,
+                name = "Single value",
+                applicableSchema = schemas,
+                applicableEntity = new[] { nameof(IfcPropertySingleValue) },
+                isPartial = true,
+                Rules = new[]{
+                    new AttributeRule{
+                        RuleID = "PSingleValue",
+                        AttributeName = nameof(IfcPropertySingleValue.NominalValue),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{ EntityName = nameof(IfcValue)}
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private ConceptTemplate InitClassificationReferenceConceptTemplate()
+        {
+            return new ConceptTemplate
+            {
+                uuid = classificationUuid,
+                name = "Classification reference",
+                applicableSchema = new[] { IFC4 },
+                applicableEntity = new[] { nameof(IfcRelAssociatesClassification) },
+                isPartial = true,
+                Rules = new[]{
+                    new AttributeRule{
+                        AttributeName = nameof(IfcRelAssociatesClassification.RelatingClassification),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{
+                                    EntityName = nameof(IfcClassificationReference),
+                                    AttributeRules = new EntityRuleAttributeRules{
+                                        AttributeRule = new []{
+                                            new AttributeRule{
+                                                RuleID = "CRefName",
+                                                AttributeName = nameof(IfcClassificationReference.Name),
+                                                EntityRules = new AttributeRuleEntityRules{
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcLabel)}
+                                                    }
+                                                }
+                                            },
+                                            new AttributeRule{
+                                                RuleID = "CRefId",
+                                                AttributeName = nameof(IfcClassificationReference.Identification),
+                                                EntityRules = new AttributeRuleEntityRules{
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcIdentifier)}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private ConceptTemplate InitObjectConceptTemplate()
+        {
+            return new ConceptTemplate
+            {
+                uuid = objectsAndTypesUuid,
+                name = "Property Sets and Classification References for Objects and Types",
+                applicableSchema = schemas,
+                applicableEntity = new[] { nameof(IfcObject) },
+                Rules = new[] {
+                    new AttributeRule {
+                        AttributeName = nameof(IfcObject.IsDefinedBy),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{
+                                    EntityName = nameof(IfcRelDefinesByProperties),
+                                    AttributeRules = new EntityRuleAttributeRules{
+                                        AttributeRule = new []{
+                                            new AttributeRule {
+                                                AttributeName = nameof(IfcRelDefinesByProperties.RelatingPropertyDefinition),
+                                                EntityRules = new AttributeRuleEntityRules{
+                                                    EntityRule = new []{
+                                                        new EntityRule {
+                                                            EntityName = nameof(IfcPropertySet),
+                                                            References = new EntityRuleReferences{
+                                                                IdPrefix = "O_",
+                                                                Template = new GenericReference{ @ref = psetsUuid}
                                                             }
                                                         }
                                                     }
@@ -416,48 +591,48 @@ namespace LOIN.Mvd
                                         }
                                     }
                                 }
-                            },
-                            new AttributeRule {
-                                AttributeName = nameof(IfcObject.IsTypedBy),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule {
-                                            EntityName = nameof(IfcRelDefinesByType),
-                                            AttributeRules = new EntityRuleAttributeRules{
-                                                AttributeRule = new []{
-                                                    new AttributeRule{
-                                                        AttributeName = nameof(IfcRelDefinesByType.RelatingType),
-                                                        EntityRules = new AttributeRuleEntityRules {
-                                                            EntityRule = new []{
-                                                                new EntityRule{
-                                                                    EntityName = nameof(IfcTypeObject),
-                                                                    AttributeRules = new EntityRuleAttributeRules {
-                                                                        AttributeRule = new []{
-                                                                            new AttributeRule {
-                                                                                AttributeName = nameof(IfcTypeObject.HasPropertySets),
-                                                                                EntityRules = new AttributeRuleEntityRules{
-                                                                                    EntityRule = new []{
-                                                                                        new EntityRule{
-                                                                                            EntityName = nameof(IfcPropertySet),
-                                                                                            References = new EntityRuleReferences {
-                                                                                                IdPrefix = "T_",
-                                                                                                Template = new GenericReference{ @ref = psetsUuid}
-                                                                                            }
-                                                                                        }
+                            }
+                        }
+                    },
+                    new AttributeRule {
+                        AttributeName = nameof(IfcObject.IsTypedBy),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule {
+                                    EntityName = nameof(IfcRelDefinesByType),
+                                    AttributeRules = new EntityRuleAttributeRules{
+                                        AttributeRule = new []{
+                                            new AttributeRule{
+                                                AttributeName = nameof(IfcRelDefinesByType.RelatingType),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule{
+                                                            EntityName = nameof(IfcTypeObject),
+                                                            AttributeRules = new EntityRuleAttributeRules {
+                                                                AttributeRule = new []{
+                                                                    new AttributeRule {
+                                                                        AttributeName = nameof(IfcTypeObject.HasPropertySets),
+                                                                        EntityRules = new AttributeRuleEntityRules{
+                                                                            EntityRule = new []{
+                                                                                new EntityRule{
+                                                                                    EntityName = nameof(IfcPropertySet),
+                                                                                    References = new EntityRuleReferences {
+                                                                                        IdPrefix = "T_",
+                                                                                        Template = new GenericReference{ @ref = psetsUuid}
                                                                                     }
                                                                                 }
-                                                                            },
-                                                                            new AttributeRule {
-                                                                                AttributeName = nameof(IfcTypeObject.HasAssociations),
-                                                                                EntityRules = new AttributeRuleEntityRules {
-                                                                                    EntityRule = new []{
-                                                                                        new EntityRule{
-                                                                                            EntityName = nameof(IfcRelAssociatesClassification),
-                                                                                            References = new EntityRuleReferences {
-                                                                                                IdPrefix = "T_",
-                                                                                                Template = new GenericReference { @ref = classificationUuid }
-                                                                                            }
-                                                                                        }
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    new AttributeRule {
+                                                                        AttributeName = nameof(IfcTypeObject.HasAssociations),
+                                                                        EntityRules = new AttributeRuleEntityRules {
+                                                                            EntityRule = new []{
+                                                                                new EntityRule{
+                                                                                    EntityName = nameof(IfcRelAssociatesClassification),
+                                                                                    References = new EntityRuleReferences {
+                                                                                        IdPrefix = "T_",
+                                                                                        Template = new GenericReference { @ref = classificationUuid }
                                                                                     }
                                                                                 }
                                                                             }
@@ -472,165 +647,20 @@ namespace LOIN.Mvd
                                         }
                                     }
                                 }
-                            },
-                            new AttributeRule {
-                                AttributeName = nameof(IfcObject.HasAssociations),
-                                EntityRules = new AttributeRuleEntityRules {
-                                    EntityRule = new []{
-                                        new EntityRule{
-                                            EntityName = nameof(IfcRelAssociatesClassification),
-                                            References = new EntityRuleReferences {
-                                                IdPrefix = "O_",
-                                                Template = new GenericReference { @ref = classificationUuid }
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         }
                     },
-                    new ConceptTemplate {
-                        uuid = classificationUuid,
-                        name = "Classification reference",
-                        applicableSchema = new []{ IFC4 },
-                        applicableEntity = new []{ nameof(IfcRelAssociatesClassification) },
-                        isPartial = true,
-                        Rules = new []{
-                            new AttributeRule{
-                                AttributeName = nameof(IfcRelAssociatesClassification.RelatingClassification),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{
-                                            EntityName = nameof(IfcClassificationReference),
-                                            AttributeRules = new EntityRuleAttributeRules{
-                                                AttributeRule = new []{
-                                                    new AttributeRule{
-                                                        RuleID = "CRefName",
-                                                        AttributeName = nameof(IfcClassificationReference.Name),
-                                                        EntityRules = new AttributeRuleEntityRules{
-                                                            EntityRule = new []{
-                                                                new EntityRule { EntityName = nameof(IfcLabel)}
-                                                            }
-                                                        }
-                                                    },
-                                                    new AttributeRule{
-                                                        RuleID = "CRefId",
-                                                        AttributeName = nameof(IfcClassificationReference.Identification),
-                                                        EntityRules = new AttributeRuleEntityRules{
-                                                            EntityRule = new []{
-                                                                new EntityRule { EntityName = nameof(IfcIdentifier)}
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                    new AttributeRule {
+                        AttributeName = nameof(IfcObject.HasAssociations),
+                        EntityRules = new AttributeRuleEntityRules {
+                            EntityRule = new []{
+                                new EntityRule{
+                                    EntityName = nameof(IfcRelAssociatesClassification),
+                                    References = new EntityRuleReferences {
+                                        IdPrefix = "O_",
+                                        Template = new GenericReference { @ref = classificationUuid }
                                     }
                                 }
-                            }
-                        }
-                    },
-                    new ConceptTemplate {
-                        uuid = singleValueUuid,
-                        name = "Single value",
-                        applicableSchema = schemas,
-                        applicableEntity = new []{ nameof(IfcPropertySingleValue) },
-                        isPartial = true,
-                        Rules = new []{
-                            new AttributeRule{
-                                RuleID = "PSingleValue",
-                                AttributeName = nameof(IfcPropertySingleValue.NominalValue),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{ EntityName = nameof(IfcValue)}
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new ConceptTemplate {
-                        uuid = propertyUuid,
-                        name = "Property",
-                        applicableSchema = schemas,
-                        applicableEntity = new []{ nameof(IfcProperty) },
-                        isPartial = true,
-                        Rules = new []{
-                            new AttributeRule{
-                                RuleID = "PName",
-                                AttributeName = nameof(IfcProperty.Name),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{ EntityName = nameof(IfcIdentifier)}
-                                    }
-                                }
-                            },
-                            new AttributeRule{
-                                RuleID = "PDescription",
-                                AttributeName = nameof(IfcProperty.Description),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{ EntityName = nameof(IfcText)}
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new ConceptTemplate{
-                        uuid = psetsUuid,
-                        name = "Property Sets",
-                        applicableSchema = schemas,
-                        applicableEntity = new []{nameof(IfcPropertySet) },
-                        isPartial = true,
-                        Rules = new []{
-                            new AttributeRule {
-                                RuleID = "PsetName",
-                                AttributeName = nameof(IfcPropertySet.Name),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule { EntityName = nameof(IfcLabel)}
-                                    }
-                                }
-                            },
-                            new AttributeRule{
-                                RuleID = "PsetDescription",
-                                AttributeName = nameof(IfcPropertySet.Description),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{ EntityName = nameof(IfcText)}
-                                    }
-                                }
-                            },
-                            new AttributeRule{
-                                AttributeName = nameof(IfcPropertySet.HasProperties),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new[]{
-                                        new EntityRule {
-                                            EntityName = nameof(IfcProperty),
-                                            References = new EntityRuleReferences{
-                                                Template = new GenericReference{ @ref = propertyUuid}
-                                            }
-                                        },
-                                        new EntityRule {
-                                            EntityName = nameof(IfcPropertySingleValue),
-                                            References = new EntityRuleReferences{
-                                                Template = new GenericReference{ @ref = singleValueUuid}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                Views = new[] {
-                    _view = new ModelView{
-                        applicableSchema = IFC4,
-                        uuid = NewGuid(),
-                        name = name,
-                        code = code,
-                        Definitions = new []{
-                            new DefinitionsDefinition{
-                                Body = new DefinitionsDefinitionBody{ lang = _language, Value = definition}
                             }
                         }
                     }
