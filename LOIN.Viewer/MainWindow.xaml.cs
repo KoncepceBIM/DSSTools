@@ -147,6 +147,7 @@ namespace LOIN.Viewer
                 Filter = "MVD XML|*.mvdXML",
                 AddExtension = true,
                 FilterIndex = 0,
+                FileName = App.Settings.LastMVD,
                 Title = "Create MVD XML..."
             };
             if (dlg.ShowDialog() != true)
@@ -154,6 +155,7 @@ namespace LOIN.Viewer
 
 
             var path = dlg.FileName;
+            App.Settings.LastMVD = path;
             if (string.IsNullOrWhiteSpace(path))
                 return;
 
@@ -171,12 +173,14 @@ namespace LOIN.Viewer
                 Multiselect = false,
                 Filter = "IFC File|*.ifc|IFC XML File|*.ifcxml",
                 FilterIndex = 0,
-                Title = "Select LOIN IFC File"
+                Title = "Select LOIN IFC File",
+                FileName = App.Settings.LastIFC
             };
             if (dlg.ShowDialog() != true)
                 return;
 
             var path = dlg.FileName;
+            App.Settings.LastIFC = path;
             OpenFile(path);
         }
 
