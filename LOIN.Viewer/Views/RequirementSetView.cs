@@ -36,10 +36,11 @@ namespace LOIN.Viewer.Views
             }
         }
 
-        public string Name => psetTemplate.Name;
-        public string Description => psetTemplate.Description;
+        public string Name => PsetTemplate.Name;
+        public string Description => PsetTemplate.Description;
 
         public List<RequirementView> Requirements { get; }
-        
+
+        public IfcPropertySetTemplate PsetTemplate => psetTemplate;
     }
 }

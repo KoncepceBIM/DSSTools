@@ -1,7 +1,9 @@
-﻿using LOIN.Viewer.Views;
+﻿using LOIN.Context;
+using LOIN.Viewer.Views;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +16,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
+using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Viewer
 {
@@ -22,6 +26,8 @@ namespace LOIN.Viewer
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Model _model;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -92,6 +98,71 @@ namespace LOIN.Viewer
 
 
 
+        private void SelectionToMVD_Click(object sender, RoutedEventArgs e)
+        {
+            var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakedownItem>());
+            var milestones = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Milestone>());
+            var reasons = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Reason>());
+            var actors = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Actor>());
+
+            var psets = ContextSelector.Requirements.Where(r => r.IsSelected).Select(r => r.PsetTemplate);
+            if (!psets.Any())
+                psets = ContextSelector.Requirements.Select(r => r.PsetTemplate);
+
+            var requirements = new HashSet<IfcPropertySetTemplate>(psets);
+
+            // filtered export
+            ExportToMVD(c => {
+                if (breakedown.Count > 0 && c is BreakedownItem i)
+                    return breakedown.Contains(c);
+                if (milestones.Count > 0 && c is Milestone m)
+                    return milestones.Contains(m);
+                if (reasons.Count > 0 && c is Reason r)
+                    return reasons.Contains(r);
+                if (actors.Count > 0 && c is Actor a)
+                    return actors.Contains(a);
+                return true;
+
+            }, p => requirements.Contains(p));
+        }
+
+        private void ExportToMVD_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToMVD();
+        }
+
+        private void ExportToMVD(Func<IContextEntity, bool> contextFilter = null,
+            Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
+        {
+            if (_model == null)
+            {
+                MessageBox.Show(this, "No model opened", "No model", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var mvd = _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", contextFilter, requirementsFilter);
+
+            var dlg = new SaveFileDialog
+            {
+                Filter = "MVD XML|*.mvdXML",
+                AddExtension = true,
+                FilterIndex = 0,
+                Title = "Create MVD XML..."
+            };
+            if (dlg.ShowDialog() != true)
+                return;
+
+
+            var path = dlg.FileName;
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            using var stream = File.Create(path);
+            var w = XmlWriter.Create(stream, new XmlWriterSettings { Indent = true, IndentChars = "  " });
+            mvd.Serialize(w);
+            stream.Close();
+        }
+
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new OpenFileDialog { 
@@ -120,23 +191,23 @@ namespace LOIN.Viewer
 
         private void OpenFile(string path)
         {
-            var model = LOIN.Model.Open(path);
+            _model = LOIN.Model.Open(path);
 
-            ContextSelector = new ContextSelector(model);
+            ContextSelector = new ContextSelector(_model);
 
-            if (!model.Requirements.Any())
+            if (!_model.Requirements.Any())
                 MessageBox.Show(this, "This file doesn't contain any requirements.", "Not a LOIN", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-            DataContext = model;
+            DataContext = _model;
 
             // breakedown structure
-            BreakedownItems = model.BreakdownStructure.Where(bs => bs.Parent == null)
+            BreakedownItems = _model.BreakdownStructure.Where(bs => bs.Parent == null)
                 .Select(i => new BreakedownItemView(i, ContextSelector))
                 .ToList();
 
-            Actors = model.Actors.Select(a => new ActorView(a, ContextSelector)).ToList();
-            Milestones = model.Milestones.Select(a => new MilestoneView(a, ContextSelector)).ToList();
-            Reasons = model.Reasons.Select(a => new ReasonView(a, ContextSelector)).ToList();
+            Actors = _model.Actors.Select(a => new ActorView(a, ContextSelector)).ToList();
+            Milestones = _model.Milestones.Select(a => new MilestoneView(a, ContextSelector)).ToList();
+            Reasons = _model.Reasons.Select(a => new ReasonView(a, ContextSelector)).ToList();
 
         }
     }

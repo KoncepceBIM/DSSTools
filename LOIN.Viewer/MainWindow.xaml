@@ -19,7 +19,12 @@
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Create MVD XML">
+                <MenuItem Header="_Export to MVD XML" Click="ExportToMVD_Click">
+                    <MenuItem.Icon>
+                        <Image Source="xml.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Selection to MVD XML" Click="SelectionToMVD_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
