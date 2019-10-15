@@ -30,9 +30,17 @@ namespace LOIN.Mvd
         private const string IFC4 = "IFC4";
         private static readonly string[] schemas = new[] { IFC4 };
 
-        public Converter(string primaryLanguage)
+        public Func<IfcPropertySetTemplate, bool> RequirementsFilter { get; set; }
+
+        public Func<IContextEntity, bool> ContextFilter { get; set; }
+
+        public Converter(string primaryLanguage, 
+            Func<IContextEntity, bool> contextFilter = null, 
+            Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
         {
             _language = primaryLanguage;
+            ContextFilter = contextFilter ?? ((IContextEntity a) => true);
+            RequirementsFilter = requirementsFilter ?? ((IfcPropertySetTemplate t) => true);
         }
 
         public mvdXML Convert(Model model, string name, string definition, string code)
@@ -41,7 +49,7 @@ namespace LOIN.Mvd
             _requirementsCache = new Dictionary<string, ModelViewExchangeRequirement>();
 
             // iterate over the model to convert all requirements
-            foreach (var item in model.BreakdownStructure)
+            foreach (var item in model.BreakdownStructure.Where<BreakedownItem>(ContextFilter))
             {
                 var applicability = CreateApplicabilityRules(item);
                 var requirements = CreateConcepts(model, item).ToList();
@@ -63,7 +71,7 @@ namespace LOIN.Mvd
                 var requirements = GetOrCreateRequirements(requirementSet);
 
                 // create rules
-                var rules = CreateValidationRules(requirementSet.Requirements);
+                var rules = CreateValidationRules(requirementSet.Requirements.Where(RequirementsFilter));
                 if (rules == null)
                     continue;
 
@@ -76,13 +84,13 @@ namespace LOIN.Mvd
 
         private IEnumerable<ModelViewExchangeRequirement> GetOrCreateRequirements(RequirementsSet set)
         {
-            var actors = set.Actors.Select(a => a.Name ?? "").ToList();
+            var actors = set.Actors.Where(ContextFilter).Select(a => a.Name ?? "").ToList();
             if (!actors.Any()) actors.Add("N/A");
 
-            var milestones = set.Milestones.Select(a => a.Name ?? "").ToList();
+            var milestones = set.Milestones.Where(ContextFilter).Select(a => a.Name ?? "").ToList();
             if (!milestones.Any()) milestones.Add("N/A");
 
-            var reasons = set.Reasons.Select(a => a.Name ?? "").ToList();
+            var reasons = set.Reasons.Where(ContextFilter).Select(a => a.Name ?? "").ToList();
             if (!reasons.Any()) reasons.Add("N/A");
 
             foreach (var actor in actors)
@@ -177,6 +185,7 @@ namespace LOIN.Mvd
         /// </summary>
         public IEnumerable<ConceptRoot> ConceptRoots =>
             _view.Roots ?? Enumerable.Empty<ConceptRoot>();
+
 
         /// <summary>
         /// Adds a concept root
