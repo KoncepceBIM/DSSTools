@@ -22,6 +22,7 @@ namespace LOIN.Mvd
         private static readonly string objectsAndTypesUuid = NewGuid();
         private static readonly string psetsUuid = NewGuid();
         private static readonly string singleValueUuid = NewGuid();
+        private static readonly string propertyUuid = NewGuid();
         private static readonly string classificationUuid = NewGuid();
 
         private const string IFC4 = "IFC4";
@@ -537,8 +538,26 @@ namespace LOIN.Mvd
                         isPartial = true,
                         Rules = new []{
                             new AttributeRule{
+                                RuleID = "PSingleValue",
+                                AttributeName = nameof(IfcPropertySingleValue.NominalValue),
+                                EntityRules = new AttributeRuleEntityRules{
+                                    EntityRule = new []{
+                                        new EntityRule{ EntityName = nameof(IfcValue)}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new ConceptTemplate {
+                        uuid = propertyUuid,
+                        name = "Property",
+                        applicableSchema = schemas,
+                        applicableEntity = new []{ nameof(IfcProperty) },
+                        isPartial = true,
+                        Rules = new []{
+                            new AttributeRule{
                                 RuleID = "PName",
-                                AttributeName = nameof(IfcPropertySingleValue.Name),
+                                AttributeName = nameof(IfcProperty.Name),
                                 EntityRules = new AttributeRuleEntityRules{
                                     EntityRule = new []{
                                         new EntityRule{ EntityName = nameof(IfcIdentifier)}
@@ -547,22 +566,13 @@ namespace LOIN.Mvd
                             },
                             new AttributeRule{
                                 RuleID = "PDescription",
-                                AttributeName = nameof(IfcPropertySingleValue.Description),
+                                AttributeName = nameof(IfcProperty.Description),
                                 EntityRules = new AttributeRuleEntityRules{
                                     EntityRule = new []{
                                         new EntityRule{ EntityName = nameof(IfcText)}
                                     }
                                 }
-                            },
-                            new AttributeRule{
-                                RuleID = "PSingleValue",
-                                AttributeName = nameof(IfcPropertySingleValue.NominalValue),
-                                EntityRules = new AttributeRuleEntityRules{
-                                    EntityRule = new []{
-                                        new EntityRule{ EntityName = nameof(IfcValue)}
-                                    }
-                                }
-                            },
+                            }
                         }
                     },
                     new ConceptTemplate{
@@ -594,6 +604,12 @@ namespace LOIN.Mvd
                                 AttributeName = nameof(IfcPropertySet.HasProperties),
                                 EntityRules = new AttributeRuleEntityRules{
                                     EntityRule = new[]{
+                                        new EntityRule {
+                                            EntityName = nameof(IfcProperty),
+                                            References = new EntityRuleReferences{
+                                                Template = new GenericReference{ @ref = propertyUuid}
+                                            }
+                                        },
                                         new EntityRule {
                                             EntityName = nameof(IfcPropertySingleValue),
                                             References = new EntityRuleReferences{
