@@ -3,6 +3,7 @@ using LOIN.Requirements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xbim.Ifc4.ActorResource;
 using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Kernel;
 using Xbim.Ifc4.MeasureResource;
@@ -22,6 +23,7 @@ namespace LOIN.Mvd
         private static readonly string objectsAndTypesUuid = NewGuid();
         private static readonly string psetsUuid = NewGuid();
         private static readonly string singleValueUuid = NewGuid();
+        private static readonly string referenceValueUuid = NewGuid();
         private static readonly string propertyUuid = NewGuid();
         private static readonly string classificationUuid = NewGuid();
 
@@ -314,6 +316,314 @@ namespace LOIN.Mvd
         }
 
         /// <summary>
+        /// Rule for property reference value with document. Searches for the property in any property set.
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <param name="classification">Name of the document</param>
+        /// <returns>Template rule</returns>
+        public TemplateRules CreatePropertyDocumentReferenceRule(string propertyName, string documentName)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new object[]{
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PName[Value]='{propertyName}' AND O_PRefDocName[Value]={documentName}"
+                    },
+                    new TemplateRules {
+                        @operator = TemplateRulesOperator.and,
+                        Items = new object[]{
+                            new TemplateRulesTemplateRule{
+                                Parameters = $"T_PName[Value]='{propertyName}' AND T_PRefDocName[Value]={documentName}"
+                            },
+                            new TemplateRules{
+                                @operator = TemplateRulesOperator.not,
+                                Items = new []{
+                                    new TemplateRulesTemplateRule{
+                                        Parameters = $"O_PName[Value]='{propertyName}'"
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            };
+        }
+
+        /// <summary>
+        /// Rule for property reference value with document.
+        /// </summary>
+        /// <param name="propertySetName">Property set name</param>
+        /// <param name="propertyName">Property name</param>
+        /// <param name="documentName">Required document name</param>
+        /// <returns></returns>
+        public TemplateRules CreatePropertyDocumentReferenceRule(string propertySetName, string propertyName, string documentName)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new object[]{
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PsetName[Value]='{propertySetName}' AND O_PName[Value]='{propertyName}' AND O_PRefDocName[Value]={documentName}"
+                    },
+                    new TemplateRules {
+                        @operator = TemplateRulesOperator.and,
+                        Items = new object[]{
+                            new TemplateRulesTemplateRule{
+                                Parameters = $"T_PsetName[Value]='{propertySetName}' AND T_PName[Value]='{propertyName}' AND T_PRefDocName[Value]={documentName}"
+                            },
+                            new TemplateRules{
+                                @operator = TemplateRulesOperator.not,
+                                Items = new []{
+                                    new TemplateRulesTemplateRule{
+                                        Parameters = $"O_PsetName[Value]='{propertySetName}' AND O_PName[Value]='{propertyName}'"
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            };
+        }
+
+        /// <summary>
+        /// Creates property reference document existance rule
+        /// </summary>
+        /// <param name="pSetName">Property set name</param>
+        /// <param name="pName">Property name</param>
+        /// <returns></returns>
+        public TemplateRules CreatePropertyDocumentExistanceRule(string pSetName, string pName)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new[]{
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PsetName[Value]='{pSetName}' AND O_PName[Value]='{pName}' AND O_PRefDocName[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"T_PsetName[Value]='{pSetName}' AND T_PName[Value]='{pName}' AND T_PRefDocName[Exists]=TRUE"
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Creates property reference document existance rule. Search accross all property sets
+        /// </summary>
+        /// <param name="pName">Property name</param>
+        /// <returns></returns>
+        public TemplateRules CreatePropertyDocumentExistanceRule(string pName)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new[]{
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PName[Value]='{pName}' AND O_PRefDocName[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"T_PName[Value]='{pName}' AND T_PRefDocName[Exists]=TRUE"
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Rule for property reference value with classification. Searches for the property in any property set.
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <param name="classification">Name of the classification or identification</param>
+        /// <returns>Template rule</returns>
+        public TemplateRules CreatePropertyClassificationReferenceRule(string propertyName, string classification)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new[] {
+                    new TemplateRules
+                    {
+                        @operator = TemplateRulesOperator.or,
+                        Items = new object[]{
+                            new TemplateRulesTemplateRule {
+                                Parameters = $"O_PName[Value]='{propertyName}' AND O_PRefClassificationName[Value]={classification}"
+                            },
+                            new TemplateRules {
+                                @operator = TemplateRulesOperator.and,
+                                Items = new object[]{
+                                    new TemplateRulesTemplateRule{
+                                        Parameters = $"T_PName[Value]='{propertyName}' AND T_PRefClassificationName[Value]={classification}"
+                                    },
+                                    new TemplateRules{
+                                        @operator = TemplateRulesOperator.not,
+                                        Items = new []{
+                                            new TemplateRulesTemplateRule{
+                                                Parameters = $"O_PName[Value]='{propertyName}'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    },
+                    new TemplateRules
+                    {
+                        @operator = TemplateRulesOperator.or,
+                        Items = new object[]{
+                            new TemplateRulesTemplateRule {
+                                Parameters = $"O_PName[Value]='{propertyName}' AND O_PRefClassificationIdentifier[Value]={classification}"
+                            },
+                            new TemplateRules {
+                                @operator = TemplateRulesOperator.and,
+                                Items = new object[]{
+                                    new TemplateRulesTemplateRule{
+                                        Parameters = $"T_PName[Value]='{propertyName}' AND T_PRefClassificationIdentifier[Value]={classification}"
+                                    },
+                                    new TemplateRules{
+                                        @operator = TemplateRulesOperator.not,
+                                        Items = new []{
+                                            new TemplateRulesTemplateRule{
+                                                Parameters = $"O_PName[Value]='{propertyName}'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Rule for property reference value with classification.
+        /// </summary>
+        /// <param name="propertySetName">Property set name</param>
+        /// <param name="propertyName">Property name</param>
+        /// <param name="classification">Required classification name or identifier</param>
+        /// <returns></returns>
+        public TemplateRules CreatePropertyClassificationReferenceRule(string propertySetName, string propertyName, string classification)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new[] {
+                    new TemplateRules
+                    {
+                        @operator = TemplateRulesOperator.or,
+                        Items = new object[]{
+                            new TemplateRulesTemplateRule {
+                                Parameters = $"O_PsetName[Value]='{propertySetName}' AND O_PName[Value]='{propertyName}' AND O_PRefClassificationName[Value]={classification}"
+                            },
+                            new TemplateRules {
+                                @operator = TemplateRulesOperator.and,
+                                Items = new object[]{
+                                    new TemplateRulesTemplateRule{
+                                        Parameters = $"T_PsetName[Value]='{propertySetName}' AND T_PName[Value]='{propertyName}' AND T_PRefClassificationName[Value]={classification}"
+                                    },
+                                    new TemplateRules{
+                                        @operator = TemplateRulesOperator.not,
+                                        Items = new []{
+                                            new TemplateRulesTemplateRule{
+                                                Parameters = $"O_PsetName[Value]='{propertySetName}' AND O_PName[Value]='{propertyName}'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    },
+                    new TemplateRules
+                    {
+                        @operator = TemplateRulesOperator.or,
+                        Items = new object[]{
+                            new TemplateRulesTemplateRule {
+                                Parameters = $"O_PsetName[Value]='{propertySetName}' AND O_PName[Value]='{propertyName}' AND O_PRefClassificationIdentifier[Value]={classification}"
+                            },
+                            new TemplateRules {
+                                @operator = TemplateRulesOperator.and,
+                                Items = new object[]{
+                                    new TemplateRulesTemplateRule{
+                                        Parameters = $"T_PsetName[Value]='{propertySetName}' AND T_PName[Value]='{propertyName}' AND T_PRefClassificationIdentifier[Value]={classification}"
+                                    },
+                                    new TemplateRules{
+                                        @operator = TemplateRulesOperator.not,
+                                        Items = new []{
+                                            new TemplateRulesTemplateRule{
+                                                Parameters = $"O_PsetName[Value]='{propertySetName}' AND O_PName[Value]='{propertyName}'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Creates property classification existance rule
+        /// </summary>
+        /// <param name="pSetName">Property set name</param>
+        /// <param name="pName">Property name</param>
+        /// <returns></returns>
+        public TemplateRules CreatePropertyClassificationExistanceRule(string pSetName, string pName)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new[]{
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PsetName[Value]='{pSetName}' AND O_PName[Value]='{pName}' AND O_PRefClassificationIdentifier[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"T_PsetName[Value]='{pSetName}' AND T_PName[Value]='{pName}' AND T_PRefClassificationIdentifier[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PsetName[Value]='{pSetName}' AND O_PName[Value]='{pName}' AND O_PRefClassificationName[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"T_PsetName[Value]='{pSetName}' AND T_PName[Value]='{pName}' AND T_PRefClassificationName[Exists]=TRUE"
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Creates property reference classification existance rule. Search accross all property sets
+        /// </summary>
+        /// <param name="pName">Property name</param>
+        /// <returns></returns>
+        public TemplateRules CreatePropertyClassificationExistanceRule(string pName)
+        {
+            return new TemplateRules
+            {
+                @operator = TemplateRulesOperator.or,
+                Items = new[]{
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PName[Value]='{pName}' AND O_PRefClassificationIdentifier[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"T_PName[Value]='{pName}' AND T_PRefClassificationIdentifier[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"O_PName[Value]='{pName}' AND O_PRefClassificationName[Exists]=TRUE"
+                    },
+                    new TemplateRulesTemplateRule {
+                        Parameters = $"T_PName[Value]='{pName}' AND T_PRefClassificationName[Exists]=TRUE"
+                    }
+                }
+            };
+        }
+
+        /// <summary>
         /// Creates property existance rule
         /// </summary>
         /// <param name="pSetName"></param>
@@ -386,6 +696,7 @@ namespace LOIN.Mvd
                     InitObjectConceptTemplate(),
                     InitClassificationReferenceConceptTemplate(),
                     InitSimpleValueConceptTemplate(),
+                    InitReferenceValueConceptTemplate(),
                     InitPropertyConceptTemplate(),
                     InitPSetConceptTemplate()
                 },
@@ -448,6 +759,12 @@ namespace LOIN.Mvd
                                     References = new EntityRuleReferences{
                                         Template = new GenericReference{ @ref = singleValueUuid}
                                     }
+                                },
+                                new EntityRule {
+                                    EntityName = nameof(IfcPropertyReferenceValue),
+                                    References = new EntityRuleReferences{
+                                        Template = new GenericReference{ @ref = referenceValueUuid}
+                                    }
                                 }
                             }
                         }
@@ -504,6 +821,120 @@ namespace LOIN.Mvd
                         EntityRules = new AttributeRuleEntityRules{
                             EntityRule = new []{
                                 new EntityRule{ EntityName = nameof(IfcValue)}
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private ConceptTemplate InitReferenceValueConceptTemplate()
+        {
+            return new ConceptTemplate
+            {
+                uuid = referenceValueUuid,
+                name = "Reference value",
+                applicableSchema = schemas,
+                applicableEntity = new[] { nameof(IfcPropertyReferenceValue) },
+                isPartial = true,
+                Rules = new[]{
+                    new AttributeRule{
+                        AttributeName = nameof(IfcPropertyReferenceValue.PropertyReference),
+                        EntityRules = new AttributeRuleEntityRules{
+                            EntityRule = new []{
+                                new EntityRule{ 
+                                    EntityName = nameof(IfcDocumentReference),
+                                    AttributeRules = new EntityRuleAttributeRules {
+                                        AttributeRule = new [] {
+                                            new AttributeRule { 
+                                                RuleID = "PRefDocName",
+                                                AttributeName = nameof(IfcDocumentReference.Name),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{ 
+                                                        new EntityRule { EntityName = nameof(IfcLabel) }
+                                                    }
+                                                }
+                                            },
+                                            new AttributeRule {
+                                                RuleID = "PRefDocDescription",
+                                                AttributeName = nameof(IfcDocumentReference.Description),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcText) }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                new EntityRule{
+                                    EntityName = nameof(IfcClassificationReference),
+                                    AttributeRules = new EntityRuleAttributeRules {
+                                        AttributeRule = new [] {
+                                            new AttributeRule {
+                                                RuleID = "PRefClassificationName",
+                                                AttributeName = nameof(IfcClassificationReference.Name),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcLabel) }
+                                                    }
+                                                }
+                                            },
+                                            new AttributeRule {
+                                                RuleID = "PRefClassificationDescription",
+                                                AttributeName = nameof(IfcClassificationReference.Description),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcText) }
+                                                    }
+                                                }
+                                            },
+                                            new AttributeRule {
+                                                RuleID = "PRefClassificationIdentifier",
+                                                AttributeName = nameof(IfcClassificationReference.Identification),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcIdentifier) }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                new EntityRule{
+                                    EntityName = nameof(IfcOrganization),
+                                    AttributeRules = new EntityRuleAttributeRules {
+                                        AttributeRule = new [] {
+                                            new AttributeRule {
+                                                RuleID = "PRefOrgName",
+                                                AttributeName = nameof(IfcOrganization.Name),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcLabel) }
+                                                    }
+                                                }
+                                            },
+                                            new AttributeRule {
+                                                RuleID = "PRefOrgDescription",
+                                                AttributeName = nameof(IfcOrganization.Description),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcText) }
+                                                    }
+                                                }
+                                            },
+                                            new AttributeRule {
+                                                RuleID = "PRefOrgIdentification",
+                                                AttributeName = nameof(IfcOrganization.Identification),
+                                                EntityRules = new AttributeRuleEntityRules {
+                                                    EntityRule = new []{
+                                                        new EntityRule { EntityName = nameof(IfcIdentifier) }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
