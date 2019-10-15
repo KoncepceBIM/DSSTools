@@ -123,11 +123,16 @@ namespace LOIN.Mvd
             var classificationName = CreateClassificationRule(item.Name);
             var classificationCodeProperty = CreatePropertyValueRule("Classification", item.Code);
             var classificationNameProperty = CreatePropertyValueRule("Classification", item.Name);
+            var classificationCodePropertyRef = CreatePropertyClassificationReferenceRule("Classification", item.Code);
+            var classificationNamePropertyRef = CreatePropertyClassificationReferenceRule("Classification", item.Name);
             return CreateLogicalRule(TemplateRulesOperator.or,
                 classificationCode,
                 classificationName,
                 classificationCodeProperty,
-                classificationNameProperty);
+                classificationNameProperty,
+                classificationCodePropertyRef,
+                classificationNamePropertyRef
+                );
         }
 
         /// <summary>
