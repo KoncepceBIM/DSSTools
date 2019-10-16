@@ -1,4 +1,10 @@
 # DSS Tools
+Build status: [![Build Status](https://dev.azure.com/KoncepceBIM/DSSTools/_apis/build/status/KoncepceBIM.DSSTools?branchName=master)](https://dev.azure.com/KoncepceBIM/DSSTools/_build/latest?definitionId=1&branchName=master)
+
+Library available as a NuGet package
+```ps
+Install-Package LOIN -Version 1.0.102
+```
 
 One possible way to browse requirements in their context
 
