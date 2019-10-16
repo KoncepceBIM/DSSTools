@@ -1,0 +1,124 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    - README.md
+    - CHANGELOG.md
+    - CONTRIBUTING.md
+
+pool:
+  name: Default
+  demands:
+  - msbuild
+  - visualstudio
+
+variables:
+  buildConfiguration: 'Release'
+  major: 1
+  minor: 0
+  # creates a counter called versioncounter and seeds it at 100 and then assigns the value to a variable named buildNo.
+  buildNo: $[counter('versioncounter', 100)]
+  
+
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(major).$(minor).$(buildNo)
+
+steps:
+# Windows script setting up  $(packageversion) of the nuget package based on branch
+# Master branch
+- script: |
+    echo ##vso[task.setvariable variable=packageversion]$(major).$(minor).$(buildNo)
+  displayName: 'Setting Master Nuget PackageVersion'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+- script: | 
+    echo ##vso[task.setvariable variable=packageversion]$(major).$(minor).$(buildNo)-$(Build.SourceBranchName)
+  displayName: 'Setting Prerelease Nuget PackageVersion'
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+
+
+# Windows script setting up $(fileversion) used to stamp AssemblyFileVersions. 
+# By convention we use 'Major.Minor.BuildNo.0' on Master and 'Major.Minor.0.BuildNo' on other branches
+# Master branch
+- script: | 
+    echo ##vso[task.setvariable variable=fileversion]$(major).$(minor).$(buildNo).0
+  displayName: 'Setting FileVersion'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+# Any other branch
+- script: | 
+    echo ##vso[task.setvariable variable=fileversion]$(major).$(minor).0.$(buildNo)
+  displayName: 'Setting Prerelease FileVersion'
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+
+- task: NuGetToolInstaller@0
+  displayName: 'Install Nuget'
+
+# Version .NET Core project files
+# Description - Applies a version to a .NET Core assembly via the .csproj files based on the build number. 
+# Based on https://github.com/rfennell/AzurePipelines/wiki/Version-Assemblies-and-Packages-Tasks-YAML#versiondotnetcoreassembliestask
+- task: VersionDotNetCoreAssemblies@2
+  displayName: 'Versioning netcore projects $(fileversion)'
+  inputs: 
+    # Required arguments
+    Path: $(Build.SourcesDirectory)
+    VersionNumber: $(fileversion)
+    VersionRegex: \d+\.\d+\.\d+\.\d+
+    FilenamePattern: .csproj
+    Field: FileVersion
+    OutputVersion: OutputedVersion
+
+# Unit tests
+#- task: DotNetCoreCLI@2
+#  displayName: 'dotnet test $(buildConfiguration)'
+#  inputs:
+#    command: test
+#    projects: '**/*Tests/*.csproj'
+#    arguments: '--configuration $(buildConfiguration) --collect "Code coverage" --filter TestCategory!=IfcXml'
+
+# Delete Files
+# Delete files or folders. (The minimatch patterns will only match file paths, not folder paths)
+- task: DeleteFiles@1
+  displayName: 'Delete previous build results'
+  inputs:
+    sourceFolder: '$(Build.BinariesDirectory)'
+    contents: '**' 
+    
+# Build and pack client library
+- script: dotnet pack LOIN\LOIN.csproj -c $(buildConfiguration) -o $(Build.BinariesDirectory) /p:PackageVersion=$(packageversion)
+  displayName: 'LOIN - packing'
+
+# Delete Files
+# Delete files or folders. (The minimatch patterns will only match file paths, not folder paths)
+- task: DeleteFiles@1
+  displayName: 'Delete previous staging artifacts'
+  inputs:
+    sourceFolder: '$(build.artifactstagingdirectory)'
+    contents: '**' 
+    
+# Copy artifacts and Publish
+- task: CopyFiles@2
+  displayName: 'Copy to artifacts'
+  inputs:
+    sourceFolder: '$(Build.BinariesDirectory)'
+    contents: '**\*.nupkg' 
+    targetFolder: '$(build.artifactstagingdirectory)'
+    cleanTargetFolder: true
+    
+# Publish to NuGet feed based on the source branch
+- task: NuGetCommand@2
+  displayName: 'Publish to NuGet feed'
+  inputs:
+    command: push
+    nuGetFeedType: external
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+    publishFeedCredentials: 'NuGetFeed'
+    
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish artifacts'
+    
