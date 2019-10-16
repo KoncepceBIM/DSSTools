@@ -14,10 +14,7 @@ trigger:
     - CONTRIBUTING.md
 
 pool:
-  name: Default
-  demands:
-  - msbuild
-  - visualstudio
+  vmImage: 'windows-latest'
 
 variables:
   buildConfiguration: 'Release'
