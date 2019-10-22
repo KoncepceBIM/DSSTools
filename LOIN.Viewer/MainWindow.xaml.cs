@@ -5,17 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 using Xbim.Ifc4.Kernel;
 
@@ -148,6 +138,7 @@ namespace LOIN.Viewer
                 AddExtension = true,
                 FilterIndex = 0,
                 FileName = App.Settings.LastMVD,
+                InitialDirectory = System.IO.Path.GetDirectoryName(App.Settings.LastMVD),
                 Title = "Create MVD XML..."
             };
             if (dlg.ShowDialog() != true)
@@ -167,14 +158,15 @@ namespace LOIN.Viewer
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { 
+            var dlg = new OpenFileDialog {
                 CheckFileExists = true,
                 CheckPathExists = true,
                 Multiselect = false,
                 Filter = "IFC File|*.ifc|IFC XML File|*.ifcxml",
                 FilterIndex = 0,
                 Title = "Select LOIN IFC File",
-                FileName = App.Settings.LastIFC
+                FileName = App.Settings.LastIFC,
+                InitialDirectory = System.IO.Path.GetDirectoryName(App.Settings.LastIFC)
             };
             if (dlg.ShowDialog() != true)
                 return;
