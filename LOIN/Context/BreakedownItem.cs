@@ -71,9 +71,9 @@ namespace LOIN.Context
             return allItems;
         }
 
-        public bool IsContextFor(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
+        public bool IsContextFor(RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
 
-        public bool RemoveFromContext(Requirements.RequirementsSet requirements)
+        public bool RemoveFromContext(RequirementsSet requirements)
         {
             var lib = requirements.Entity;
             // it is there already
@@ -87,7 +87,7 @@ namespace LOIN.Context
             return true;
         }
 
-        public bool AddToContext(Requirements.RequirementsSet requirements)
+        public bool AddToContext(RequirementsSet requirements)
         {
             // it is there already
             if (IsContextFor(requirements))
@@ -106,6 +106,8 @@ namespace LOIN.Context
             _cache.Add(lib.EntityLabel);
             return true;
         }
+
+        public IEnumerable<IfcRelAssociatesClassification>  Relations => _relations.AsReadOnly();
 
         public string Code
         {

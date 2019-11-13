@@ -13,6 +13,9 @@ namespace LOIN.Context
         private readonly List<IfcRelAssignsToControl> _relations;
         private readonly HashSet<int> _cache;
 
+
+        public IEnumerable<IfcRelAssignsToControl> Relations => _relations.AsReadOnly();
+
         internal Reason(IfcActionRequest request, Model model, List<IfcRelAssignsToControl> relations) : base(request, model)
         {
             _relations = relations;

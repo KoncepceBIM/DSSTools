@@ -14,6 +14,9 @@ namespace LOIN.Context
         private readonly List<IfcRelAssignsToProcess> _relations;
         private readonly HashSet<int> _cache;
 
+        public IEnumerable<IfcRelAssignsToProcess> Relations => _relations.AsReadOnly();
+
+
         internal Milestone(IfcTask task, Model model, List<IfcRelAssignsToProcess> relations) : base(task, model)
         {
             _relations = relations;

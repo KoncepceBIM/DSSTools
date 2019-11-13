@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Xbim.MvdXML" Version="5.1.103-develop" />
+    <PackageReference Include="Xbim.MvdXML" Version="5.1.104-develop" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Validation\mvdXML_V1.1.xsd">

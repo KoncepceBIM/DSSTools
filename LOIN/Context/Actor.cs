@@ -79,6 +79,9 @@ namespace LOIN.Context
         private readonly List<IfcRelAssignsToActor> _relations;
         private readonly HashSet<int> _cache = new HashSet<int>();
 
+        public IEnumerable<IfcRelAssignsToActor> Relations => _relations.AsReadOnly();
+
+
         internal Actor(IfcActor actor, Model model, List<IfcRelAssignsToActor> relations) : base(actor, model)
         {
             _relations = relations;

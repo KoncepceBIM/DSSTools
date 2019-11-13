@@ -29,6 +29,16 @@
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <MenuItem Header="Selection to partial _IFC" Click="SelectionToIFC_Click">
+                    <MenuItem.Icon>
+                        <Image Source="ifc.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <!--<MenuItem Header="_Validate model file" Click="Validate_Click">
+                    <MenuItem.Icon>
+                        <Image Source="ifc.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>-->
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">

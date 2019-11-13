@@ -1,4 +1,5 @@
 ﻿using LOIN.Context;
+using LOIN.Requirements;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -62,14 +63,20 @@ namespace LOIN.Viewer.Views
                 requirements = requirements.Where(r => contextType.Any(c => c.IsContextFor(r)));
             }
 
-            Requirements = requirements
+            RequirementSets = requirements
+                .Distinct()
+                .ToList();
+
+            Requirements = RequirementSets
                 .SelectMany(rs => rs.Requirements).Distinct()
                 .Select(rs => new RequirementSetView(rs))
                 .ToList();
+
             OnPropertyChanged(nameof(Requirements));
         }
 
         public List<RequirementSetView> Requirements { get; private set; }
+        public List<RequirementsSet> RequirementSets { get; private set; }
 
         private bool _includeUpperBreakdown = true;
         public bool IncludeUpperBreakdown

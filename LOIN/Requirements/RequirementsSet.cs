@@ -12,6 +12,8 @@ namespace LOIN.Requirements
     public class RequirementsSet : AbstractLoinEntity<IfcProjectLibrary>
     {
         private readonly List<IfcRelDeclares> _relations;
+     
+        public IEnumerable<IfcRelDeclares> Relations => _relations.AsReadOnly();
 
         internal RequirementsSet(IfcProjectLibrary lib, Model model, List<IfcRelDeclares> relations): base(lib, model)
         {
