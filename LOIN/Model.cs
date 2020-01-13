@@ -131,6 +131,20 @@ namespace LOIN
             return proxy;
         }
 
+        public BreakedownItem CreateBreakedownRoot(string name, string description)
+        {
+            var i = Internal.Instances;
+            var clsref = i.New<IfcClassification>(a => {
+                a.Name = name;
+                a.Description = description;
+            });
+
+            var proxy = new BreakedownItem(clsref, this, new List<IfcRelAssociatesClassification>());
+            _breakdownStructure.Add(proxy);
+
+            return proxy;
+        }
+
         public BreakedownItem CreateBreakedownItem(string name, string code, string description, BreakedownItem parent = null)
         {
             var i = Internal.Instances;
