@@ -1,22 +1,13 @@
 ﻿using Serilog;
 using System;
 using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 using Xbim.Common;
-using Xbim.Common.Step21;
 using Xbim.Ifc;
-using Xbim.Ifc4.ActorResource;
 using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
 using Xbim.Ifc4.MeasureResource;
-using Xbim.Ifc4.ProcessExtension;
-using Xbim.Ifc4.ProductExtension;
-using Xbim.Ifc4.SharedMgmtElements;
-using Xbim.IO;
-using Xbim.IO.Memory;
 
 using CsvHelper;
 using LOIN.Validation;
@@ -25,7 +16,7 @@ using LOIN.Requirements;
 
 namespace LOIN.Exporter
 {
-    class xBimIfcLine
+    class RecordLine
     {
         public int Id { get; set; }        // Line ID
         public int Pid { get; set; }       // Parent Line ID
@@ -49,11 +40,7 @@ namespace LOIN.Exporter
         // root object type, there might be many of them
         static RequirementsSet currentRequirementsSet; // loin
         //
-        static Reason currentReason;
-        static Actor currentActor;
-        static Milestone currentMilestone;
         static Dictionary<string, BreakedownItem> breakedownRootMap;
-        static BreakedownItem currentBreakedownItem;
         static IfcPropertySetTemplate currentPropertySet;
         static IfcSimplePropertyTemplate currentPropertyTemplate;
         //Console.WriteLine(ifcPL.GetType());
@@ -65,44 +52,46 @@ namespace LOIN.Exporter
         static Dictionary<int, IfcPropertySetTemplate> ifcPropertySetMap; // mapa skupin vlastnosti pouzitych v modelu
         static Dictionary<int, Reason> reasonsMap; // mapa IfcRelAssignsToControl pouzitych v modelu
         static Dictionary<string, Actor> actorMap; // mapa IfcRelAssignsToActor pouzitych v modelu
-        static Dictionary<int, Milestone> ifcProcessMap; // mapa IfcRelAssignsToProcess pouzitych v modelu
+        static Dictionary<int, Milestone> milestonesCache; // mapa IfcRelAssignsToProcess pouzitych v modelu
 
         static bool PropertySetReused;
 
         static void Main(string[] args)
         {
             //
-            ifcSIUnitMap = new Dictionary<string, IfcSIUnitName>();
-            ifcSIUnitMap.Add("AMPERE", IfcSIUnitName.AMPERE);
-            ifcSIUnitMap.Add("BECQUEREL", IfcSIUnitName.BECQUEREL);
-            ifcSIUnitMap.Add("CANDELA", IfcSIUnitName.CANDELA);
-            ifcSIUnitMap.Add("COULOMB", IfcSIUnitName.COULOMB);
-            ifcSIUnitMap.Add("CUBIC_METRE", IfcSIUnitName.CUBIC_METRE);
-            ifcSIUnitMap.Add("DEGREE_CELSIUS", IfcSIUnitName.DEGREE_CELSIUS);
-            ifcSIUnitMap.Add("FARAD", IfcSIUnitName.FARAD);
-            ifcSIUnitMap.Add("GRAM", IfcSIUnitName.GRAM);
-            ifcSIUnitMap.Add("GRAY", IfcSIUnitName.GRAY);
-            ifcSIUnitMap.Add("HENRY", IfcSIUnitName.HENRY);
-            ifcSIUnitMap.Add("HERTZ", IfcSIUnitName.HERTZ);
-            ifcSIUnitMap.Add("JOULE", IfcSIUnitName.JOULE);
-            ifcSIUnitMap.Add("KELVIN", IfcSIUnitName.KELVIN);
-            ifcSIUnitMap.Add("LUMEN", IfcSIUnitName.LUMEN);
-            ifcSIUnitMap.Add("LUX", IfcSIUnitName.LUX);
-            ifcSIUnitMap.Add("METRE", IfcSIUnitName.METRE);
-            ifcSIUnitMap.Add("MOLE", IfcSIUnitName.MOLE);
-            ifcSIUnitMap.Add("NEWTON", IfcSIUnitName.NEWTON);
-            ifcSIUnitMap.Add("OHM", IfcSIUnitName.OHM);
-            ifcSIUnitMap.Add("PASCAL", IfcSIUnitName.PASCAL);
-            ifcSIUnitMap.Add("RADIAN", IfcSIUnitName.RADIAN);
-            ifcSIUnitMap.Add("SECOND", IfcSIUnitName.SECOND);
-            ifcSIUnitMap.Add("SIEMENS", IfcSIUnitName.SIEMENS);
-            ifcSIUnitMap.Add("SIEVERT", IfcSIUnitName.SIEVERT);
-            ifcSIUnitMap.Add("SQUARE_METRE", IfcSIUnitName.SQUARE_METRE);
-            ifcSIUnitMap.Add("STERADIAN", IfcSIUnitName.STERADIAN);
-            ifcSIUnitMap.Add("TESLA", IfcSIUnitName.TESLA);
-            ifcSIUnitMap.Add("VOLT", IfcSIUnitName.VOLT);
-            ifcSIUnitMap.Add("WATT", IfcSIUnitName.WATT);
-            ifcSIUnitMap.Add("WEBER", IfcSIUnitName.WEBER);
+            ifcSIUnitMap = new Dictionary<string, IfcSIUnitName>
+            {
+                { "AMPERE", IfcSIUnitName.AMPERE },
+                { "BECQUEREL", IfcSIUnitName.BECQUEREL },
+                { "CANDELA", IfcSIUnitName.CANDELA },
+                { "COULOMB", IfcSIUnitName.COULOMB },
+                { "CUBIC_METRE", IfcSIUnitName.CUBIC_METRE },
+                { "DEGREE_CELSIUS", IfcSIUnitName.DEGREE_CELSIUS },
+                { "FARAD", IfcSIUnitName.FARAD },
+                { "GRAM", IfcSIUnitName.GRAM },
+                { "GRAY", IfcSIUnitName.GRAY },
+                { "HENRY", IfcSIUnitName.HENRY },
+                { "HERTZ", IfcSIUnitName.HERTZ },
+                { "JOULE", IfcSIUnitName.JOULE },
+                { "KELVIN", IfcSIUnitName.KELVIN },
+                { "LUMEN", IfcSIUnitName.LUMEN },
+                { "LUX", IfcSIUnitName.LUX },
+                { "METRE", IfcSIUnitName.METRE },
+                { "MOLE", IfcSIUnitName.MOLE },
+                { "NEWTON", IfcSIUnitName.NEWTON },
+                { "OHM", IfcSIUnitName.OHM },
+                { "PASCAL", IfcSIUnitName.PASCAL },
+                { "RADIAN", IfcSIUnitName.RADIAN },
+                { "SECOND", IfcSIUnitName.SECOND },
+                { "SIEMENS", IfcSIUnitName.SIEMENS },
+                { "SIEVERT", IfcSIUnitName.SIEVERT },
+                { "SQUARE_METRE", IfcSIUnitName.SQUARE_METRE },
+                { "STERADIAN", IfcSIUnitName.STERADIAN },
+                { "TESLA", IfcSIUnitName.TESLA },
+                { "VOLT", IfcSIUnitName.VOLT },
+                { "WATT", IfcSIUnitName.WATT },
+                { "WEBER", IfcSIUnitName.WEBER }
+            };
             //
             breakedownRootMap = new Dictionary<string, BreakedownItem>(); // prazdna mapa klasifikaci, bude plnena postupne
             //
@@ -111,19 +100,19 @@ namespace LOIN.Exporter
             ifcPropertySetMap = new Dictionary<int, IfcPropertySetTemplate>(); // prazdna mapa skupin vlastnosti, bude plnena postupne
             reasonsMap = new Dictionary<int, Reason>(); // prazdna mapa IfcRelAssignsToControl, bude plnena postupne
             actorMap = new Dictionary<string, Actor>(); // prazdna mapa IfcRelAssignsToActor, bude plnena postupne
-            ifcProcessMap = new Dictionary<int, Milestone>(); // prazdna mapa IfcRelAssignsToProcess, bude plnena postupne
+            milestonesCache = new Dictionary<int, Milestone>(); // prazdna mapa IfcRelAssignsToProcess, bude plnena postupne
 
             //using (var reader = new StreamReader("xBimFile.csv"))
             using (var reader = new StreamReader(Console.OpenStandardInput()))
             using (var csv = new CsvReader(reader))
             {
 
-                var records = new List<xBimIfcLine>();
+                var records = new List<RecordLine>();
                 csv.Read(); // CSV header Line 0 - XbimEditorCredentials
                 csv.ReadHeader();
 
                 csv.Read(); // CSV line 0 - XbimEditorCredentials
-                var record = new xBimIfcLine
+                var record = new RecordLine
                 {
                     Id = csv.GetField<int>("Id"),
                     Pid = csv.GetField<int>("Pid"),
@@ -186,7 +175,7 @@ namespace LOIN.Exporter
 
                         while (csv.Read())
                         {
-                            record = new xBimIfcLine
+                            record = new RecordLine
                             {
                                 Id = csv.GetField<int>("Id"),
                                 Pid = csv.GetField<int>("Pid"),
@@ -219,52 +208,40 @@ namespace LOIN.Exporter
                             else if (record.Method == "IfcRelAssignsToControl")
                             {
                                 // Purpose of the data requirement/exchange
-                                if (reasonsMap.ContainsKey(record.Id))
+                                if (!reasonsMap.TryGetValue(record.Id, out Reason reason))
                                 {
-                                    currentReason = reasonsMap[record.Id];
-                                }
-                                else
-                                {
-                                    currentReason = model.CreateReason(record.Par01, record.Par02);
-                                    currentReason.AddToContext(currentRequirementsSet);
+                                    reason = model.CreateReason(record.Par01, record.Par02);
                                     if (record.GlobalId != "")
-                                        currentReason.Entity.GlobalId = record.GlobalId;
-                                    reasonsMap.Add(record.Id, currentReason);
-                                };
+                                        reason.Entity.GlobalId = record.GlobalId;
+                                    reasonsMap.Add(record.Id, reason);
+                                }
+                                reason.AddToContext(currentRequirementsSet);
                             }
                             else if (record.Method == "IfcRelAssignsToActor")
                             {
                                 // Actor / Role = Who is interested in the data
-                                if (actorMap.ContainsKey(record.GlobalId))
+                                if (!actorMap.TryGetValue(record.GlobalId, out Actor actor))
                                 {
-                                    currentActor = actorMap[record.GlobalId];
-                                }
-                                else
-                                {
-                                    currentActor = model.CreateActor(record.Par01, null);
-                                    currentActor.AddToContext(currentRequirementsSet);
+                                    actor = model.CreateActor(record.Par01, null);
                                     if (record.GlobalId != "")
-                                        currentActor.Entity.GlobalId = record.GlobalId;
-                                    actorMap.Add(record.GlobalId, currentActor);
-                                };
+                                        actor.Entity.GlobalId = record.GlobalId;
+                                    actorMap.Add(record.GlobalId, actor);
+                                }
+                                actor.AddToContext(currentRequirementsSet);
                             }
                             else if (record.Method == "IfcRelAssignsToProcess")
                             {
                                 // Milestone = point in time
-                                if (ifcProcessMap.ContainsKey(record.Id))
+                                if (!milestonesCache.TryGetValue(record.Id, out Milestone milestone))
                                 {
-                                    currentMilestone = ifcProcessMap[record.Id];
-                                }
-                                else
-                                {
-                                    currentMilestone = model.CreateMilestone(record.Par01, null);
-                                    currentMilestone.AddToContext(currentRequirementsSet);
-                                    currentMilestone.Entity.IsMilestone = record.Par02 == "true";
+                                    milestone = model.CreateMilestone(record.Par01, null);
+                                    milestone.Entity.IsMilestone = record.Par02 == "true";
 
                                     if (record.GlobalId != "")
-                                        currentMilestone.Entity.GlobalId = record.GlobalId;
-                                    ifcProcessMap.Add(record.Id, currentMilestone);
-                                };
+                                        milestone.Entity.GlobalId = record.GlobalId;
+                                    milestonesCache.Add(record.Id, milestone);
+                                }
+                                milestone.AddToContext(currentRequirementsSet);
                             }
                             else if (record.Method == "IfcClassificationReference")
                             {
@@ -279,8 +256,8 @@ namespace LOIN.Exporter
                                 // Optionally add new class
                                 if (!breakedownMap.ContainsKey(record.Id))
                                 {
-                                    currentBreakedownItem = model.CreateBreakedownItem(record.Par01, record.Par02, null, parent);
-                                    breakedownMap.Add(record.Id, currentBreakedownItem);
+                                    var item = model.CreateBreakedownItem(record.Par01, record.Par02, null, parent);
+                                    breakedownMap.Add(record.Id, item);
                                 };
                             }
                             else if (record.Method == "IfcRelAssociatesClassification")
