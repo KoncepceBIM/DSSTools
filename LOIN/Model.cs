@@ -247,12 +247,12 @@ namespace LOIN
             return _model.Instances.New<T>(init);
         }
 
-        public mvdXML GetMvd(string languageCode, string name, string definition, string code, 
+        public mvdXML GetMvd(string languageCode, string name, string definition, string code, string classificationProperty,
             Func<IContextEntity, bool> contextFilter = null,
             Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
         {
             var converter = new Mvd.Converter(languageCode, contextFilter, requirementsFilter);
-            return converter.Convert(this, name, definition, code);
+            return converter.Convert(this, name, definition, code, classificationProperty);
         }
 
         public void Dispose()

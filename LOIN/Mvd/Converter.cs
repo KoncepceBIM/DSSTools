@@ -34,8 +34,8 @@ namespace LOIN.Mvd
 
         public Func<IContextEntity, bool> ContextFilter { get; set; }
 
-        public Converter(string primaryLanguage, 
-            Func<IContextEntity, bool> contextFilter = null, 
+        public Converter(string primaryLanguage,
+            Func<IContextEntity, bool> contextFilter = null,
             Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
         {
             _language = primaryLanguage;
@@ -43,7 +43,7 @@ namespace LOIN.Mvd
             RequirementsFilter = requirementsFilter ?? ((IfcPropertySetTemplate t) => true);
         }
 
-        public mvdXML Convert(Model model, string name, string definition, string code)
+        public mvdXML Convert(Model model, string name, string definition, string code, string classificationProperty)
         {
             _mvd = InitMvd(name, code, definition);
             _requirementsCache = new Dictionary<string, ModelViewExchangeRequirement>();
@@ -51,7 +51,7 @@ namespace LOIN.Mvd
             // iterate over the model to convert all requirements
             foreach (var item in model.BreakdownStructure.Where<BreakedownItem>(ContextFilter))
             {
-                var applicability = CreateApplicabilityRules(item);
+                var applicability = CreateApplicabilityRules(item, classificationProperty);
                 var requirements = CreateConcepts(model, item).ToList();
                 if (!requirements.Any())
                     continue;
@@ -67,13 +67,13 @@ namespace LOIN.Mvd
             var requirementSets = model.GetRequirements(item);
             foreach (var requirementSet in requirementSets)
             {
-                // get or create exchange requirements. This is a combination of actor, milestone and reason
-                var requirements = GetOrCreateRequirements(requirementSet);
-
                 // create rules
                 var rules = CreateValidationRules(requirementSet.Requirements.Where(RequirementsFilter));
                 if (rules == null)
                     continue;
+
+                // get or create exchange requirements. This is a combination of actor, milestone and reason
+                var requirements = GetOrCreateRequirements(requirementSet);
 
                 // create concept
                 var concept = CreateConcept(item.Name, item.Description, rules, requirements);
@@ -125,21 +125,23 @@ namespace LOIN.Mvd
             return CreateLogicalRule(TemplateRulesOperator.and, rules);
         }
 
-        private TemplateRules CreateApplicabilityRules(BreakedownItem item)
+        private TemplateRules CreateApplicabilityRules(BreakedownItem item, string searchPropertyName)
         {
             var classificationCode = CreateClassificationRule(item.Code);
-            var classificationName = CreateClassificationRule(item.Name);
-            var classificationCodeProperty = CreatePropertyValueRule("Classification", item.Code);
-            var classificationNameProperty = CreatePropertyValueRule("Classification", item.Name);
-            var classificationCodePropertyRef = CreatePropertyClassificationReferenceRule("Classification", item.Code);
-            var classificationNamePropertyRef = CreatePropertyClassificationReferenceRule("Classification", item.Name);
+            var classificationCodeProperty = CreatePropertyValueRule(searchPropertyName, item.Code);
+            var classificationCodePropertyRef = CreatePropertyClassificationReferenceRule(searchPropertyName, item.Code);
+
+            // var classificationName = CreateClassificationRule(item.Name);
+            // var classificationNameProperty = CreatePropertyValueRule(searchPropertyName, item.Name);
+            // var classificationNamePropertyRef = CreatePropertyClassificationReferenceRule(searchPropertyName, item.Name);
+            
             return CreateLogicalRule(TemplateRulesOperator.or,
                 classificationCode,
-                classificationName,
                 classificationCodeProperty,
-                classificationNameProperty,
-                classificationCodePropertyRef,
-                classificationNamePropertyRef
+                classificationCodePropertyRef
+                // classificationName,
+                // classificationNameProperty,
+                // classificationNamePropertyRef
                 );
         }
 
@@ -856,15 +858,15 @@ namespace LOIN.Mvd
                         AttributeName = nameof(IfcPropertyReferenceValue.PropertyReference),
                         EntityRules = new AttributeRuleEntityRules{
                             EntityRule = new []{
-                                new EntityRule{ 
+                                new EntityRule{
                                     EntityName = nameof(IfcDocumentReference),
                                     AttributeRules = new EntityRuleAttributeRules {
                                         AttributeRule = new [] {
-                                            new AttributeRule { 
+                                            new AttributeRule {
                                                 RuleID = "PRefDocName",
                                                 AttributeName = nameof(IfcDocumentReference.Name),
                                                 EntityRules = new AttributeRuleEntityRules {
-                                                    EntityRule = new []{ 
+                                                    EntityRule = new []{
                                                         new EntityRule { EntityName = nameof(IfcLabel) }
                                                     }
                                                 }

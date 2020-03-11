@@ -322,7 +322,7 @@ namespace LOIN.Viewer
         private mvdXML GetMvd(bool filtered)
         {
             if (!filtered)
-                return _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", null, null);
+                return _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID", null, null);
 
             var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakedownItem>());
             var milestones = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Milestone>());
@@ -336,7 +336,7 @@ namespace LOIN.Viewer
             var requirements = new HashSet<IfcPropertySetTemplate>(psets);
 
             // filtered export
-            return _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN",
+            return _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID",
                 c =>
                 {
                     if (breakedown.Count > 0 && c is BreakedownItem i)

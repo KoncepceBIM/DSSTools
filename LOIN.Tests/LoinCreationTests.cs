@@ -64,7 +64,7 @@ namespace LOIN.Tests
             loin.Save("LOIN.ifcXML");
 
             // get MVD
-            var mvd = loin.GetMvd("en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN");
+            var mvd = loin.GetMvd("en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
 
             // serialize MVD
             mvd.Save("LOIN.mvdXML");
@@ -82,7 +82,7 @@ namespace LOIN.Tests
             const string path = @"c:\Users\Martin\Dropbox (Personal)\xBIM.cz\Zakazky\@CAS\PS03\Datovy_standard\SW_Vendors\sample_20190809_1625.ifc";
             using var loin = Model.Open(path);
             var mvdPath = Path.ChangeExtension(path, ".mvdXML");
-            var mvd = loin.GetMvd("cs", "Datový standard stavebnictví", "Validační MVD pro požadavky definované v DSS", "DSS");
+            var mvd = loin.GetMvd("cs", "Datový standard stavebnictví", "Validační MVD pro požadavky definované v DSS", "DSS", "Classification");
             mvd.Save(mvdPath);
             var log = Xbim.Common.XbimLogging.CreateLogger("MVD schema check");
             var err = (new MvdValidator()).ValidateXsd(mvdPath, log);

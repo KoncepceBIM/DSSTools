@@ -60,7 +60,7 @@ namespace LOIN.Tests
             txn.Commit();
 
             // get MVD
-            var mvd = loin.GetMvd("en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN");
+            var mvd = loin.GetMvd("en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
             mvd.Save("MinimalWindow.mvdXML");
 
             using var model = IfcStore.Create(editor, Xbim.Common.Step21.XbimSchemaVersion.Ifc4, Xbim.IO.XbimStoreType.InMemoryModel);
