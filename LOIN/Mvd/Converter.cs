@@ -71,9 +71,15 @@ namespace LOIN.Mvd
         private IEnumerable<Concept> CreateConcepts(Model model, BreakedownItem item)
         {
             var concepts = new List<Concept>();
-            var requirementSets = model.GetRequirements(item);
+            // get requirements for this item in this context
+            var requirementSets = model.GetRequirements(item).Where(r => 
+                r.Actors.Any(ContextFilter) &&
+                r.Milestones.Any(ContextFilter) &&
+                r.Reasons.Any(ContextFilter)
+            );
             foreach (var requirementSet in requirementSets)
             {
+                // skip if there are no actual required psets
                 var psets = requirementSet.Requirements.Where(RequirementsFilter).ToList();
                 if (!psets.Any())
                     continue;
