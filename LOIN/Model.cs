@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xbim.Common;
 using Xbim.Common.Model;
+using Xbim.Common.Step21;
 using Xbim.Ifc;
 using Xbim.Ifc4.ActorResource;
 using Xbim.Ifc4.ExternalReferenceResource;
@@ -247,11 +248,11 @@ namespace LOIN
             return _model.Instances.New<T>(init);
         }
 
-        public mvdXML GetMvd(string languageCode, string name, string definition, string code, string classificationProperty,
+        public mvdXML GetMvd(XbimSchemaVersion schema, string languageCode, string name, string definition, string code, string classificationProperty,
             Func<IContextEntity, bool> contextFilter = null,
             Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
         {
-            var converter = new Mvd.Converter(languageCode, contextFilter, requirementsFilter);
+            var converter = new Mvd.Converter(schema, languageCode, contextFilter, requirementsFilter);
             return converter.Convert(this, name, definition, code, classificationProperty);
         }
 

@@ -19,12 +19,22 @@
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Export to MVD XML" Click="ExportToMVD_Click">
+                <MenuItem Header="_Export to MVD XML for IFC4" Click="ExportToMVD4_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Selection to MVD XML" Click="SelectionToMVD_Click">
+                <MenuItem Header="Export to MVD XML for IFC2x3" Click="ExportToMVD2x3_Click">
+                    <MenuItem.Icon>
+                        <Image Source="xml.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Selection to MVD XML for IFC4" Click="SelectionToMVD4_Click">
+                    <MenuItem.Icon>
+                        <Image Source="xml.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Selection to MVD XML for IFC2x3" Click="SelectionToMVD2x3_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
@@ -34,11 +44,11 @@
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <!--<MenuItem Header="_Validate model file" Click="Validate_Click">
+                <MenuItem Header="_Validate model file against selection" Click="Validate_Click">
                     <MenuItem.Icon>
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
-                </MenuItem>-->
+                </MenuItem>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">

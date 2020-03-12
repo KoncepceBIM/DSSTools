@@ -2,6 +2,7 @@
 using LOIN.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using Xbim.Common.Step21;
 using Xbim.Ifc;
 using Xbim.Ifc4.MeasureResource;
 
@@ -64,15 +65,14 @@ namespace LOIN.Tests
             loin.Save("LOIN.ifcXML");
 
             // get MVD
-            var mvd = loin.GetMvd("en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
+            var mvd = loin.GetMvd(XbimSchemaVersion.Ifc4, "en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
 
             // serialize MVD
             mvd.Save("LOIN.mvdXML");
 
             // validate MVD XML XSD
             var logger = Xbim.Common.XbimLogging.CreateLogger("MVDXML schema validation");
-            var mvdValidator = new MvdValidator();
-            var msg = mvdValidator.ValidateXsd("LOIN.mvdXML", logger);
+            var msg = MvdValidator.ValidateXsd("LOIN.mvdXML", logger);
             Assert.IsTrue(string.IsNullOrWhiteSpace(msg));
         }
 
@@ -82,10 +82,10 @@ namespace LOIN.Tests
             const string path = @"c:\Users\Martin\Dropbox (Personal)\xBIM.cz\Zakazky\@CAS\PS03\Datovy_standard\SW_Vendors\sample_20190809_1625.ifc";
             using var loin = Model.Open(path);
             var mvdPath = Path.ChangeExtension(path, ".mvdXML");
-            var mvd = loin.GetMvd("cs", "Datový standard stavebnictví", "Validační MVD pro požadavky definované v DSS", "DSS", "Classification");
+            var mvd = loin.GetMvd(XbimSchemaVersion.Ifc4, "cs", "Datový standard stavebnictví", "Validační MVD pro požadavky definované v DSS", "DSS", "Classification");
             mvd.Save(mvdPath);
             var log = Xbim.Common.XbimLogging.CreateLogger("MVD schema check");
-            var err = (new MvdValidator()).ValidateXsd(mvdPath, log);
+            var err = MvdValidator.ValidateXsd(mvdPath, log);
             var ok = string.IsNullOrWhiteSpace(err);
             Assert.IsTrue(ok);
         }

@@ -1,18 +1,24 @@
-﻿using LOIN.Context;
+﻿using CsvHelper;
+using LOIN.Context;
 using LOIN.Requirements;
+using LOIN.Validation;
 using LOIN.Viewer.Views;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Xml;
 using Xbim.Common;
+using Xbim.Common.Model;
+using Xbim.Common.Step21;
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
+using Xbim.IO.Memory;
 using Xbim.MvdXml;
 using Xbim.MvdXml.DataManagement;
 
@@ -111,63 +117,83 @@ namespace LOIN.Viewer
                 return;
 
             var fileName = dlg.FileName;
-            var logPath = Path.ChangeExtension(fileName, ".log");
+            var outPath = Path.ChangeExtension(fileName, ".validation");
+            if (!Directory.Exists(outPath))
+                Directory.CreateDirectory(outPath);
+            var mvdPath = Path.Combine(outPath, "validation.mvdXML");
+            var failedPath = Path.Combine(outPath, "failed.csv");
+            var passedPath = Path.Combine(outPath, "passed.csv");
+            var skippedPath = Path.Combine(outPath, "skipped.csv");
 
-            IfcStore.ModelProviderFactory.UseMemoryModelProvider();
-            using (var model = IfcStore.Open(fileName))
+            XbimSchemaVersion schema;
+            using (var temp = File.OpenRead(fileName))
             {
-                using (var log = new StreamWriter(logPath))
-                {
-                    var mvd = GetMvd(true);
-                    var engine = new MvdEngine(mvd, model);
-
-                    var noMatch = true;
-                    foreach (var root in engine.ConceptRoots)
-                    {
-                        var entities = model.Instances
-                            .Where<IfcRoot>(r => root.AppliesTo(r))
-                            .ToList();
-                        if (entities.Any())
-                            noMatch = false;
-
-                        log.WriteLine($"{entities} entities found to be applicable to concept root {root.name}");
-                        foreach (var concept in root.Concepts)
-                        {
-                            var definition = concept.Definitions?.FirstOrDefault()?.Body?.Value;
-                            log.WriteLine($"  Testing concept {concept.name} [{concept.uuid}]");
-                            if (!string.IsNullOrWhiteSpace(definition))
-                                log.WriteLine($"  {definition}");
-
-                            var requirements = (concept.Requirements ?? Array.Empty<RequirementsRequirement>())
-                                .Select(e => e.GetExchangeRequirement())
-                                .ToList();
-                            if (requirements.Any())
-                            {
-                                log.WriteLine("    Exchange requirements:");
-                                foreach (var er in requirements)
-                                {
-                                    log.WriteLine($"      {er.name} [{er.uuid}]");
-                                }
-                            }
-
-                            foreach (var entity in entities)
-                            {
-                                var passes = concept.Test(entity, Concept.ConceptTestMode.ThroughRequirementRequirements);
-                                log.WriteLine($"    [{passes.ToString().ToUpperInvariant()}]: #{entity.EntityLabel}{entity.GetType().Name.ToUpperInvariant()}=('{entity.Name};)");
-                            }
-                        }
-                    }
-
-                    if (noMatch)
-                    {
-                        log.WriteLine("No entities matched for validation");
-                    }
-                    log.Close();
-                }
+                schema = MemoryModel.GetStepFileXbimSchemaVersion(temp);
             }
 
-            Process.Start(logPath);
+            var mvd = GetMvd(true, schema);
+            using (var s = File.Create(mvdPath))
+            {
+                mvd.Serialize(s);
+            }
 
+            using (var ifcFile = File.OpenRead(fileName))
+            {
+                var results = MvdValidator
+                    .ValidateModel(mvd, ifcFile, XbimLogging.CreateLogger("MvdValidator"))
+                    .ToList();
+                if (results.All(r => r.Concept == null && r.Result == ConceptTestResult.DoesNotApply))
+                {
+                    MessageBox.Show("No applicable entities in the file", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var failed = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Entity).ToList();
+                var passed = results.Where(r => r.Result == ConceptTestResult.Pass).GroupBy(r => r.Entity).ToList();
+                var skipped = results.Where(r => r.Result == ConceptTestResult.DoesNotApply).GroupBy(r => r.Entity).ToList();
+
+                WriteResults(failedPath, failed.SelectMany(g => g));
+                WriteResults(passedPath, passed.SelectMany(g => g));
+                WriteResults(skippedPath, skipped.SelectMany(g => g));
+
+                if (!failed.Any())
+                {
+                    MessageBox.Show($"All {passed.Count} applicable entities are valid. {skipped.Count} entities not applicable.  Reports are saved in '{outPath}'",
+                        "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"{failed.Count} applicable entities are invalid. {skipped.Count} entities not applicable. Reports are saved in '{outPath}'",
+                     "Invalid entities", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+        }
+
+        private void WriteResults(string path, IEnumerable<MvdValidationResult> results)
+        {
+            using (var writer = new StreamWriter(path))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.Configuration.SanitizeForInjection = false;
+                var lines = results.Select(r => new Line
+                {
+                    STATUS = $"[{r.Result.ToString().ToUpperInvariant()}]",
+                    IFC_ENTITY_ID = ((IIfcRoot)r.Entity).GlobalId,
+                    IFC_ENTITY_TYPE = r.Entity.ExpressType.ExpressNameUpper,
+                    CONCEPT_ID = r.Concept?.uuid,
+                    CONCEPT_NAME = r.Concept?.name
+                });
+                csv.WriteRecords(lines);
+            }
+        }
+
+        private class Line
+        {
+            public string STATUS { get; set; }
+            public string IFC_ENTITY_ID { get; set; }
+            public string IFC_ENTITY_TYPE { get; set; }
+            public string CONCEPT_ID { get; set; }
+            public string CONCEPT_NAME { get; set; }
         }
 
         private void SelectionToIFC_Click(object sender, RoutedEventArgs e)
@@ -309,20 +335,30 @@ namespace LOIN.Viewer
             }
         }
 
-        private void SelectionToMVD_Click(object sender, RoutedEventArgs e)
+        private void SelectionToMVD4_Click(object sender, RoutedEventArgs e)
         {
-            ExportToMVD(true);
+            ExportToMVD(true, XbimSchemaVersion.Ifc4);
         }
 
-        private void ExportToMVD_Click(object sender, RoutedEventArgs e)
+        private void ExportToMVD4_Click(object sender, RoutedEventArgs e)
         {
-            ExportToMVD(false);
+            ExportToMVD(false, XbimSchemaVersion.Ifc4);
         }
 
-        private mvdXML GetMvd(bool filtered)
+        private void SelectionToMVD2x3_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToMVD(true, XbimSchemaVersion.Ifc2X3);
+        }
+
+        private void ExportToMVD2x3_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToMVD(false, XbimSchemaVersion.Ifc2X3);
+        }
+
+        private mvdXML GetMvd(bool filtered, XbimSchemaVersion schema)
         {
             if (!filtered)
-                return _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID", null, null);
+                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID", null, null);
 
             var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakedownItem>());
             var milestones = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Milestone>());
@@ -336,7 +372,7 @@ namespace LOIN.Viewer
             var requirements = new HashSet<IfcPropertySetTemplate>(psets);
 
             // filtered export
-            return _model.GetMvd("cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID",
+            return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID",
                 c =>
                 {
                     if (breakedown.Count > 0 && c is BreakedownItem i)
@@ -353,7 +389,7 @@ namespace LOIN.Viewer
                 p => requirements.Contains(p));
         }
 
-        private void ExportToMVD(bool filtered)
+        private void ExportToMVD(bool filtered, XbimSchemaVersion schema)
         {
             if (_model == null)
             {
@@ -361,7 +397,7 @@ namespace LOIN.Viewer
                 return;
             }
 
-            var mvd = GetMvd(filtered);
+            var mvd = GetMvd(filtered, schema);
 
             var dlg = new SaveFileDialog
             {

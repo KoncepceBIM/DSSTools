@@ -1,15 +1,22 @@
 ﻿using LOIN.Context;
+using LOIN.Validation;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using Xbim.Common.Step21;
 using Xbim.Ifc;
 using Xbim.Ifc4.ExternalReferenceResource;
+using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
 using Xbim.Ifc4.MeasureResource;
 using Xbim.Ifc4.PropertyResource;
 using Xbim.Ifc4.SharedBldgElements;
+using Xbim.IO.Memory;
+using Xbim.MvdXml;
 using Xbim.MvdXml.DataManagement;
 
 namespace LOIN.Tests
@@ -60,7 +67,7 @@ namespace LOIN.Tests
             txn.Commit();
 
             // get MVD
-            var mvd = loin.GetMvd("en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
+            var mvd = loin.GetMvd(XbimSchemaVersion.Ifc4, "en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
             mvd.Save("MinimalWindow.mvdXML");
 
             using var model = IfcStore.Create(editor, Xbim.Common.Step21.XbimSchemaVersion.Ifc4, Xbim.IO.XbimStoreType.InMemoryModel);
@@ -75,9 +82,9 @@ namespace LOIN.Tests
                     c.Identification = "E456.789.12";
                 });
             });
-            var propsRel = i.New<IfcRelDefinesByProperties>(r => 
+            var propsRel = i.New<IfcRelDefinesByProperties>(r =>
             {
-                r.RelatingPropertyDefinition = i.New<IfcPropertySet>(pset => 
+                r.RelatingPropertyDefinition = i.New<IfcPropertySet>(pset =>
                 {
                     pset.Name = "FM Requirements";
                     pset.HasProperties.AddRange(new[]
@@ -100,7 +107,8 @@ namespace LOIN.Tests
                     });
                 });
             });
-            var window = i.New<IfcWindow>(w => {
+            var window = i.New<IfcWindow>(w =>
+            {
                 w.Name = "Window #1";
             });
             clsRel.RelatedObjects.Add(window);
@@ -118,6 +126,110 @@ namespace LOIN.Tests
             {
                 var passes = concept.Test(window, Xbim.MvdXml.Concept.ConceptTestMode.Raw);
                 Assert.IsTrue(passes == ConceptTestResult.Pass);
+            }
+        }
+
+        [TestMethod]
+        public void ValidateShed()
+        {
+            const string mvdFile = "Files/CCI_for_doors.mvdXML";
+            const string ifcFile = "Files/Bouda.ifc";
+
+            using (var file = File.OpenRead(ifcFile))
+            {
+                var mvd = mvdXML.Deserialize(File.ReadAllText(mvdFile));
+                var result = MvdValidator.ValidateModel(mvd, file, NullLogger.Instance);
+                // nothing matches applicability selectors
+                Assert.IsTrue(result.All(r => r.Concept == null && r.Result == ConceptTestResult.DoesNotApply));
+            }
+
+            var classified = Guid.NewGuid() + ".ifc";
+            var doorCount = 0;
+            using (var model = MemoryModel.OpenRead(ifcFile, null))
+            {
+                doorCount = model.Instances.OfType<IIfcDoor>().Count(); ;
+                using (var txn = model.BeginTransaction("Classification"))
+                {
+                    var c = new Create(model);
+                    c.RelDefinesByProperties(r =>
+                    {
+                        r.RelatingPropertyDefinition = c.PropertySet(ps =>
+                        {
+                            ps.Name = "CZ_DataTemplateDesignation";
+                            ps.HasProperties.Add(c.PropertySingleValue(p =>
+                            {
+                                p.Name = "DataTemplate ID";
+                                p.NominalValue = new IfcLabel("52459");
+                            }));
+                        });
+                        r.RelatedObjects.AddRange(model.Instances.OfType<IIfcDoor>());
+                    });
+                    txn.Commit();
+                }
+
+                using var file = File.Create(classified);
+                model.SaveAsIfc(file);
+            }
+
+            using (var file = File.OpenRead(classified))
+            {
+                var mvd = mvdXML.Deserialize(File.ReadAllText(mvdFile));
+                var result = MvdValidator.ValidateModel(mvd, file, NullLogger.Instance);
+                var doorResults = result.Where(r => r.Entity is IIfcDoor).ToList();
+                Assert.AreEqual(doorCount, doorResults.Count);
+                Assert.IsTrue(doorResults.All(r => r.Result == ConceptTestResult.Fail));
+            }
+
+            var withCCI = Guid.NewGuid() + ".ifc";
+            using (var model = MemoryModel.OpenRead(classified, null))
+            {
+                using (var txn = model.BeginTransaction("Classification"))
+                {
+                    var c = new Create(model);
+                    c.RelDefinesByProperties(r =>
+                    {
+                        r.RelatingPropertyDefinition = c.PropertySet(ps =>
+                        {
+                            ps.Name = "CZ_ClassificationSystemCCI";
+                            ps.HasProperties.AddRange(new[] {
+                                c.PropertySingleValue(p =>
+                                {
+                                    p.Name = "CCICode";
+                                    p.NominalValue = new IfcLabel("XXX");
+                                }),
+                                c.PropertySingleValue(p =>
+                                {
+                                    p.Name = "FunctionalSystem";
+                                    p.NominalValue = new IfcLabel("XXX");
+                                }),
+                                c.PropertySingleValue(p =>
+                                {
+                                    p.Name = "ContructiveSystem";
+                                    p.NominalValue = new IfcLabel("XXX");
+                                }),
+                                c.PropertySingleValue(p =>
+                                {
+                                    p.Name = "CodeComponent";
+                                    p.NominalValue = new IfcLabel("XXX");
+                                })
+                            });
+                        });
+                        r.RelatedObjects.AddRange(model.Instances.OfType<IIfcDoor>());
+                    });
+                    txn.Commit();
+                }
+
+                using var file = File.Create(withCCI);
+                model.SaveAsIfc(file);
+            }
+
+            using (var file = File.OpenRead(withCCI))
+            {
+                var mvd = mvdXML.Deserialize(File.ReadAllText(mvdFile));
+                var result = MvdValidator.ValidateModel(mvd, file, NullLogger.Instance);
+                var doorResults = result.Where(r => r.Entity is IIfcDoor).ToList();
+                Assert.AreEqual(doorCount, doorResults.Count);
+                Assert.IsTrue(doorResults.All(r => r.Result == ConceptTestResult.Pass));
             }
         }
     }

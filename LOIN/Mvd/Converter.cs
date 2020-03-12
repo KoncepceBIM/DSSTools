@@ -3,6 +3,7 @@ using LOIN.Requirements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xbim.Common.Step21;
 using Xbim.Ifc4.ActorResource;
 using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Kernel;
@@ -27,17 +28,22 @@ namespace LOIN.Mvd
         private static readonly string propertyUuid = NewGuid();
         private static readonly string classificationUuid = NewGuid();
 
-        private const string IFC4 = "IFC4";
-        private static readonly string[] schemas = new[] { IFC4 };
+        private readonly string SCHEMA = "IFC4";
+        private readonly string[] SCHEMAS = new[] { "IFC4" };
+        private readonly XbimSchemaVersion schema;
 
         public Func<IfcPropertySetTemplate, bool> RequirementsFilter { get; set; }
 
         public Func<IContextEntity, bool> ContextFilter { get; set; }
 
-        public Converter(string primaryLanguage,
+        public Converter(XbimSchemaVersion schema, string primaryLanguage,
             Func<IContextEntity, bool> contextFilter = null,
             Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
         {
+            this.schema = schema;
+            SCHEMA = schema.ToString().ToUpperInvariant();
+            SCHEMAS = new[] { SCHEMA };
+
             _language = primaryLanguage;
             ContextFilter = contextFilter ?? ((IContextEntity a) => true);
             RequirementsFilter = requirementsFilter ?? ((IfcPropertySetTemplate t) => true);
@@ -47,6 +53,7 @@ namespace LOIN.Mvd
         {
             _mvd = InitMvd(name, code, definition);
             _requirementsCache = new Dictionary<string, ModelViewExchangeRequirement>();
+
 
             // iterate over the model to convert all requirements
             foreach (var item in model.BreakdownStructure.Where<BreakedownItem>(ContextFilter))
@@ -67,17 +74,26 @@ namespace LOIN.Mvd
             var requirementSets = model.GetRequirements(item);
             foreach (var requirementSet in requirementSets)
             {
-                // create rules
-                var rules = CreateValidationRules(requirementSet.Requirements.Where(RequirementsFilter));
-                if (rules == null)
+                var psets = requirementSet.Requirements.Where(RequirementsFilter).ToList();
+                if (!psets.Any())
                     continue;
 
                 // get or create exchange requirements. This is a combination of actor, milestone and reason
-                var requirements = GetOrCreateRequirements(requirementSet);
+                var requirements = GetOrCreateRequirements(requirementSet).ToList();
+                if (!requirements.Any())
+                    continue;
 
-                // create concept
-                var concept = CreateConcept(item.Name, item.Description, rules, requirements);
-                concepts.Add(concept);
+                foreach (var pset in psets)
+                {
+                    // create rules
+                    var rules = CreateValidationRules(pset);
+                    if (rules == null)
+                        continue;
+
+                    // create concept
+                    var concept = CreateConcept(pset.Name, pset.Description, rules, requirements);
+                    concepts.Add(concept);
+                }
             }
             return concepts;
         }
@@ -85,13 +101,13 @@ namespace LOIN.Mvd
         private IEnumerable<ModelViewExchangeRequirement> GetOrCreateRequirements(RequirementsSet set)
         {
             var actors = set.Actors.Where(ContextFilter).Select(a => a.Name ?? "").ToList();
-            if (!actors.Any()) actors.Add("N/A");
+            if (!actors.Any()) yield break;
 
             var milestones = set.Milestones.Where(ContextFilter).Select(a => a.Name ?? "").ToList();
-            if (!milestones.Any()) milestones.Add("N/A");
+            if (!milestones.Any()) yield break;
 
             var reasons = set.Reasons.Where(ContextFilter).Select(a => a.Name ?? "").ToList();
-            if (!reasons.Any()) reasons.Add("N/A");
+            if (!reasons.Any()) yield break;
 
             foreach (var actor in actors)
             {
@@ -125,6 +141,18 @@ namespace LOIN.Mvd
             return CreateLogicalRule(TemplateRulesOperator.and, rules);
         }
 
+        private TemplateRules CreateValidationRules(IfcPropertySetTemplate pSet)
+        {
+            var rules = pSet.HasPropertyTemplates.Select(p => new { PSet = pSet.Name, PName = p.Name })
+                .Select(p => CreatePropertyExistanceRule(p.PSet, p.PName))
+                .ToArray();
+
+            if (rules.Length == 0)
+                return null;
+
+            return CreateLogicalRule(TemplateRulesOperator.and, rules);
+        }
+
         private TemplateRules CreateApplicabilityRules(BreakedownItem item, string searchPropertyName)
         {
             var classificationCode = CreateClassificationRule(item.Code);
@@ -134,7 +162,7 @@ namespace LOIN.Mvd
             // var classificationName = CreateClassificationRule(item.Name);
             // var classificationNameProperty = CreatePropertyValueRule(searchPropertyName, item.Name);
             // var classificationNamePropertyRef = CreatePropertyClassificationReferenceRule(searchPropertyName, item.Name);
-            
+
             return CreateLogicalRule(TemplateRulesOperator.or,
                 classificationCode,
                 classificationCodeProperty,
@@ -718,7 +746,7 @@ namespace LOIN.Mvd
                 },
                 Views = new[] {
                     _view = new ModelView{
-                        applicableSchema = IFC4,
+                        applicableSchema = SCHEMA,
                         uuid = NewGuid(),
                         name = name,
                         code = code,
@@ -738,7 +766,7 @@ namespace LOIN.Mvd
             {
                 uuid = psetsUuid,
                 name = "Property Sets",
-                applicableSchema = schemas,
+                applicableSchema = SCHEMAS,
                 applicableEntity = new[] { nameof(IfcPropertySet) },
                 isPartial = true,
                 Rules = new[]{
@@ -795,7 +823,7 @@ namespace LOIN.Mvd
             {
                 uuid = propertyUuid,
                 name = "Property",
-                applicableSchema = schemas,
+                applicableSchema = SCHEMAS,
                 applicableEntity = new[] { nameof(IfcProperty) },
                 isPartial = true,
                 Rules = new[]{
@@ -827,7 +855,7 @@ namespace LOIN.Mvd
             {
                 uuid = singleValueUuid,
                 name = "Single value",
-                applicableSchema = schemas,
+                applicableSchema = SCHEMAS,
                 applicableEntity = new[] { nameof(IfcPropertySingleValue) },
                 isPartial = true,
                 Rules = new[]{
@@ -850,7 +878,7 @@ namespace LOIN.Mvd
             {
                 uuid = referenceValueUuid,
                 name = "Reference value",
-                applicableSchema = schemas,
+                applicableSchema = SCHEMAS,
                 applicableEntity = new[] { nameof(IfcPropertyReferenceValue) },
                 isPartial = true,
                 Rules = new[]{
@@ -868,15 +896,6 @@ namespace LOIN.Mvd
                                                 EntityRules = new AttributeRuleEntityRules {
                                                     EntityRule = new []{
                                                         new EntityRule { EntityName = nameof(IfcLabel) }
-                                                    }
-                                                }
-                                            },
-                                            new AttributeRule {
-                                                RuleID = "PRefDocDescription",
-                                                AttributeName = nameof(IfcDocumentReference.Description),
-                                                EntityRules = new AttributeRuleEntityRules {
-                                                    EntityRule = new []{
-                                                        new EntityRule { EntityName = nameof(IfcText) }
                                                     }
                                                 }
                                             }
@@ -897,17 +916,10 @@ namespace LOIN.Mvd
                                                 }
                                             },
                                             new AttributeRule {
-                                                RuleID = "PRefClassificationDescription",
-                                                AttributeName = nameof(IfcClassificationReference.Description),
-                                                EntityRules = new AttributeRuleEntityRules {
-                                                    EntityRule = new []{
-                                                        new EntityRule { EntityName = nameof(IfcText) }
-                                                    }
-                                                }
-                                            },
-                                            new AttributeRule {
                                                 RuleID = "PRefClassificationIdentifier",
-                                                AttributeName = nameof(IfcClassificationReference.Identification),
+                                                AttributeName = schema == XbimSchemaVersion.Ifc2X3 ?
+                                                    nameof(Xbim.Ifc2x3.ExternalReferenceResource.IfcClassificationReference.ItemReference):
+                                                    nameof(IfcClassificationReference.Identification),
                                                 EntityRules = new AttributeRuleEntityRules {
                                                     EntityRule = new []{
                                                         new EntityRule { EntityName = nameof(IfcIdentifier) }
@@ -938,15 +950,6 @@ namespace LOIN.Mvd
                                                         new EntityRule { EntityName = nameof(IfcText) }
                                                     }
                                                 }
-                                            },
-                                            new AttributeRule {
-                                                RuleID = "PRefOrgIdentification",
-                                                AttributeName = nameof(IfcOrganization.Identification),
-                                                EntityRules = new AttributeRuleEntityRules {
-                                                    EntityRule = new []{
-                                                        new EntityRule { EntityName = nameof(IfcIdentifier) }
-                                                    }
-                                                }
                                             }
                                         }
                                     }
@@ -964,7 +967,7 @@ namespace LOIN.Mvd
             {
                 uuid = classificationUuid,
                 name = "Classification reference",
-                applicableSchema = new[] { IFC4 },
+                applicableSchema = new[] { SCHEMA },
                 applicableEntity = new[] { nameof(IfcRelAssociatesClassification) },
                 isPartial = true,
                 Rules = new[]{
@@ -987,7 +990,10 @@ namespace LOIN.Mvd
                                             },
                                             new AttributeRule{
                                                 RuleID = "CRefId",
-                                                AttributeName = nameof(IfcClassificationReference.Identification),
+                                                AttributeName =
+                                                    schema == XbimSchemaVersion.Ifc2X3 ?
+                                                        nameof(Xbim.Ifc2x3.ExternalReferenceResource.IfcClassificationReference.ItemReference):
+                                                        nameof(IfcClassificationReference.Identification),
                                                 EntityRules = new AttributeRuleEntityRules{
                                                     EntityRule = new []{
                                                         new EntityRule { EntityName = nameof(IfcIdentifier)}
@@ -1010,7 +1016,7 @@ namespace LOIN.Mvd
             {
                 uuid = objectsAndTypesUuid,
                 name = "Property Sets and Classification References for Objects and Types",
-                applicableSchema = schemas,
+                applicableSchema = SCHEMAS,
                 applicableEntity = new[] { nameof(IfcObject) },
                 Rules = new[] {
                     new AttributeRule {

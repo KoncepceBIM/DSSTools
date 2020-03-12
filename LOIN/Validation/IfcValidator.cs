@@ -13,16 +13,16 @@ namespace LOIN.Validation
 {
     public class IfcValidator
     {
-        public IEnumerable<ValidationResult> SchemaErrors { get; private set; } = new ValidationResult[0];
-        public IEnumerable<ValidationResult> TemplateErrors { get; private set; } = new ValidationResult[0];
-        public IEnumerable<ValidationResult> PropertyErrors { get; private set; } = new ValidationResult[0];
+        public IEnumerable<ValidationResult> SchemaErrors { get; private set; } = Array.Empty<ValidationResult>();
+        public IEnumerable<ValidationResult> TemplateErrors { get; private set; } = Array.Empty<ValidationResult>();
+        public IEnumerable<ValidationResult> PropertyErrors { get; private set; } = Array.Empty<ValidationResult>();
 
         public bool Check(IModel model)
         {
-            ILogger log = Xbim.Common.XbimLogging.CreateLogger<IfcValidator>();
+            ILogger log = XbimLogging.CreateLogger<IfcValidator>();
 
             // check for parser exceptions
-            var v = new Xbim.Common.ExpressValidation.Validator
+            var v = new Validator
             {
                 ValidateLevel = ValidationFlags.All,
                 CreateEntityHierarchy = true
