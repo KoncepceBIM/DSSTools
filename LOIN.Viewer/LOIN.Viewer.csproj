@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LOIN.BCF\LOIN.BCF.csproj" />
     <ProjectReference Include="..\LOIN\LOIN.csproj" />
   </ItemGroup>
 

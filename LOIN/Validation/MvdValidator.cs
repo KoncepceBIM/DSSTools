@@ -119,7 +119,7 @@ namespace LOIN.Validation
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(obj, null))
+            if (obj is null)
                 return false;
             if (!(obj is MvdValidationResult r))
                 return false;

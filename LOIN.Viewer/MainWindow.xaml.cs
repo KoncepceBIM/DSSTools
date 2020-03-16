@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using LOIN.BCF;
 using LOIN.Context;
 using LOIN.Requirements;
 using LOIN.Validation;
@@ -99,6 +100,19 @@ namespace LOIN.Viewer
         public static readonly DependencyProperty ReasonsProperty =
             DependencyProperty.Register("Reasons", typeof(List<ReasonView>), typeof(MainWindow), new PropertyMetadata(null));
 
+        private static readonly string[] ignoreNamespaces = new[] {
+            "GeometricConstraintResource",
+            "GeometricModelResource",
+            "GeometryResource",
+            "ProfileResource",
+            "TopologyResource",
+            "RepresentationResource"
+        };
+        private static readonly string[] ignoreTypes = typeof(Xbim.Ifc4.EntityFactoryIfc4)
+            .Assembly.GetTypes()
+            .Where(t => t.IsClass && t.IsPublic && !t.IsAbstract && ignoreNamespaces.Any(ns => t.Namespace.EndsWith(ns)))
+            .Select(t => t.Name.ToUpperInvariant())
+            .ToArray();
 
         private void Validate_Click(object sender, RoutedEventArgs e)
         {
@@ -117,13 +131,7 @@ namespace LOIN.Viewer
                 return;
 
             var fileName = dlg.FileName;
-            var outPath = Path.ChangeExtension(fileName, ".validation");
-            if (!Directory.Exists(outPath))
-                Directory.CreateDirectory(outPath);
-            var mvdPath = Path.Combine(outPath, "validation.mvdXML");
-            var failedPath = Path.Combine(outPath, "failed.csv");
-            var passedPath = Path.Combine(outPath, "passed.csv");
-            var skippedPath = Path.Combine(outPath, "skipped.csv");
+            var bcfPath = Path.ChangeExtension(fileName, ".bcf");
 
             XbimSchemaVersion schema;
             using (var temp = File.OpenRead(fileName))
@@ -132,15 +140,14 @@ namespace LOIN.Viewer
             }
 
             var mvd = GetMvd(true, schema);
-            using (var s = File.Create(mvdPath))
-            {
-                mvd.Serialize(s);
-            }
 
-            using (var ifcFile = File.OpenRead(fileName))
+            var logger = XbimLogging.CreateLogger("MvdValidator");
+
+            using (var ifcStream = File.OpenRead(fileName))
+            using (var model = MemoryModel.OpenReadStep21(ifcStream, logger, null, ignoreTypes, false, false))
             {
                 var results = MvdValidator
-                    .ValidateModel(mvd, ifcFile, XbimLogging.CreateLogger("MvdValidator"))
+                    .ValidateModel(mvd, model)
                     .ToList();
                 if (results.All(r => r.Concept == null && r.Result == ConceptTestResult.DoesNotApply))
                 {
@@ -152,26 +159,94 @@ namespace LOIN.Viewer
                 var passed = results.Where(r => r.Result == ConceptTestResult.Pass).GroupBy(r => r.Entity).ToList();
                 var skipped = results.Where(r => r.Result == ConceptTestResult.DoesNotApply).GroupBy(r => r.Entity).ToList();
 
-                WriteResults(failedPath, failed.SelectMany(g => g));
-                WriteResults(passedPath, passed.SelectMany(g => g));
-                WriteResults(skippedPath, skipped.SelectMany(g => g));
+                var bcf = new BCFArchive();
+
+                // store reports as documents
+                bcf.Documents.Add(WriteResults("failed.csv", failed.SelectMany(g => g)));
+                bcf.Documents.Add(WriteResults("passed.csv", passed.SelectMany(g => g)));
+                bcf.Documents.Add(WriteResults("skipped.csv", skipped.SelectMany(g => g)));
+
+                // create topics
+                var failedConcepts = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Concept.name).ToList();
+                var actor = ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ?? "unknown@unknown.com";
+                foreach (var concept in failedConcepts)
+                {
+                    var issueId = Guid.NewGuid();
+                    var viewpointId = Guid.NewGuid();
+                    var issue = new TopicFolder {  
+                        Id = issueId,
+                        Markup  = new Markup { 
+                            Header = new List<HeaderFile> { 
+                                new HeaderFile {
+                                    isExternal = true,
+                                    Filename = Path.GetFileName(fileName),
+                                    IfcProject = model.Instances.FirstOrDefault<IIfcProject>()?.GlobalId
+                                }
+                            },
+                            Topic = new Topic { 
+                                CreationDate = DateTime.Now,
+                                Guid = issueId.ToString(),
+                                Title = $"Failed validation of {concept.Key}",
+                                DocumentReference = new List<TopicDocumentReference> { new TopicDocumentReference { 
+                                    isExternal = false,
+                                    ReferencedDocument = "../Documents/failed.csv"
+                                } },
+                                CreationAuthor = actor
+                            },
+                            Comment = new List<Comment> { 
+                                new Comment{ 
+                                    Date = DateTime.Now,
+                                    Author = actor,
+                                    Comment1 = $"Failed validation of {concept.Key}"
+                                }
+                            }, 
+                            Viewpoints = new List<ViewPoint> { 
+                                new ViewPoint { 
+                                    Guid = viewpointId.ToString(),
+                                    Viewpoint = "viewpoint.bcfv"
+                                }
+                            }
+                        }, 
+                        ViewPoints = new List<VisualizationInfo> { 
+                            new VisualizationInfo {
+                                Guid = viewpointId.ToString(),
+                                Components = new Components {
+                                    Selection = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component {
+                                        IfcGuid = e.GlobalId,
+                                        AuthoringToolId = e.OwnerHistory.OwningApplication.ApplicationIdentifier,
+                                        OriginatingSystem = e.EntityLabel.ToString(),
+                                    }).ToList()
+                                }
+                            }
+                        }
+                    };
+
+                    bcf.Topics.Add(issue);
+                }
+
+                using (var s = File.Create(bcfPath))
+                {
+                    bcf.Serialize(s);
+                }
 
                 if (!failed.Any())
                 {
-                    MessageBox.Show($"All {passed.Count} applicable entities are valid. {skipped.Count} entities not applicable.  Reports are saved in '{outPath}'",
+                    MessageBox.Show($"All {passed.Count} applicable entities are valid. {skipped.Count} entities not applicable.  Reports are saved in '{bcfPath}'",
                         "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show($"{failed.Count} applicable entities are invalid. {skipped.Count} entities not applicable. Reports are saved in '{outPath}'",
+                    MessageBox.Show($"{failed.Count} applicable entities are invalid. {skipped.Count} entities not applicable. Reports are saved in '{bcfPath}'",
                      "Invalid entities", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }
 
-        private void WriteResults(string path, IEnumerable<MvdValidationResult> results)
+        private DocumentFile WriteResults(string fileName, IEnumerable<MvdValidationResult> results)
         {
-            using (var writer = new StreamWriter(path))
+            var doc = new DocumentFile { Name = fileName, Stream = new MemoryStream() };
+
+            using (var writer = new StreamWriter(doc.Stream, null, -1, true))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.Configuration.SanitizeForInjection = false;
@@ -185,6 +260,9 @@ namespace LOIN.Viewer
                 });
                 csv.WriteRecords(lines);
             }
+
+            doc.Stream.Seek(0, SeekOrigin.Begin);
+            return doc;
         }
 
         private class Line

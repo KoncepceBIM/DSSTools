@@ -88,6 +88,10 @@ steps:
 # Build and pack client library
 - script: dotnet pack LOIN\LOIN.csproj -c $(buildConfiguration) -o $(Build.BinariesDirectory) /p:PackageVersion=$(packageversion)
   displayName: 'LOIN - packing'
+  
+# Build and pack BCF library
+- script: dotnet pack LOIN.BCF\LOIN.BCF.csproj -c $(buildConfiguration) -o $(Build.BinariesDirectory) /p:PackageVersion=$(packageversion)
+  displayName: 'BCF - packing'
 
 # Delete Files
 # Delete files or folders. (The minimatch patterns will only match file paths, not folder paths)
