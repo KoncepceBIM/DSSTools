@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="bfc.ico" />
     <None Remove="ifc.ico" />
     <None Remove="splash-screen.png" />
     <None Remove="xml.ico" />
@@ -28,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="bfc.ico" />
     <Resource Include="ifc.ico" />
     <Resource Include="xml.ico" />
   </ItemGroup>

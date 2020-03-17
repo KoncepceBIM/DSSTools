@@ -46,7 +46,7 @@
                 </MenuItem>
                 <MenuItem Header="_Validate model file against selection" Click="Validate_Click">
                     <MenuItem.Icon>
-                        <Image Source="ifc.ico"/>
+                        <Image Source="bcf.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
