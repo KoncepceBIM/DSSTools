@@ -39,16 +39,19 @@ namespace LOIN.BCF
                     using (var w = new StreamWriter(archive.CreateEntry($"{topic.Id}/markup.bcf").Open()))
                         w.Write(topic.Markup.Serialize());
 
-                    var count = 0;
+                    if (topic.ViewPoints.Any())
+                    {
+                        var defaultView = topic.ViewPoints.First();
+                        using (var w = new StreamWriter(archive.CreateEntry($"{topic.Id}/viewpoint.bcfv").Open()))
+                            w.Write(defaultView.Serialize());
+                    }
                     foreach (var view in topic.ViewPoints)
                     {
-                        var name = count > 0 ? $"viewpoint_{count:D3}.bcfv" : "viewpoint.bcfv";
-                        using (var w = new StreamWriter(archive.CreateEntry($"{topic.Id}/{name}").Open()))
+                        using (var w = new StreamWriter(archive.CreateEntry($"{topic.Id}/{view.Guid}.bcfv").Open()))
                             w.Write(view.Serialize());
-                        count++;
                     }
 
-                    count = 0;
+                    var count = 0;
                     foreach (var snapshot in topic.PngSnapshots)
                     {
                         var name = count > 0 ? $"snapshot_{count:D3}.bcfv" : "snapshot.bcfv";

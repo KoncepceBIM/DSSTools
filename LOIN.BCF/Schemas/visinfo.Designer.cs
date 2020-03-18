@@ -2708,7 +2708,7 @@ namespace LOIN.BCF
         /// </summary>
         public virtual bool ShouldSerializeExceptions()
         {
-            return Exceptions != null && Exceptions.Count > 0;
+            return Exceptions != null;
         }
 
         /// <summary>

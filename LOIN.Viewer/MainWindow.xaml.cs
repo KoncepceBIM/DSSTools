@@ -181,6 +181,14 @@ namespace LOIN.Viewer
                 {
                     var issueId = Guid.NewGuid();
                     var viewpointId = Guid.NewGuid();
+                    var defViewpointId = Guid.NewGuid();
+                    var components = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component
+                    {
+                        IfcGuid = e.GlobalId,
+                        AuthoringToolId = e.OwnerHistory.OwningApplication.ApplicationIdentifier,
+                        OriginatingSystem = e.EntityLabel.ToString(),
+                    }).ToList();
+
                     var issue = new TopicFolder {  
                         Id = issueId,
                         Markup  = new Markup { 
@@ -195,6 +203,7 @@ namespace LOIN.Viewer
                                 CreationDate = DateTime.Now,
                                 Guid = issueId.ToString(),
                                 Title = $"Failed validation of {concept.Key}",
+                                Description = $"This is automatically generater error report for DSS. This topic refers to all entities which should have {concept.Key} but it wasn't found.",
                                 DocumentReference = new List<TopicDocumentReference> { 
                                     new TopicDocumentReference { 
                                         isExternal = false,
@@ -210,26 +219,49 @@ namespace LOIN.Viewer
                                 new Comment{ 
                                     Date = DateTime.Now,
                                     Author = actor,
-                                    Comment1 = $"Failed validation of {concept.Key}"
+                                    Comment1 = $"Failed validation of {concept.Key}",
+                                    Viewpoint = new CommentViewpoint{ Guid = viewpointId.ToString() } 
                                 }
                             }, 
                             Viewpoints = new List<ViewPoint> { 
                                 new ViewPoint { 
-                                    Guid = viewpointId.ToString(),
+                                    Index = 0,
+                                    Guid = defViewpointId.ToString(),
                                     Viewpoint = "viewpoint.bcfv"
+                                },
+                                new ViewPoint {
+                                    Index = 1,
+                                    Guid = viewpointId.ToString(),
+                                    Viewpoint = $"{viewpointId.ToString()}.bcfv"
                                 }
                             }
                         }, 
-                        ViewPoints = new List<VisualizationInfo> { 
+                        ViewPoints = new List<VisualizationInfo> {
                             new VisualizationInfo {
-                                Guid = viewpointId.ToString(),
+                                Guid = defViewpointId.ToString(),
                                 Components = new Components {
+                                    ViewSetupHints = new ViewSetupHints { OpeningsVisible = false, SpaceBoundariesVisible = false, SpacesVisible = false },
                                     Selection = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component {
                                         IfcGuid = e.GlobalId,
                                         AuthoringToolId = e.OwnerHistory.OwningApplication.ApplicationIdentifier,
                                         OriginatingSystem = e.EntityLabel.ToString(),
-                                    }).ToList()
-                                }
+                                    }).ToList(),
+                                    Visibility = new ComponentVisibility{ DefaultVisibility = true, Exceptions = new List<Component>() },
+                                    Coloring = new List<ComponentColoringColor>{ 
+                                        new ComponentColoringColor {
+                                            Color ="FF00FF00",
+                                            Component = components
+                                        }
+                                    }
+                                },
+                            },
+                            new VisualizationInfo {
+                                Guid = viewpointId.ToString(),
+                                Components = new Components {
+                                    ViewSetupHints = new ViewSetupHints { OpeningsVisible = false, SpaceBoundariesVisible = false, SpacesVisible = false },
+                                    Selection = components,
+                                    Visibility = new ComponentVisibility{ DefaultVisibility = false, Exceptions = new List<Component>() }
+                                },
                             }
                         }
                     };
