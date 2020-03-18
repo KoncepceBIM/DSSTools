@@ -166,9 +166,17 @@ namespace LOIN.Viewer
                 bcf.Documents.Add(WriteResults("passed.csv", passed.SelectMany(g => g)));
                 bcf.Documents.Add(WriteResults("skipped.csv", skipped.SelectMany(g => g)));
 
+                // store actual MVD as a document
+                var mvdStream = new MemoryStream();
+                mvd.Serialize(mvdStream);
+                bcf.Documents.Add(new DocumentFile { Name = "validation.mvdXML", Stream = mvdStream });
+
                 // create topics
                 var failedConcepts = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Concept.name).ToList();
-                var actor = ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ?? "unknown@unknown.com";
+                var actor = 
+                    ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ?? 
+                    Actors.FirstOrDefault()?.Name ??
+                    "unknown@unknown.com";
                 foreach (var concept in failedConcepts)
                 {
                     var issueId = Guid.NewGuid();
@@ -187,10 +195,15 @@ namespace LOIN.Viewer
                                 CreationDate = DateTime.Now,
                                 Guid = issueId.ToString(),
                                 Title = $"Failed validation of {concept.Key}",
-                                DocumentReference = new List<TopicDocumentReference> { new TopicDocumentReference { 
-                                    isExternal = false,
-                                    ReferencedDocument = "../Documents/failed.csv"
-                                } },
+                                DocumentReference = new List<TopicDocumentReference> { 
+                                    new TopicDocumentReference { 
+                                        isExternal = false,
+                                        ReferencedDocument = "../Documents/failed.csv"
+                                    },
+                                    new TopicDocumentReference {
+                                        isExternal = false,
+                                        ReferencedDocument = "../Documents/validation.mvdXML"
+                                    }},
                                 CreationAuthor = actor
                             },
                             Comment = new List<Comment> { 

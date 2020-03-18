@@ -72,7 +72,7 @@ namespace LOIN.Mvd
         {
             var concepts = new List<Concept>();
             // get requirements for this item in this context
-            var requirementSets = model.GetRequirements(item).Where(r => 
+            var requirementSets = model.GetRequirements(item).Where(r =>
                 r.Actors.Any(ContextFilter) &&
                 r.Milestones.Any(ContextFilter) &&
                 r.Reasons.Any(ContextFilter)
@@ -91,14 +91,18 @@ namespace LOIN.Mvd
 
                 foreach (var pset in psets)
                 {
-                    // create rules
-                    var rules = CreateValidationRules(pset);
-                    if (rules == null)
-                        continue;
+                    // create rules per property set
+                    // var rules = CreateValidationRules(pset);
+                    foreach (var prop in pset.HasPropertyTemplates)
+                    {
+                        var rules = CreatePropertyExistanceRule(pset.Name, prop.Name);
+                        if (rules == null)
+                            continue;
 
-                    // create concept
-                    var concept = CreateConcept(pset.Name, pset.Description, rules, requirements);
-                    concepts.Add(concept);
+                        // create concept
+                        var concept = CreateConcept($"{pset.Name}.{prop.Name}", prop.Description, rules, requirements);
+                        concepts.Add(concept);
+                    }
                 }
             }
             return concepts;
