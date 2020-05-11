@@ -136,5 +136,6 @@ namespace LOIN.Context
         {
             return _relations.Where(r => r.RelatedObjects.Contains(requirements.Entity)).Select(r => r.ActingRole);
         }
+
     }
 }

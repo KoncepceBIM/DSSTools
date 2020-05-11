@@ -8,5 +8,8 @@
 
         string Name { get; }
         string Description { get; }
+
+        string GetName(string lang);
+        string GetDescription(string lang);
     }
 }
