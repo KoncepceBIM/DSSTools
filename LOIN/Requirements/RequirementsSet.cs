@@ -41,15 +41,17 @@ namespace LOIN.Requirements
         public IEnumerable<Reason> Reasons => Model.Reasons.Where(a => a.IsContextFor(this));
 
         // requirements
-        public IEnumerable<IfcPropertySetTemplate> Requirements => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertySetTemplate>());
+        public IEnumerable<IfcPropertySetTemplate> RequirementSets => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertySetTemplate>());
+        public IEnumerable<IfcPropertyTemplate> Requirements => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertyTemplate>())
+            .Union(RequirementSets.SelectMany(r => r.HasPropertyTemplates));
 
-        public void Remove(IfcPropertySetTemplate template)
+        public void Remove(IfcPropertyTemplateDefinition template)
         {
             foreach (var rel in _relations)
                 rel.RelatedDefinitions.Remove(template);
         }
 
-        public void Add(IfcPropertySetTemplate template)
+        public void Add(IfcPropertyTemplateDefinition template)
         {
             if (!_relations.Any())
             {

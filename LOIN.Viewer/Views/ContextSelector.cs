@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Viewer.Views
 {
@@ -68,7 +66,7 @@ namespace LOIN.Viewer.Views
                 .ToList();
 
             Requirements = RequirementSets
-                .SelectMany(rs => rs.Requirements).Distinct()
+                .SelectMany(rs => rs.RequirementSets).Distinct()
                 .Select(rs => new RequirementSetView(rs))
                 .ToList();
 

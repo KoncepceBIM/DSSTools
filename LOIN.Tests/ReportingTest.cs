@@ -26,7 +26,7 @@ namespace LOIN.Tests
                             {
                                 var requirementSets = 
                                     model.GetRequirements(item, milestone, actor, reason)
-                                    .SelectMany(r => r.Requirements)
+                                    .SelectMany(r => r.RequirementSets)
                                     .ToList();
                                 if (!requirementSets.Any())
                                     continue;

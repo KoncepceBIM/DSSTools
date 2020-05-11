@@ -80,7 +80,7 @@ namespace LOIN.Mvd
             foreach (var requirementSet in requirementSets)
             {
                 // skip if there are no actual required psets
-                var psets = requirementSet.Requirements.Where(RequirementsFilter).ToList();
+                var psets = requirementSet.RequirementSets.Where(RequirementsFilter).ToList();
                 if (!psets.Any())
                     continue;
 

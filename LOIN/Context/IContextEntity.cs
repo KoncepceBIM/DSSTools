@@ -8,6 +8,5 @@
 
         string Name { get; }
         string Description { get; }
-
     }
 }
