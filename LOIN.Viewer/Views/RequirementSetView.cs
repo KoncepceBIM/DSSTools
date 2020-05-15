@@ -17,7 +17,7 @@ namespace LOIN.Viewer.Views
             this.PsetTemplate = psetTemplate;
             Requirements = psetTemplate.HasPropertyTemplates
                 .OfType<IfcSimplePropertyTemplate>()
-                .Select(p => new RequirementView(p))
+                .Select(p => new RequirementView(p, this))
                 .ToList();
 
 
@@ -41,7 +41,16 @@ namespace LOIN.Viewer.Views
             {
                 _isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
+
+                // forward to all requirements in the set
+                Requirements.ForEach(r => r.IsSelected = IsSelected);
             }
+        }
+
+        internal void ShallowSelect(bool value)
+        {
+            _isSelected = value;
+            OnPropertyChanged(nameof(IsSelected));
         }
 
         public string Name => PsetTemplate.Name;

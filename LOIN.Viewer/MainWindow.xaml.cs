@@ -173,8 +173,8 @@ namespace LOIN.Viewer
 
                 // create topics
                 var failedConcepts = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Concept.name).ToList();
-                var actor = 
-                    ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ?? 
+                var actor =
+                    ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ??
                     Actors.FirstOrDefault()?.Name ??
                     "unknown@unknown.com";
                 foreach (var concept in failedConcepts)
@@ -189,23 +189,26 @@ namespace LOIN.Viewer
                         OriginatingSystem = e.EntityLabel.ToString(),
                     }).ToList();
 
-                    var issue = new TopicFolder {  
+                    var issue = new TopicFolder
+                    {
                         Id = issueId,
-                        Markup  = new Markup { 
-                            Header = new List<HeaderFile> { 
+                        Markup = new Markup
+                        {
+                            Header = new List<HeaderFile> {
                                 new HeaderFile {
                                     isExternal = true,
                                     Filename = Path.GetFileName(fileName),
                                     IfcProject = model.Instances.FirstOrDefault<IIfcProject>()?.GlobalId
                                 }
                             },
-                            Topic = new Topic { 
+                            Topic = new Topic
+                            {
                                 CreationDate = DateTime.Now,
                                 Guid = issueId.ToString(),
                                 Title = $"Failed validation of {concept.Key}",
                                 Description = $"This is automatically generater error report for DSS. This topic refers to all entities which should have {concept.Key} but it wasn't found.",
-                                DocumentReference = new List<TopicDocumentReference> { 
-                                    new TopicDocumentReference { 
+                                DocumentReference = new List<TopicDocumentReference> {
+                                    new TopicDocumentReference {
                                         isExternal = false,
                                         ReferencedDocument = "../Documents/failed.csv"
                                     },
@@ -215,16 +218,16 @@ namespace LOIN.Viewer
                                     }},
                                 CreationAuthor = actor
                             },
-                            Comment = new List<Comment> { 
-                                new Comment{ 
+                            Comment = new List<Comment> {
+                                new Comment{
                                     Date = DateTime.Now,
                                     Author = actor,
                                     Comment1 = $"Failed validation of {concept.Key}",
-                                    Viewpoint = new CommentViewpoint{ Guid = viewpointId.ToString() } 
+                                    Viewpoint = new CommentViewpoint{ Guid = viewpointId.ToString() }
                                 }
-                            }, 
-                            Viewpoints = new List<ViewPoint> { 
-                                new ViewPoint { 
+                            },
+                            Viewpoints = new List<ViewPoint> {
+                                new ViewPoint {
                                     Index = 0,
                                     Guid = defViewpointId.ToString(),
                                     Viewpoint = "viewpoint.bcfv"
@@ -235,7 +238,7 @@ namespace LOIN.Viewer
                                     Viewpoint = $"{viewpointId.ToString()}.bcfv"
                                 }
                             }
-                        }, 
+                        },
                         ViewPoints = new List<VisualizationInfo> {
                             new VisualizationInfo {
                                 Guid = defViewpointId.ToString(),
@@ -247,7 +250,7 @@ namespace LOIN.Viewer
                                         OriginatingSystem = e.EntityLabel.ToString(),
                                     }).ToList(),
                                     Visibility = new ComponentVisibility{ DefaultVisibility = true, Exceptions = new List<Component>() },
-                                    Coloring = new List<ComponentColoringColor>{ 
+                                    Coloring = new List<ComponentColoringColor>{
                                         new ComponentColoringColor {
                                             Color ="FF00FF00",
                                             Component = components
@@ -333,35 +336,57 @@ namespace LOIN.Viewer
             if (dlg.ShowDialog() != true)
                 return;
 
-            // positive filter for context relations
-            var requirementSets = ContextSelector.RequirementSets;
-            var requirementsFiler = new HashSet<int>(requirementSets.Select(r => r.Entity.EntityLabel));
+            // positive filter for declared requirement sets (property set templates)
+            var psets = ContextSelector.RequirementSets.Where(r => r.IsSelected).Select(r => r.PsetTemplate);
+            if (!psets.Any())
+                psets = ContextSelector.RequirementSets.Select(r => r.PsetTemplate);
+            var psetFilter = new HashSet<IfcPropertySetTemplate>(psets);
+
+            // positive filter for declared requirements (propertytemplates)
+            var properties = ContextSelector.Requirements.Where(r => r.IsSelected).Select(r => r.PropertyTemplate);
+            if (!properties.Any())
+                properties = ContextSelector.Requirements.Select(r => r.PropertyTemplate);
+            var propertyFilter = new HashSet<IfcPropertyTemplate>(properties);
 
             // root elements for copy operation
-            var breakedownRels = ContextSelector.Context.OfType<BreakedownItem>()
-                .SelectMany(i => i.Relations)
-                .Where(r => r.RelatedObjects.Any(o => requirementsFiler.Contains(o.EntityLabel)))
+            var requirementSets = ContextSelector.LevelsOfInformationNeeded;
+            var declareRels = requirementSets.SelectMany(r => r.Relations).Where(r => r.RelatedDefinitions
+                    .Any(d => psetFilter.Contains(d) || propertyFilter.Contains(d)))
+                .Distinct()
                 .ToList();
-            var milestoneRels = ContextSelector.Context.OfType<Milestone>()
-                .SelectMany(i => i.Relations)
-                .Where(r => r.RelatedObjects.Any(o => requirementsFiler.Contains(o.EntityLabel)))
+            var projLibFilter = new HashSet<int>(declareRels.Select(r => r.RelatingContext.EntityLabel));
+
+            // further refinement
+            requirementSets = requirementSets
+                .Where(r => projLibFilter.Contains(r.Entity.EntityLabel))
                 .ToList();
-            var reasonRels = ContextSelector.Context.OfType<Reason>()
+
+            // positive filter for context relations
+            var requirementsFilter = new HashSet<int>(requirementSets.Select(r => r.Entity.EntityLabel));
+
+            // context items to copy
+            var breakedownRels = requirementSets.SelectMany(r => r.BreakedownItems)
                 .SelectMany(i => i.Relations)
-                .Where(r => r.RelatedObjects.Any(o => requirementsFiler.Contains(o.EntityLabel)))
+                .Distinct()
+                .Where(r => r.RelatedObjects.Any(o => projLibFilter.Contains(o.EntityLabel)))
                 .ToList();
-            var actorRels = ContextSelector.Context.OfType<Actor>()
+            var milestoneRels = requirementSets.SelectMany(r => r.Milestones)
                 .SelectMany(i => i.Relations)
-                .Where(r => r.RelatedObjects.Any(o => requirementsFiler.Contains(o.EntityLabel)))
+                .Distinct()
+                .Where(r => r.RelatedObjects.Any(o => projLibFilter.Contains(o.EntityLabel)))
                 .ToList();
-            var declareRels = requirementSets.SelectMany(r => r.Relations);
+            var reasonRels = requirementSets.SelectMany(r => r.Reasons)
+                .SelectMany(i => i.Relations)
+                .Distinct()
+                .Where(r => r.RelatedObjects.Any(o => projLibFilter.Contains(o.EntityLabel)))
+                .ToList();
+            var actorRels = requirementSets.SelectMany(r => r.Actors)
+                .SelectMany(i => i.Relations)
+                .Distinct()
+                .Where(r => r.RelatedObjects.Any(o => projLibFilter.Contains(o.EntityLabel)))
+                .ToList();
 
 
-            // positive filter for declared requirements
-            var psets = ContextSelector.Requirements.Where(r => r.IsSelected).Select(r => r.PsetTemplate);
-            if (!psets.Any())
-                psets = ContextSelector.Requirements.Select(r => r.PsetTemplate);
-            var definitionsFilter = new HashSet<IfcPropertySetTemplate>(psets);
 
             // actual copy logic
             var source = _model.Internal;
@@ -381,7 +406,7 @@ namespace LOIN.Viewer
                             if (obj is IfcRelAssociatesClassification rc && prop.Name == nameof(IfcRelAssociatesClassification.RelatedObjects))
                             {
                                 return rc.RelatedObjects
-                                    .Where(o => requirementsFiler.Contains(o.EntityLabel))
+                                    .Where(o => requirementsFilter.Contains(o.EntityLabel))
                                     .ToList();
                             }
                             return prop.PropertyInfo.GetValue(obj);
@@ -397,7 +422,7 @@ namespace LOIN.Viewer
                             if (obj is IfcRelAssignsToProcess rp && prop.Name == nameof(IfcRelAssignsToProcess.RelatedObjects))
                             {
                                 return rp.RelatedObjects
-                                    .Where(o => requirementsFiler.Contains(o.EntityLabel))
+                                    .Where(o => requirementsFilter.Contains(o.EntityLabel))
                                     .ToList();
                             }
                             return prop.PropertyInfo.GetValue(obj);
@@ -413,7 +438,7 @@ namespace LOIN.Viewer
                             if (obj is IfcRelAssignsToControl rp && prop.Name == nameof(IfcRelAssignsToControl.RelatedObjects))
                             {
                                 return rp.RelatedObjects
-                                    .Where(o => requirementsFiler.Contains(o.EntityLabel))
+                                    .Where(o => requirementsFilter.Contains(o.EntityLabel))
                                     .ToList();
                             }
                             return prop.PropertyInfo.GetValue(obj);
@@ -429,7 +454,7 @@ namespace LOIN.Viewer
                             if (obj is IfcRelAssignsToActor rp && prop.Name == nameof(IfcRelAssignsToActor.RelatedObjects))
                             {
                                 return rp.RelatedObjects
-                                    .Where(o => requirementsFiler.Contains(o.EntityLabel))
+                                    .Where(o => requirementsFilter.Contains(o.EntityLabel))
                                     .ToList();
                             }
                             return prop.PropertyInfo.GetValue(obj);
@@ -445,7 +470,13 @@ namespace LOIN.Viewer
                             if (obj is IfcRelDeclares rp && prop.Name == nameof(IfcRelDeclares.RelatedDefinitions))
                             {
                                 return rp.RelatedDefinitions
-                                    .Where(o => definitionsFilter.Contains(o))
+                                    .Where(o => psetFilter.Contains(o) || propertyFilter.Contains(o))
+                                    .ToList();
+                            }
+                            if (obj is IfcPropertySetTemplate pset && prop.Name == nameof(IfcPropertySetTemplate.HasPropertyTemplates))
+                            {
+                                return pset.HasPropertyTemplates
+                                    .Where(p => propertyFilter.Contains(p))
                                     .ToList();
                             }
                             return prop.PropertyInfo.GetValue(obj);
@@ -488,14 +519,20 @@ namespace LOIN.Viewer
             var reasons = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Reason>());
             var actors = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Actor>());
 
-            var psets = ContextSelector.Requirements.Where(r => r.IsSelected).Select(r => r.PsetTemplate);
+            var psets = ContextSelector.RequirementSets.Where(r => r.IsSelected).Select(r => r.PsetTemplate);
             if (!psets.Any())
-                psets = ContextSelector.Requirements.Select(r => r.PsetTemplate);
+                psets = ContextSelector.RequirementSets.Select(r => r.PsetTemplate);
+            var setRequirements = new HashSet<IfcPropertySetTemplate>(psets);
 
-            var requirements = new HashSet<IfcPropertySetTemplate>(psets);
+            var props = ContextSelector.Requirements.Where(r => r.IsSelected).Select(r => r.PropertyTemplate);
+            if (!props.Any())
+                props = ContextSelector.Requirements.Select(r => r.PropertyTemplate);
+            var requirements = new HashSet<IfcPropertyTemplate>(props);
 
             // filtered export
             return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID",
+
+                // context filter
                 c =>
                 {
                     if (breakedown.Count > 0 && c is BreakedownItem i)
@@ -509,6 +546,11 @@ namespace LOIN.Viewer
                     return true;
 
                 },
+
+                // property set filter
+                ps => setRequirements.Contains(ps), 
+
+                // property filter
                 p => requirements.Contains(p));
         }
 

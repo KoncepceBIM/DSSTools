@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Viewer.Views
 {
@@ -58,23 +59,43 @@ namespace LOIN.Viewer.Views
                         context.Add(item.Parent);
                     }
                 }
+
+                // continuous filtering refinement
                 requirements = requirements.Where(r => contextType.Any(c => c.IsContextFor(r)));
             }
 
-            RequirementSets = requirements
-                .Distinct()
-                .ToList();
-
-            Requirements = RequirementSets
-                .SelectMany(rs => rs.RequirementSets).Distinct()
+            RequirementSets = requirements.SelectMany(rs => rs.RequirementSets).Distinct()
                 .Select(rs => new RequirementSetView(rs))
                 .ToList();
 
+            // requirements from sets
+            Requirements = RequirementSets.SelectMany(rs => rs.Requirements).ToList();
+
+            // requirements used directly without property set
+            var map = new Dictionary<int, RequirementSetView>();
+            var check = new HashSet<int>(Requirements.Select(r => r.PropertyTemplate.EntityLabel));
+            var directRequirements = requirements
+                .SelectMany(rs => rs.Requirements)
+                .Where(r => check.Add(r.EntityLabel) && r is IfcSimplePropertyTemplate)
+                .Select(r => new RequirementView((IfcSimplePropertyTemplate)r, map));
+
+            // add direct properties and their parent property sets (if any)
+            Requirements.AddRange(directRequirements);
+            RequirementSets.AddRange(map.Values);
+
+            // keep information about the primary filter
+            LevelsOfInformationNeeded = requirements.ToList();
+
+            // notify about the change of both
             OnPropertyChanged(nameof(Requirements));
+            OnPropertyChanged(nameof(RequirementSets));
+            OnPropertyChanged(nameof(LevelsOfInformationNeeded));
         }
 
-        public List<RequirementSetView> Requirements { get; private set; }
-        public List<RequirementsSet> RequirementSets { get; private set; }
+        public List<RequirementView> Requirements { get; private set; }
+        public List<RequirementSetView> RequirementSets { get; private set; }
+
+        public List<RequirementsSet> LevelsOfInformationNeeded { get; private set; }
 
         private bool _includeUpperBreakdown = true;
         public bool IncludeUpperBreakdown

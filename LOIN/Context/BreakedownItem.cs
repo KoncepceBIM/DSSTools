@@ -26,6 +26,19 @@ namespace LOIN.Context
         private List<BreakedownItem> _children = new List<BreakedownItem>();
         public IEnumerable<BreakedownItem> Children => _children;
 
+        public IEnumerable<BreakedownItem> Parents
+        {
+            get 
+            {
+                var p = Parent;
+                while (p != null)
+                {
+                    yield return p;
+                    p = p.Parent;
+                }
+            }
+        }
+
         internal void AddChild(BreakedownItem child)
         {
             _children.Add(child);

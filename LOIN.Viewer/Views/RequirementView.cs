@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using Xbim.Ifc4.Kernel;
 
@@ -8,16 +9,39 @@ namespace LOIN.Viewer.Views
 {
     public class RequirementView : INotifyPropertyChanged
     {
-        private readonly IfcSimplePropertyTemplate property;
         private string lang;
 
-
-        public RequirementView(IfcSimplePropertyTemplate property)
+        private static RequirementSetView GetOrCreate(IfcSimplePropertyTemplate property, Dictionary<int, RequirementSetView> map)
         {
-            this.property = property;
+            // enumerate inverse property. This is potentially expensive
+            var pset = property.PartOfPsetTemplate.FirstOrDefault();
+            if (pset == null)
+                return null;
 
+            if (map.TryGetValue(pset.EntityLabel, out RequirementSetView view))
+            {
+                return view;
+            }
 
-            Language.PropertyChanged += (_, p) => {
+            view = new RequirementSetView(pset);
+            view.Requirements.Clear();
+            map.Add(pset.EntityLabel, view);
+            return view;
+        }
+
+        public RequirementView(IfcSimplePropertyTemplate property, Dictionary<int, RequirementSetView> map) : 
+            this(property, GetOrCreate(property, map), true) { }
+
+        public RequirementView(IfcSimplePropertyTemplate property, RequirementSetView requirementSet, bool addSelf = false)
+        {
+            PropertyTemplate = property;
+            Parent = requirementSet;
+
+            if (addSelf)
+                Parent.Requirements.Add(this);
+
+            Language.PropertyChanged += (_, p) =>
+            {
                 if (p.PropertyName != nameof(Language.Lang))
                     return;
                 lang = Language.Lang;
@@ -36,16 +60,23 @@ namespace LOIN.Viewer.Views
             {
                 _isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
+
+                if (value && Parent != null)
+                    Parent.ShallowSelect(true);
             }
         }
 
-        public string Name => property.Name;
+        public string Name => PropertyTemplate.Name;
 
-        public string Description => property.Description;
+        public string Description => PropertyTemplate.Description;
 
-        public string Name2 => property.GetName(lang) ?? Name;
-        public string Description2 => property.GetDescription(lang) ?? Description;
+        public string Name2 => PropertyTemplate.GetName(lang) ?? Name;
+        public string Description2 => PropertyTemplate.GetDescription(lang) ?? Description;
 
-        public string ValueType => property.PrimaryMeasureType;
+        public string ValueType => PropertyTemplate.PrimaryMeasureType;
+
+        public RequirementSetView Parent { get; }
+
+        public IfcSimplePropertyTemplate PropertyTemplate { get; }
     }
 }

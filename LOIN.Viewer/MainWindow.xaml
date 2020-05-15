@@ -126,52 +126,82 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="4*"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="6*"/>
-                </Grid.RowDefinitions>
-                <DockPanel>
-                    <DockPanel  DockPanel.Dock="Right">
-                        <Label>Include upper categories</Label>
-                        <CheckBox IsChecked="{Binding ElementName=self, Path=ContextSelector.IncludeUpperBreakdown}" VerticalAlignment="Center" 
-                                  Padding="0 0 5 0"/>
-                    </DockPanel>
-                    <TextBlock Grid.Row="0">Requirement sets (<Run Text="{Binding ElementName=self, Path=ContextSelector.Requirements.Count, Mode=OneWay}"></Run>)</TextBlock>
-                </DockPanel>
-                <DataGrid Grid.Row="1" Name="dgPSets" ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
+            <TabControl Grid.Column="1">
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Grid.Row="0">Requirements (<Run Text="{Binding ElementName=self, Path=ContextSelector.Requirements.Count, Mode=OneWay}"></Run>)</TextBlock>
+                    </TabItem.Header>
+                    <DataGrid ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
-                    <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style>
-                                    <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <TextBlock Grid.Row="2">Requirements (<Run Text="{Binding ElementName=dgPSets, Path=SelectedItem.Requirements.Count, Mode=OneWay}"></Run>)</TextBlock>
-                <DataGrid Grid.Row="3" Name="dgProps" ItemsSource="{Binding ElementName=dgPSets, Path=SelectedItem.Requirements}"
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                            <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding ValueType}" Header="Value Type" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Unit" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Set name" IsReadOnly="True" Binding="{Binding Parent.Name}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Grid.Row="0">Requirement sets (<Run Text="{Binding ElementName=self, Path=ContextSelector.RequirementSets.Count, Mode=OneWay}"></Run>)</TextBlock>
+                    </TabItem.Header>
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="6*"/>
+                        </Grid.RowDefinitions>
+                        <DockPanel>
+                            <DockPanel  DockPanel.Dock="Right">
+                                <Label>Include upper categories</Label>
+                                <CheckBox IsChecked="{Binding ElementName=self, Path=ContextSelector.IncludeUpperBreakdown}" VerticalAlignment="Center" 
+                                  Padding="0 0 5 0"/>
+                            </DockPanel>
+                        </DockPanel>
+                        <DataGrid Grid.Row="1" Name="dgPSets" ItemsSource="{Binding ElementName=self, Path=ContextSelector.RequirementSets}"
+                           AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                                <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style>
+                                            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Grid.Row="2">Requirements (<Run Text="{Binding ElementName=dgPSets, Path=SelectedItem.Requirements.Count, Mode=OneWay}"></Run>)</TextBlock>
+                        <DataGrid Grid.Row="3" Name="dgProps" ItemsSource="{Binding ElementName=dgPSets, Path=SelectedItem.Requirements}"
                     AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style>
-                                    <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Binding="{Binding ValueType}" Header="Value Type" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Unit" IsReadOnly="True"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
+                                <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style>
+                                            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding ValueType}" Header="Value Type" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Unit" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
         </Grid>
     </Grid>
 </Window>

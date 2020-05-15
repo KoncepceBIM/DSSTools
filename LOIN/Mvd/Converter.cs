@@ -32,13 +32,16 @@ namespace LOIN.Mvd
         private readonly string[] SCHEMAS = new[] { "IFC4" };
         private readonly XbimSchemaVersion schema;
 
-        public Func<IfcPropertySetTemplate, bool> RequirementsFilter { get; set; }
+        public Func<IfcPropertySetTemplate, bool> RequirementSetsFilter { get; set; }
+        public Func<IfcPropertyTemplate, bool> RequirementsFilter { get; set; }
 
         public Func<IContextEntity, bool> ContextFilter { get; set; }
 
         public Converter(XbimSchemaVersion schema, string primaryLanguage,
             Func<IContextEntity, bool> contextFilter = null,
-            Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
+            Func<IfcPropertySetTemplate, bool> requirementSetFilter = null,
+            Func<IfcPropertyTemplate, bool> requirementsFilter = null
+            )
         {
             this.schema = schema;
             SCHEMA = schema.ToString().ToUpperInvariant();
@@ -46,7 +49,8 @@ namespace LOIN.Mvd
 
             _language = primaryLanguage;
             ContextFilter = contextFilter ?? ((IContextEntity a) => true);
-            RequirementsFilter = requirementsFilter ?? ((IfcPropertySetTemplate t) => true);
+            RequirementSetsFilter = requirementSetFilter ?? ((IfcPropertySetTemplate t) => true);
+            RequirementsFilter = requirementsFilter ?? ((IfcPropertyTemplate t) => true);
         }
 
         public mvdXML Convert(Model model, string name, string definition, string code, string classificationProperty)
@@ -80,7 +84,7 @@ namespace LOIN.Mvd
             foreach (var requirementSet in requirementSets)
             {
                 // skip if there are no actual required psets
-                var psets = requirementSet.RequirementSets.Where(RequirementsFilter).ToList();
+                var psets = requirementSet.RequirementSets.Where(RequirementSetsFilter).ToList();
                 if (!psets.Any())
                     continue;
 
@@ -93,7 +97,7 @@ namespace LOIN.Mvd
                 {
                     // create rules per property set
                     // var rules = CreateValidationRules(pset);
-                    foreach (var prop in pset.HasPropertyTemplates)
+                    foreach (var prop in pset.HasPropertyTemplates.Where(p => RequirementsFilter(p)))
                     {
                         var rules = CreatePropertyExistanceRule(pset.Name, prop.Name);
                         if (rules == null)
@@ -141,7 +145,9 @@ namespace LOIN.Mvd
         private TemplateRules CreateValidationRules(IEnumerable<IfcPropertySetTemplate> pSets)
         {
             var rules = pSets
-                .SelectMany(ps => ps.HasPropertyTemplates.Select(p => new { PSet = ps.Name, PName = p.Name }))
+                .SelectMany(ps => ps.HasPropertyTemplates
+                    .Where(p => RequirementsFilter(p))
+                    .Select(p => new { PSet = ps.Name, PName = p.Name }))
                 .Select(p => CreatePropertyExistanceRule(p.PSet, p.PName))
                 .ToArray();
 
@@ -153,7 +159,9 @@ namespace LOIN.Mvd
 
         private TemplateRules CreateValidationRules(IfcPropertySetTemplate pSet)
         {
-            var rules = pSet.HasPropertyTemplates.Select(p => new { PSet = pSet.Name, PName = p.Name })
+            var rules = pSet.HasPropertyTemplates
+                    .Where(p => RequirementsFilter(p))
+                    .Select(p => new { PSet = pSet.Name, PName = p.Name })
                 .Select(p => CreatePropertyExistanceRule(p.PSet, p.PName))
                 .ToArray();
 

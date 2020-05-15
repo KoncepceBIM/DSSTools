@@ -250,9 +250,10 @@ namespace LOIN
 
         public mvdXML GetMvd(XbimSchemaVersion schema, string languageCode, string name, string definition, string code, string classificationProperty,
             Func<IContextEntity, bool> contextFilter = null,
-            Func<IfcPropertySetTemplate, bool> requirementsFilter = null)
+            Func<IfcPropertySetTemplate, bool> requirementSetFilter = null,
+            Func<IfcPropertyTemplate, bool> requirementsFilter = null)
         {
-            var converter = new Mvd.Converter(schema, languageCode, contextFilter, requirementsFilter);
+            var converter = new Mvd.Converter(schema, languageCode, contextFilter, requirementSetFilter, requirementsFilter);
             return converter.Convert(this, name, definition, code, classificationProperty);
         }
 
