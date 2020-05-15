@@ -9,15 +9,23 @@ namespace LOIN.Viewer.Views
 {
     public class RequirementSetView: INotifyPropertyChanged
     {
-        private readonly IfcPropertySetTemplate psetTemplate;
+        private string lang;
+
 
         public RequirementSetView(IfcPropertySetTemplate psetTemplate)
         {
-            this.psetTemplate = psetTemplate;
+            this.PsetTemplate = psetTemplate;
             Requirements = psetTemplate.HasPropertyTemplates
                 .OfType<IfcSimplePropertyTemplate>()
                 .Select(p => new RequirementView(p))
                 .ToList();
+
+
+            Language.PropertyChanged += (_, p) => {
+                if (p.PropertyName != nameof(Language.Lang))
+                    return;
+                lang = Language.Lang;
+            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -39,8 +47,11 @@ namespace LOIN.Viewer.Views
         public string Name => PsetTemplate.Name;
         public string Description => PsetTemplate.Description;
 
+        public string Name2 => PsetTemplate.GetName(lang) ?? Name;
+        public string Description2 => PsetTemplate.GetDescription(lang) ?? Description;
+
         public List<RequirementView> Requirements { get; }
 
-        public IfcPropertySetTemplate PsetTemplate => psetTemplate;
+        public IfcPropertySetTemplate PsetTemplate { get; }
     }
 }

@@ -1,19 +1,23 @@
 ﻿using LOIN.Context;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 
 namespace LOIN.Viewer.Views
 {
     public abstract class ContextView<T>: INotifyPropertyChanged where T: IContextEntity
     {
         private readonly ContextSelector selector;
+        private string lang;
 
-        public ContextView(T context, ContextSelector selector)
+        protected ContextView(T context, ContextSelector selector)
         {
             Context = context;
             this.selector = selector;
+
+            Language.PropertyChanged += (_, p) => {
+                if (p.PropertyName != nameof(Language.Lang))
+                    return;
+                lang = Language.Lang;
+            };
         }
 
         private bool _isSelected;
@@ -37,6 +41,9 @@ namespace LOIN.Viewer.Views
 
         public string Name => Context.Name;
         public string Description => Context.Description;
+
+        public string Name2 => Context.GetName(lang) ?? Name;
+        public string Description2 => Context.GetDescription(lang) ?? Description;
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
