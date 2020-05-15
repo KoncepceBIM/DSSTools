@@ -197,6 +197,13 @@ namespace LOIN.Exporter
                             if (record.Method == "IfcClassification")
                             {
                                 var root = model.CreateBreakedownRoot(record.Par01, null); // "Klasifikace DSS, CCI:ET, CCI:CS, CCI:FS"
+
+                                // set name in default language
+                                root.SetName("en", record.Par01);
+
+                                // set name in other languages
+                                root.SetName("cs", "");
+
                                 breakedownRootMap.Add(record.Par01, root);
                             }
                             else if (record.Method == "IfcProjectLibrary")
@@ -204,6 +211,12 @@ namespace LOIN.Exporter
                                 currentRequirementsSet = model.CreateRequirementSet(record.Par01, null); // "Level of Information Need"
                                 if (record.GlobalId != "")
                                     currentRequirementsSet.Entity.GlobalId = record.GlobalId;
+
+                                // set name in default language
+                                currentRequirementsSet.SetName("en", record.Par01);
+
+                                // set name in other languages
+                                currentRequirementsSet.SetName("cs", "");
                             }
                             else if (record.Method == "IfcRelAssignsToControl")
                             {
@@ -214,6 +227,12 @@ namespace LOIN.Exporter
                                     if (record.GlobalId != "")
                                         reason.Entity.GlobalId = record.GlobalId;
                                     reasonsMap.Add(record.Id, reason);
+
+                                    // set name in default language
+                                    reason.SetName("en", record.Par01);
+
+                                    // set name in other languages
+                                    reason.SetName("cs", "");
                                 }
                                 reason.AddToContext(currentRequirementsSet);
                             }
@@ -226,6 +245,12 @@ namespace LOIN.Exporter
                                     if (record.GlobalId != "")
                                         actor.Entity.GlobalId = record.GlobalId;
                                     actorMap.Add(record.GlobalId, actor);
+
+                                    // set name in default language
+                                    actor.SetName("en", record.Par01);
+
+                                    // set name in other languages
+                                    actor.SetName("cs", "");
                                 }
                                 actor.AddToContext(currentRequirementsSet);
                             }
@@ -240,6 +265,12 @@ namespace LOIN.Exporter
                                     if (record.GlobalId != "")
                                         milestone.Entity.GlobalId = record.GlobalId;
                                     milestonesCache.Add(record.Id, milestone);
+
+                                    // set name in default language
+                                    milestone.SetName("en", record.Par01);
+
+                                    // set name in other languages
+                                    milestone.SetName("cs", "");
                                 }
                                 milestone.AddToContext(currentRequirementsSet);
                             }
@@ -258,6 +289,12 @@ namespace LOIN.Exporter
                                 {
                                     var item = model.CreateBreakedownItem(record.Par01, record.Par02, null, parent);
                                     breakedownMap.Add(record.Id, item);
+
+                                    // set name in default language
+                                    item.SetName("en", record.Par01);
+
+                                    // set name in other languages
+                                    item.SetName("cs", "");
                                 };
                             }
                             else if (record.Method == "IfcRelAssociatesClassification")
@@ -280,20 +317,25 @@ namespace LOIN.Exporter
                                 {
                                     PropertySetReused = false;
                                     currentPropertySet = model.CreatePropertySetTemplate(record.Par01, null); // "Základní informace o místnostech"
+
+                                    // set name in default language
+                                    currentPropertySet.SetName("en", record.Par01);
+
+                                    // set name in other languages
+                                    currentPropertySet.SetName("cs", "");
+
                                     //ApplicableEntity
                                     //Description
                                     if (record.Par02 != "")
-                                        currentPropertySet.Description = record.Par02; // "Unikátní název místnosti. Pokud je budova rozdělena na bloky, je první písmeno označující blok budovy. Následující číslice obsahují podlaží a číslo místnosti."
-                                                                                   //switch (record.Par03)
-                                                                                   //{
-                                                                                   //    case "IfcSpace":
-                                                                                   //        Program.ifcPST.ApplicableEntity = nameof(IfcSpace);
-                                                                                   //        break;
-                                                                                   //    default:
-                                                                                   //        Console.WriteLine("IfcPropertySetTemplate: UNKNOWN APPL ENT ",record.Par02);
-                                                                                   //        Program.ifcPST.ApplicableEntity = record.Par02;
-                                                                                   //        break;
-                                                                                   //};
+                                    {
+                                        currentPropertySet.Description = record.Par02;
+
+                                        // set name in default language
+                                        currentPropertySet.SetDescription("en", record.Par02);
+
+                                        // set name in other languages
+                                        currentPropertySet.SetDescription("cs", "");
+                                    }
                                     if (record.GlobalId != "")
                                         currentPropertySet.GlobalId = record.GlobalId;
                                     ifcPropertySetMap.Add(record.Id, currentPropertySet);
@@ -309,26 +351,27 @@ namespace LOIN.Exporter
                                         propertyTemplate = model.New<IfcSimplePropertyTemplate>(p =>
                                         {
                                             p.Name = record.Par01; // "Název"
+
+                                            // Set description in primary language
+                                            p.SetName("en", record.Par01);
+
+                                            // Set description in other languages
+                                            p.SetName("cs", "");
                                         });
                                         if (record.GlobalId != "")
                                             propertyTemplate.GlobalId = record.GlobalId;
                                         //Description
                                         if (record.Par02 != "")
-                                            propertyTemplate.Description = record.Par02; // "Unikátní název místnosti. Pokud je budova rozdělena na bloky, je první písmeno označující blok budovy. Následující číslice obsahují podlaží a číslo místnosti."
-                                                                                       //PrimaryMeasureType
-                                                                                       //switch (record.Par03)
-                                                                                       //{
-                                                                                       //    case "IfcIdentifier":
-                                                                                       //        Program.ifcSPT.PrimaryMeasureType = nameof(IfcIdentifier);
-                                                                                       //        break;
-                                                                                       //    case "IfcAreaMeasure":
-                                                                                       //        Program.ifcSPT.PrimaryMeasureType = nameof(IfcAreaMeasure);
-                                                                                       //        break;
-                                                                                       //    default:
-                                                                                       //        Console.WriteLine("IfcSimplePropertyTemplate: UNKNOWN MEASURE TYPE ",record.Par03);
-                                                                                       //        Program.ifcSPT.PrimaryMeasureType = record.Par03;
-                                                                                       //        break;
-                                                                                       //};
+                                        { 
+                                            propertyTemplate.Description = record.Par02;
+                                            
+                                            // Set description in primary language
+                                            propertyTemplate.SetDescription("en", record.Par02);
+
+                                            // Set description in other languages
+                                            propertyTemplate.SetDescription("cs", "");
+                                        }
+                                        
                                         if (record.Par03 != "") // dataunit
                                             propertyTemplate.PrimaryUnit = units[record.Par03];
                                         if (record.Par04 != "") // nameof(X) -> "X"
