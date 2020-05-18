@@ -185,7 +185,7 @@ namespace LOIN.Viewer
                     var components = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component
                     {
                         IfcGuid = e.GlobalId,
-                        AuthoringToolId = e.OwnerHistory.OwningApplication.ApplicationIdentifier,
+                        AuthoringToolId = e.OwnerHistory?.OwningApplication?.ApplicationIdentifier,
                         OriginatingSystem = e.EntityLabel.ToString(),
                     }).ToList();
 
@@ -246,7 +246,7 @@ namespace LOIN.Viewer
                                     ViewSetupHints = new ViewSetupHints { OpeningsVisible = false, SpaceBoundariesVisible = false, SpacesVisible = false },
                                     Selection = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component {
                                         IfcGuid = e.GlobalId,
-                                        AuthoringToolId = e.OwnerHistory.OwningApplication.ApplicationIdentifier,
+                                        AuthoringToolId = e.OwnerHistory?.OwningApplication?.ApplicationIdentifier,
                                         OriginatingSystem = e.EntityLabel.ToString(),
                                     }).ToList(),
                                     Visibility = new ComponentVisibility{ DefaultVisibility = true, Exceptions = new List<Component>() },
