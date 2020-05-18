@@ -1,8 +1,7 @@
 {
   "profiles": {
     "LOIN.Viewer": {
-      "commandName": "Project",
-      "commandLineArgs": "\"c:\\Users\\Martin\\Source\\Samples\\Tekla\\sloup_cci.ifc\""
+      "commandName": "Project"
     }
   }
 }

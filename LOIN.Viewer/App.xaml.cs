@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows;
 
 namespace LOIN.Viewer
@@ -21,10 +16,14 @@ namespace LOIN.Viewer
         {
             base.OnStartup(e);
 
+            Settings = Settings.Open();
+
+            if (Settings.LastIFC != null && File.Exists(Settings.LastIFC))
+                StartupFile = Settings.LastIFC;
+
             if (e.Args.Length > 0)
                 StartupFile = e.Args[0];
 
-            Settings = Settings.Open();
         }
 
         protected override void OnExit(ExitEventArgs e)

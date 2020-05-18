@@ -10,6 +10,7 @@ namespace LOIN.Viewer
     {
         public string LastIFC { get; set; }
         public string LastMVD { get; set; }
+        public string LastModel { get; set; }
 
         public void Save()
         {

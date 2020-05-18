@@ -123,13 +123,14 @@ namespace LOIN.Viewer
                 Multiselect = false,
                 Filter = "IFC File|*.ifc|IFC XML File|*.ifcxml",
                 FilterIndex = 0,
-                Title = "Select LOIN IFC File",
-                FileName = App.Settings.LastIFC,
-                InitialDirectory = System.IO.Path.GetDirectoryName(App.Settings.LastIFC)
+                Title = "Select IFC model file for validation",
+                FileName = App.Settings.LastModel,
+                InitialDirectory = Path.GetDirectoryName(App.Settings.LastModel)
             };
             if (dlg.ShowDialog() != true)
                 return;
 
+            App.Settings.LastModel = dlg.FileName;
             var fileName = dlg.FileName;
             var bcfPath = Path.ChangeExtension(fileName, ".bcf");
 
@@ -329,12 +330,15 @@ namespace LOIN.Viewer
                 Filter = "IFC|*.ifc|IFC XML|*.ifcXML",
                 AddExtension = true,
                 FilterIndex = 0,
-                FileName = App.Settings.LastMVD,
-                InitialDirectory = System.IO.Path.GetDirectoryName(App.Settings.LastMVD),
-                Title = "Create MVD XML..."
+                FileName = App.Settings.LastIFC,
+                InitialDirectory = System.IO.Path.GetDirectoryName(App.Settings.LastIFC),
+                Title = "Export selection to new IFC..."
             };
             if (dlg.ShowDialog() != true)
                 return;
+
+            // keep for next run
+            App.Settings.LastIFC = dlg.FileName;
 
             // positive filter for declared requirement sets (property set templates)
             var psets = ContextSelector.RequirementSets.Where(r => r.IsSelected).Select(r => r.PsetTemplate);

@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Name="self"
         Title="LOIN Viewer" Height="700" Width="1000" Icon="/ifc.ico">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:Commands.OpenFile}" Executed="OpenFile_Click"/>
+        <CommandBinding Command="{x:Static local:Commands.ExportFile}" Executed="SelectionToIFC_Click"/>
+        <CommandBinding Command="{x:Static local:Commands.Model}" Executed="Validate_Click"/>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,7 +19,7 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
             <MenuItem Header="_File">
-                <MenuItem Header="Open" Click="OpenFile_Click">
+                <MenuItem Header="Open (Ctrl+O)" Click="OpenFile_Click">
                     <MenuItem.Icon>
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
@@ -39,12 +44,12 @@
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Selection to partial _IFC" Click="SelectionToIFC_Click">
+                <MenuItem Header="Export selection to partial _IFC  (Ctrl+E)" Click="SelectionToIFC_Click">
                     <MenuItem.Icon>
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Validate model file against selection" Click="Validate_Click">
+                <MenuItem Header="_Validate model file against selection  (Ctrl+M)" Click="Validate_Click">
                     <MenuItem.Icon>
                         <Image Source="bcf.ico"/>
                     </MenuItem.Icon>
@@ -142,6 +147,7 @@
                     <DataGrid ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
                         <DataGrid.Columns>
+                            <DataGridTextColumn Header="Set name" IsReadOnly="True" Binding="{Binding Parent.Name}"/>
                             <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
                             <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
@@ -153,7 +159,6 @@
                             </DataGridTextColumn>
                             <DataGridTextColumn Binding="{Binding ValueType}" Header="Value Type" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Unit" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Set name" IsReadOnly="True" Binding="{Binding Parent.Name}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
