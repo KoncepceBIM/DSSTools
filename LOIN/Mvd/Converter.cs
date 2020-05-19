@@ -60,7 +60,7 @@ namespace LOIN.Mvd
 
 
             // iterate over the model to convert all requirements
-            foreach (var item in model.BreakdownStructure.Where<BreakedownItem>(ContextFilter))
+            foreach (var item in model.BreakdownStructure.Where<BreakdownItem>(ContextFilter))
             {
                 var applicability = CreateApplicabilityRules(item, classificationProperty);
                 var requirements = CreateConcepts(model, item).ToList();
@@ -72,7 +72,7 @@ namespace LOIN.Mvd
             return _mvd;
         }
 
-        private IEnumerable<Concept> CreateConcepts(Model model, BreakedownItem item)
+        private IEnumerable<Concept> CreateConcepts(Model model, BreakdownItem item)
         {
             var concepts = new List<Concept>();
             // get requirements for this item in this context
@@ -171,7 +171,7 @@ namespace LOIN.Mvd
             return CreateLogicalRule(TemplateRulesOperator.and, rules);
         }
 
-        private TemplateRules CreateApplicabilityRules(BreakedownItem item, string searchPropertyName)
+        private TemplateRules CreateApplicabilityRules(BreakdownItem item, string searchPropertyName)
         {
             var classificationCode = CreateClassificationRule(item.Code);
             var classificationCodeProperty = CreatePropertyValueRule(searchPropertyName, item.Code);

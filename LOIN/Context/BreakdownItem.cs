@@ -10,23 +10,25 @@ using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Context
 {
-    public class BreakedownItem : AbstractLoinEntity<IfcClassificationSelect>, IContextEntity
+    public class BreakdownItem : AbstractLoinEntity<IfcClassificationSelect>, IContextEntity
     {
         private readonly List<IfcRelAssociatesClassification> _relations;
         private readonly HashSet<int> _cache;
 
-        internal BreakedownItem(IfcClassificationSelect classification, Model model, List<IfcRelAssociatesClassification> relations) : base(classification, model)
+        internal BreakdownItem(IfcClassificationSelect classification, Model model, List<IfcRelAssociatesClassification> relations) : base(classification, model)
         {
             _relations = relations;
             _cache = new HashSet<int>(_relations.SelectMany(r => r.RelatedObjects).Select(o => o.EntityLabel));
         }
 
-        public BreakedownItem Parent { get; internal set; }
+        public string Id => Code;
 
-        private List<BreakedownItem> _children = new List<BreakedownItem>();
-        public IEnumerable<BreakedownItem> Children => _children;
+        public BreakdownItem Parent { get; internal set; }
 
-        public IEnumerable<BreakedownItem> Parents
+        private List<BreakdownItem> _children = new List<BreakdownItem>();
+        public IEnumerable<BreakdownItem> Children => _children;
+
+        public IEnumerable<BreakdownItem> Parents
         {
             get 
             {
@@ -39,12 +41,12 @@ namespace LOIN.Context
             }
         }
 
-        internal void AddChild(BreakedownItem child)
+        internal void AddChild(BreakdownItem child)
         {
             _children.Add(child);
         }
 
-        internal static IEnumerable<BreakedownItem> GetBreakdownStructure(Model model)
+        internal static IEnumerable<BreakdownItem> GetBreakdownStructure(Model model)
         {
             var cache = new Dictionary<IfcClassificationSelect, List<IfcRelAssociatesClassification>>();
             foreach (var cls in model.Internal.Instances.OfType<IfcClassificationSelect>())
@@ -57,7 +59,7 @@ namespace LOIN.Context
             }
 
             var allItems = cache
-                .Select(kvp => new BreakedownItem(kvp.Key, model, kvp.Value))
+                .Select(kvp => new BreakdownItem(kvp.Key, model, kvp.Value))
                 .ToList();
             var lookUp = allItems.ToDictionary(i => i.Entity.EntityLabel);
             foreach (var item in allItems)
@@ -70,7 +72,7 @@ namespace LOIN.Context
                 if (parentEntity == null)
                     continue;
 
-                if (!lookUp.TryGetValue(parentEntity.EntityLabel, out BreakedownItem parentItem))
+                if (!lookUp.TryGetValue(parentEntity.EntityLabel, out BreakdownItem parentItem))
                 {
                     throw new Exception("Unexpected type");
                 }
@@ -78,7 +80,7 @@ namespace LOIN.Context
                 // build both directions
                 item.Parent = parentItem;
                 if (parentItem._children == null)
-                    parentItem._children = new List<BreakedownItem>();
+                    parentItem._children = new List<BreakdownItem>();
                 parentItem._children.Add(item);
             }
             return allItems;

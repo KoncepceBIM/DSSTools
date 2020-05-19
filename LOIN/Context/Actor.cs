@@ -132,6 +132,8 @@ namespace LOIN.Context
             set => Entity.TheActor = value;
         }
 
+        public string Id => Entity.GlobalId;
+
         public IEnumerable<IfcActorRole> GetRoles(Requirements.RequirementsSet requirements)
         {
             return _relations.Where(r => r.RelatedObjects.Contains(requirements.Entity)).Select(r => r.ActingRole);

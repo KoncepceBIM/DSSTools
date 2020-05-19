@@ -36,8 +36,8 @@ namespace LOIN
         private readonly List<Milestone> _milestones = new List<Milestone>();
         public IEnumerable<Milestone> Milestones => _milestones;
 
-        private readonly List<BreakedownItem> _breakdownStructure = new List<BreakedownItem>();
-        public IEnumerable<BreakedownItem> BreakdownStructure => _breakdownStructure;
+        private readonly List<BreakdownItem> _breakdownStructure = new List<BreakdownItem>();
+        public IEnumerable<BreakdownItem> BreakdownStructure => _breakdownStructure;
 
         private readonly List<RequirementsSet> _requirements = new List<RequirementsSet>();
         public IEnumerable<RequirementsSet> Requirements => _requirements;
@@ -56,7 +56,7 @@ namespace LOIN
             using (var cache = model.BeginInverseCaching())
             {
                 // breakdown items
-                _breakdownStructure = BreakedownItem.GetBreakdownStructure(this).ToList();
+                _breakdownStructure = BreakdownItem.GetBreakdownStructure(this).ToList();
 
                 // milestones
                 _milestones = Milestone.GetMilestones(this).ToList();
@@ -132,7 +132,7 @@ namespace LOIN
             return proxy;
         }
 
-        public BreakedownItem CreateBreakedownRoot(string name, string description)
+        public BreakdownItem CreateBreakedownRoot(string name, string description)
         {
             var i = Internal.Instances;
             var clsref = i.New<IfcClassification>(a => {
@@ -140,13 +140,13 @@ namespace LOIN
                 a.Description = description;
             });
 
-            var proxy = new BreakedownItem(clsref, this, new List<IfcRelAssociatesClassification>());
+            var proxy = new BreakdownItem(clsref, this, new List<IfcRelAssociatesClassification>());
             _breakdownStructure.Add(proxy);
 
             return proxy;
         }
 
-        public BreakedownItem CreateBreakedownItem(string name, string code, string description, BreakedownItem parent = null)
+        public BreakdownItem CreateBreakedownItem(string name, string code, string description, BreakdownItem parent = null)
         {
             var i = Internal.Instances;
             var clsref = i.New<IfcClassificationReference>(a => {
@@ -155,7 +155,7 @@ namespace LOIN
                 a.Identification = code;
             });
 
-            var proxy = new BreakedownItem(clsref, this, new List<IfcRelAssociatesClassification>());
+            var proxy = new BreakdownItem(clsref, this, new List<IfcRelAssociatesClassification>());
             _breakdownStructure.Add(proxy);
 
             if (parent != null && parent.Entity is IfcClassificationReferenceSelect select)
@@ -168,7 +168,7 @@ namespace LOIN
             return proxy;
         }
 
-        public BreakedownItem CreateClassificationRoot(string name, string description)
+        public BreakdownItem CreateClassificationRoot(string name, string description)
         {
             var i = Internal.Instances;
             var clsref = i.New<IfcClassification>(a => {
@@ -176,7 +176,7 @@ namespace LOIN
                 a.Description = description;
             });
 
-            var proxy = new BreakedownItem(clsref, this, new List<IfcRelAssociatesClassification>());
+            var proxy = new BreakdownItem(clsref, this, new List<IfcRelAssociatesClassification>());
             _breakdownStructure.Add(proxy);
 
             return proxy;

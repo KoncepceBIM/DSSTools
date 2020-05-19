@@ -13,6 +13,7 @@ namespace LOIN.Context
         private readonly List<IfcRelAssignsToControl> _relations;
         private readonly HashSet<int> _cache;
 
+        public string Id => Entity.GlobalId;
 
         public IEnumerable<IfcRelAssignsToControl> Relations => _relations.AsReadOnly();
 

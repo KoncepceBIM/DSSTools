@@ -36,7 +36,7 @@ namespace LOIN.Requirements
 
         // context
         public IEnumerable<Actor> Actors => Model.Actors.Where(a => a.IsContextFor(this));
-        public IEnumerable<BreakedownItem> BreakedownItems => Model.BreakdownStructure.Where(a => a.IsContextFor(this));
+        public IEnumerable<BreakdownItem> BreakedownItems => Model.BreakdownStructure.Where(a => a.IsContextFor(this));
         public IEnumerable<Milestone> Milestones => Model.Milestones.Where(a => a.IsContextFor(this));
         public IEnumerable<Reason> Reasons => Model.Reasons.Where(a => a.IsContextFor(this));
 

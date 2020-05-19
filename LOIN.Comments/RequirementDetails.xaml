@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="LOIN.Comments.RequirementDetails"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LOIN.Comments"
+             mc:Ignorable="d" 
+             Name="self"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <Style TargetType="Run" x:Key="Annotation">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style TargetType="Label" x:Key="AnnotationLabel">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </UserControl.Resources>
+        <StackPanel Orientation="Vertical">
+    <TextBlock TextWrapping="Wrap">
+            <Run Style="{StaticResource ResourceKey=Annotation}">Sada požadavků:</Run>
+            <LineBreak/>
+            <Run Text="{Binding ElementName=self, Path=Requirement.Parent.Name, Mode=OneWay}"/>
+            <LineBreak/>
+            
+            <Run Style="{StaticResource ResourceKey=Annotation}">Název požadavku:</Run>
+            <LineBreak/>
+            <Run Text="{Binding ElementName=self, Path=Requirement.Name, Mode=OneWay}"/>
+            <LineBreak/>
+
+            <Run Style="{StaticResource ResourceKey=Annotation}">Popis požadavku:</Run>
+            <LineBreak/>
+            <Run Text="{Binding ElementName=self, Path=Requirement.Description, Mode=OneWay}"/>
+            <LineBreak/>
+
+            <Run Style="{StaticResource ResourceKey=Annotation}">Typ hodnoty</Run>
+            <LineBreak/>
+            <Run Text="{Binding ElementName=self, Path=Requirement.ValueType, Mode=OneWay}"/>
+        </TextBlock>
+
+        <StackPanel Orientation="Vertical" Visibility="{Binding ElementName=self, Path=Requirement.HasEnumeration, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}">
+            <Label Style="{StaticResource ResourceKey=AnnotationLabel}">Enumerace možných hodnot</Label>
+            <ListBox ItemsSource="{Binding ElementName=self, Path=Requirement.Enumeration}"></ListBox>
+        </StackPanel>
+        </StackPanel>
+</UserControl>

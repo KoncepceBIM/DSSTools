@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Viewer", "LOIN.Viewer\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Exporter", "LOIN.Exporter\LOIN.Exporter.csproj", "{3E777DB5-2F1D-40D4-9C4C-6E769F4624E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN.BCF", "LOIN.BCF\LOIN.BCF.csproj", "{9D32D862-88CC-49F0-95E8-FB05676023DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.BCF", "LOIN.BCF\LOIN.BCF.csproj", "{9D32D862-88CC-49F0-95E8-FB05676023DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN.Viewer.Views", "LOIN.Viewer.Views\LOIN.Viewer.Views.csproj", "{201698DF-79BF-41E5-B9AF-BA06BB0989AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Comments", "LOIN.Comments\LOIN.Comments.csproj", "{D4B7647D-D18E-439C-8842-482725F5019E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{9D32D862-88CC-49F0-95E8-FB05676023DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D32D862-88CC-49F0-95E8-FB05676023DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D32D862-88CC-49F0-95E8-FB05676023DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{201698DF-79BF-41E5-B9AF-BA06BB0989AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{201698DF-79BF-41E5-B9AF-BA06BB0989AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{201698DF-79BF-41E5-B9AF-BA06BB0989AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{201698DF-79BF-41E5-B9AF-BA06BB0989AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4B7647D-D18E-439C-8842-482725F5019E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4B7647D-D18E-439C-8842-482725F5019E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4B7647D-D18E-439C-8842-482725F5019E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4B7647D-D18E-439C-8842-482725F5019E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

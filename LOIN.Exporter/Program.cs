@@ -40,14 +40,14 @@ namespace LOIN.Exporter
         // root object type, there might be many of them
         static RequirementsSet currentRequirementsSet; // loin
         //
-        static Dictionary<string, BreakedownItem> breakedownRootMap;
+        static Dictionary<string, BreakdownItem> breakedownRootMap;
         static IfcPropertySetTemplate currentPropertySet;
         static IfcSimplePropertyTemplate currentPropertyTemplate;
         //Console.WriteLine(ifcPL.GetType());
 
         //https://www.dotnetperls.com/map
         static Dictionary<string, IfcSIUnitName> ifcSIUnitMap;
-        static Dictionary<int, BreakedownItem> breakedownMap; // mapa trid pouzitych v modelu
+        static Dictionary<int, BreakdownItem> breakedownMap; // mapa trid pouzitych v modelu
         static Dictionary<int, IfcSimplePropertyTemplate> ifcPropertyMap; // mapa vlastnosti pouzitych v modelu
         static Dictionary<int, IfcPropertySetTemplate> ifcPropertySetMap; // mapa skupin vlastnosti pouzitych v modelu
         static Dictionary<int, Reason> reasonsMap; // mapa IfcRelAssignsToControl pouzitych v modelu
@@ -93,9 +93,9 @@ namespace LOIN.Exporter
                 { "WEBER", IfcSIUnitName.WEBER }
             };
             //
-            breakedownRootMap = new Dictionary<string, BreakedownItem>(); // prazdna mapa klasifikaci, bude plnena postupne
+            breakedownRootMap = new Dictionary<string, BreakdownItem>(); // prazdna mapa klasifikaci, bude plnena postupne
             //
-            breakedownMap = new Dictionary<int, BreakedownItem>(); // prazdna mapa trid, bude plnena postupne
+            breakedownMap = new Dictionary<int, BreakdownItem>(); // prazdna mapa trid, bude plnena postupne
             ifcPropertyMap = new Dictionary<int, IfcSimplePropertyTemplate>(); // prazdna mapa vlastnosti, bude plnena postupne
             ifcPropertySetMap = new Dictionary<int, IfcPropertySetTemplate>(); // prazdna mapa skupin vlastnosti, bude plnena postupne
             reasonsMap = new Dictionary<int, Reason>(); // prazdna mapa IfcRelAssignsToControl, bude plnena postupne
@@ -278,7 +278,7 @@ namespace LOIN.Exporter
                             {
                                 // Class within classification
                                 // Set parent
-                                BreakedownItem parent = null;
+                                BreakdownItem parent = null;
                                 if (record.Par03 == "")
                                     //Program.ifcCRS = Program.ifcCL; // classification for root class
                                     parent = breakedownRootMap[record.Par09]; // classification for root class

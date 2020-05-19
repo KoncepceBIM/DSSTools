@@ -48,6 +48,8 @@ namespace LOIN.Viewer.Views
             };
         }
 
+        public string Id => PropertyTemplate.GlobalId;
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -74,6 +76,10 @@ namespace LOIN.Viewer.Views
         public string Description2 => PropertyTemplate.GetDescription(lang) ?? Description;
 
         public string ValueType => PropertyTemplate.PrimaryMeasureType;
+
+        public IReadOnlyList<string> Enumeration => PropertyTemplate.Enumerators?.EnumerationValues.Select(e => e.ToString()).ToArray() ?? Array.Empty<string>();
+
+        public bool HasEnumeration => Enumeration.Any();
 
         public RequirementSetView Parent { get; }
 

@@ -52,15 +52,15 @@ namespace LOIN.Viewer
 
 
 
-        public List<BreakedownItemView> BreakedownItems
+        public List<BreakdownItemView> BreakedownItems
         {
-            get { return (List<BreakedownItemView>)GetValue(BreakedownItemsProperty); }
+            get { return (List<BreakdownItemView>)GetValue(BreakedownItemsProperty); }
             set { SetValue(BreakedownItemsProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for BreakedownItems.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty BreakedownItemsProperty =
-            DependencyProperty.Register("BreakedownItems", typeof(List<BreakedownItemView>), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("BreakedownItems", typeof(List<BreakdownItemView>), typeof(MainWindow), new PropertyMetadata(null));
 
 
 
@@ -518,7 +518,7 @@ namespace LOIN.Viewer
             if (!filtered)
                 return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID", null, null);
 
-            var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakedownItem>());
+            var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakdownItem>());
             var milestones = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Milestone>());
             var reasons = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Reason>());
             var actors = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Actor>());
@@ -539,7 +539,7 @@ namespace LOIN.Viewer
                 // context filter
                 c =>
                 {
-                    if (breakedown.Count > 0 && c is BreakedownItem i)
+                    if (breakedown.Count > 0 && c is BreakdownItem i)
                         return breakedown.Contains(c);
                     if (milestones.Count > 0 && c is Milestone m)
                         return milestones.Contains(m);
@@ -635,7 +635,7 @@ namespace LOIN.Viewer
 
             // breakedown structure
             BreakedownItems = _model.BreakdownStructure.Where(bs => bs.Parent == null)
-                .Select(i => new BreakedownItemView(i, ContextSelector))
+                .Select(i => new BreakdownItemView(i, ContextSelector, true))
                 .ToList();
 
             Actors = _model.Actors.Select(a => new ActorView(a, ContextSelector)).ToList();

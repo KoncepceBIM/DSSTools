@@ -1,0 +1,42 @@
+﻿using LOIN.Viewer.Views;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace LOIN.Comments
+{
+    /// <summary>
+    /// Interaction logic for RequirementDetails.xaml
+    /// </summary>
+    public partial class RequirementDetails : UserControl
+    {
+        public RequirementDetails()
+        {
+            InitializeComponent();
+        }
+
+
+
+        public RequirementView Requirement
+        {
+            get { return (RequirementView)GetValue(RequirementProperty); }
+            set { SetValue(RequirementProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty RequirementProperty =
+            DependencyProperty.Register("Requirement", typeof(RequirementView), typeof(RequirementDetails), new PropertyMetadata(null));
+
+
+
+    }
+}

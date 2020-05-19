@@ -4,12 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Xbim.Common.ExpressValidation;
 using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Viewer.Views
 {
-    public class ContextSelector: INotifyPropertyChanged
+    public class ContextSelector : INotifyPropertyChanged
     {
+        public ContextSelector(Model model, bool oneOfType) : this(model)
+        {
+            OneOfType = oneOfType;
+        }
+
         public ContextSelector(Model model)
         {
             this.model = model;
@@ -17,16 +23,43 @@ namespace LOIN.Viewer.Views
         }
 
         private readonly HashSet<IContextEntity> _context = new HashSet<IContextEntity>();
+        private readonly Dictionary<IContextEntity, List<ContextView>> _views = new Dictionary<IContextEntity, List<Views.ContextView>>();
         private readonly Model model;
 
-        public IEnumerable<IContextEntity> Context 
+        public IEnumerable<IContextEntity> Context
         {
             get => _context;
         }
 
-        public void Add(IContextEntity entity)
+        public void Add(ContextView view)
         {
-            _context.Add(entity);
+            if (OneOfType)
+            {
+                var contextType = view.Entity.GetType();
+                var existing = _context.Where(c => c.GetType() == contextType).ToList();
+                if (existing.Any())
+                {
+                    foreach (var item in existing)
+                    {
+                        _context.Remove(item);
+                        if (_views.TryGetValue(item, out List<ContextView> views))
+                        { 
+                            views.ForEach(v => v.Unselect());
+                            views.Clear();
+                        }
+                    }
+                }
+            }
+
+            _context.Add(view.Entity);
+            if (_views.TryGetValue(view.Entity, out List<ContextView> cache))
+            {
+                cache.Add(view);
+            }
+            else
+            {
+                _views.Add(view.Entity, new List<ContextView> { view });
+            }
             OnPropertyChanged(nameof(Context));
             Update();
         }
@@ -51,13 +84,11 @@ namespace LOIN.Viewer.Views
             var requirements = model.Requirements;
             foreach (var contextType in contextTypes)
             {
-                var context = new HashSet<IContextEntity>(contextType);
-                if (IncludeUpperBreakdown && contextType.Key == typeof(BreakedownItem))
+                if (IncludeUpperBreakdown && contextType.Key == typeof(BreakdownItem))
                 {
-                    foreach (var item in contextType.OfType<BreakedownItem>().Where(i => i.Parent != null))
-                    {
-                        context.Add(item.Parent);
-                    }
+                    foreach (var item in contextType.OfType<BreakdownItem>().Where(i => i.Parent != null))
+                        foreach (var parent in item.Parents)
+                            _context.Add(parent);
                 }
 
                 // continuous filtering refinement
@@ -107,5 +138,7 @@ namespace LOIN.Viewer.Views
                 OnPropertyChanged(nameof(IncludeUpperBreakdown));
             }
         }
+
+        public bool OneOfType { get; } = false;
     }
 }
