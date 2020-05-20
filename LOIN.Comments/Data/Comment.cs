@@ -1,11 +1,33 @@
-﻿using System;
+﻿using LOIN.Viewer.Views;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace LOIN.Comments.Data
 {
     public class Comment
     {
+        public Comment()
+        {
+
+        }
+
+        public Comment(SingleContext ctx): this()
+        {
+            ActorId = ctx.Actor?.Id;
+            ActorName = ctx.Actor?.Name;
+
+            BreakDownId = ctx.BreakdownItem?.Id;
+            BreakDownName = ctx.BreakdownItem?.Name;
+
+            ReasonId =   ctx.Reason?.Id;
+            ReasonName = ctx.Reason?.Name;
+
+            MilestoneId =   ctx.Milestone?.Id;
+            MilestoneName = ctx.Milestone?.Name;
+        }
+
         // identity
         public string Author { get; set; }
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -27,6 +49,7 @@ namespace LOIN.Comments.Data
         // requirement identity
         public string RequirementId { get; set; }
         public string RequirementName { get; set; }
+        public string RequirementSetName { get; set; }
 
         // free text content
         public string Content { get; set; }
@@ -40,12 +63,22 @@ namespace LOIN.Comments.Data
         public bool WrongMilestone { get; set; }
 
         // state
-        public CommentState State { get; set; }
+        public CommentType Type { get; set; }
+
+        public bool IsEmpty() => 
+            BadEnumeration == false && 
+            WrongActor == false && 
+            WrongBreakDown == false && 
+            WrongMilestone == false && 
+            WrongReason == false && 
+            string.IsNullOrWhiteSpace(Content) && 
+            string.IsNullOrWhiteSpace(Suggestion);
+        
     }
 
-    public enum CommentState
+    public enum CommentType
     {
-        Open,
-        Closed
+        Comment,
+        NewRequirement
     }
 }

@@ -6,9 +6,10 @@ namespace LOIN.Viewer.Views
 {
     public class BreakdownItemView: ContextView<BreakdownItem>
     {
-        public BreakdownItemView(BreakdownItem item, ContextSelector selector, bool cascadeSelect): base(item, selector)
+        public BreakdownItemView(BreakdownItem item, BreakdownItemView parent, ContextSelector selector, bool cascadeSelect): base(item, selector)
         {
-            Children = item.Children.Select(i => new BreakdownItemView(i, selector, cascadeSelect)).ToList();
+            Children = item.Children.Select(i => new BreakdownItemView(i, this, selector, cascadeSelect)).ToList();
+            Parent = parent;
             CascadeSelect = cascadeSelect;
         }
 
@@ -24,6 +25,12 @@ namespace LOIN.Viewer.Views
                 yield return item;
         }
 
+        public BreakdownItemView GetDeep(string id)
+        {
+            if (Entity.Id == id) return this;
+            return Children.Select(c => c.GetDeep(id)).Where(c => c != null).FirstOrDefault();
+        }
+
         public override bool IsSelected { 
             get => base.IsSelected; 
             set 
@@ -34,6 +41,13 @@ namespace LOIN.Viewer.Views
                     foreach (var c in Children)
                         c.IsSelected = value;
             }
+        }
+
+        private bool _isExpanded;
+        public bool IsExpanded  
+        {  
+            get => _isExpanded; 
+            set { _isExpanded = value; OnPropertyChanged(nameof(IsExpanded)); } 
         }
 
         public string ShowName
@@ -55,6 +69,7 @@ namespace LOIN.Viewer.Views
             }
         }
 
+        public BreakdownItemView Parent { get; }
         public bool CascadeSelect { get; }
     }
 }

@@ -9,11 +9,15 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Media;
+using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Xml;
 using Xbim.Common;
 using Xbim.Common.Model;
@@ -40,7 +44,23 @@ namespace LOIN.Comments
             InitializeComponent();
         }
 
+        private bool isClosing = false;
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            Focus();
+
+            base.OnClosing(e);
+            if (!Comments.Any())
+                return;
+
+            SaveComments_Click(null, null);
+            isClosing = true;
+        }
+
         public string CurrentFile { get; set; }
+
+        public string CurrentCommentsFile { get; set; }
 
         public ContextSelector ContextSelector
         {
@@ -106,6 +126,20 @@ namespace LOIN.Comments
 
 
 
+
+        public SingleContext SingleContext
+        {
+            get { return (SingleContext)GetValue(SingleContextProperty); }
+            set { SetValue(SingleContextProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SingleContext.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SingleContextProperty =
+            DependencyProperty.Register("SingleContext", typeof(SingleContext), typeof(MainWindow), new PropertyMetadata(null));
+
+
+
+
         public RequirementView CurrentRequirement
         {
             get { return (RequirementView)GetValue(CurrentRequirementProperty); }
@@ -116,23 +150,38 @@ namespace LOIN.Comments
         public static readonly DependencyProperty CurrentRequirementProperty =
             DependencyProperty.Register("CurrentRequirement", typeof(RequirementView), typeof(MainWindow), new PropertyMetadata(null, (d, e) =>
             {
-                if (!(d is MainWindow self) || !(e.NewValue is RequirementView rv))
+                if (!(d is MainWindow self))
                     return;
 
-
+                if (!(e.NewValue is RequirementView rv))
+                {
+                    self.CurrentComment = null;
+                    return;
+                }
 
                 var actor = self.Actors.FirstOrDefault(a => a.IsSelected);
                 var reason = self.Reasons.FirstOrDefault(r => r.IsSelected);
                 var milestone = self.Milestones.FirstOrDefault(m => m.IsSelected);
                 var breakdown = self.BreakedownItems.SelectMany(i => i.GetDeepSelected()).FirstOrDefault();
 
+                // get existing comment
                 self.CurrentComment = self.Comments.FirstOrDefault(c =>
                     c.RequirementId == rv.Id &&
                     c.ActorId == actor?.Entity.Id &&
                     c.MilestoneId == milestone?.Entity.Id &&
                     c.ReasonId == reason?.Entity.Id &&
                     c.BreakDownId == breakdown?.Entity.Id
-                    ) ?? new Comment
+                    );
+
+                // if the context is fully defined, create new one
+                if (self.CurrentComment == null &&
+                actor != null &&
+                reason != null &&
+                milestone != null &&
+                breakdown != null
+                )
+                {
+                    self.CurrentComment = new Comment
                     {
                         Author = self.User,
                         ActorId = actor?.Entity.Id,
@@ -145,8 +194,10 @@ namespace LOIN.Comments
                         BreakDownName = breakdown?.Name,
                         RequirementId = rv.Id,
                         RequirementName = rv.Name,
-                        State = CommentState.Open
+                        RequirementSetName = rv.Parent?.Name,
+                        Type = CommentType.Comment
                     };
+                }
             }));
 
 
@@ -159,7 +210,10 @@ namespace LOIN.Comments
 
         // Using a DependencyProperty as the backing store for Comment.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CurrentCommentProperty =
-            DependencyProperty.Register("CurrentComment", typeof(Comment), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("CurrentComment", typeof(Comment), typeof(MainWindow), new PropertyMetadata(null, (s, a) => {
+                if (!(s is MainWindow self))
+                    return;
+            }));
 
 
 
@@ -194,14 +248,115 @@ namespace LOIN.Comments
                     App.Settings.User = user;
             }));
 
-
+        private void ChangeUser_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new UserDialog { User = User, Owner = this };
+            dlg.ShowDialog();
+            if (!dlg.IsValid())
+                ChangeUser_Click(sender, e);
+            else
+            { 
+                User = dlg.User;
+                App.Settings.User = User;
+            } 
+        }
 
         private void SaveComments_Click(object sender, RoutedEventArgs e)
         {
+            if (!string.IsNullOrWhiteSpace(CurrentCommentsFile) && File.Exists(CurrentCommentsFile))
+            {
+                SaveComments(CurrentCommentsFile);
+                SystemSounds.Beep.Play();
+            }
+            else
+                SaveCommentsAs_Click(sender, e);
+        }
+
+        private void SaveCommentsAs_Click(object sender, RoutedEventArgs e)
+        {
+
+            var dlg = new SaveFileDialog
+            {
+                Filter = "CSV|*.csv",
+                AddExtension = true,
+                FilterIndex = 0,
+                FileName = App.Settings.LastComments,
+                InitialDirectory = Path.GetDirectoryName(App.Settings.LastComments),
+                Title = "Uložit komentáře..."
+            };
+            if (dlg.ShowDialog() != true)
+                return;
+
+            CurrentCommentsFile = dlg.FileName;
+            App.Settings.LastComments = dlg.FileName;
+
+            if (CurrentComment != null)
+                SaveComment(CurrentComment);
+
+            SaveComments(CurrentCommentsFile);
+
+            SystemSounds.Beep.Play();
+        }
+
+        private void SaveComments(string path)
+        {
+            using (var writer = new StreamWriter(path, false, Encoding.UTF8))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.Configuration.SanitizeForInjection = false;
+                csv.WriteRecords(Comments);
+            }
+        }
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
 
         private void LoadComments_Click(object sender, RoutedEventArgs e)
         {
+            var dlg = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "CSV|*.csv",
+                FilterIndex = 0,
+                Title = "Načíst komentáře...",
+                FileName = App.Settings.LastComments,
+                InitialDirectory = Path.GetDirectoryName(App.Settings.LastComments)
+            };
+
+            if (dlg.ShowDialog() != true)
+                return;
+
+            LoadComments(dlg.FileName);
+        }
+
+        private void LoadComments(string path)
+        {
+            CurrentCommentsFile = path;
+            App.Settings.LastComments = path;
+
+            using (var file = new StreamReader(path, Encoding.UTF8))
+            using (var reader = new CsvReader(file, CultureInfo.InvariantCulture))
+            {
+                var comments = reader.GetRecords<Comment>().ToList();
+                var check = new HashSet<Guid>(comments.Select(c => c.Id));
+                var duplicities = new HashSet<Guid>(Comments.Where(c => check.Contains(c.Id)).Select(c => c.Id));
+                if (duplicities.Any())
+                {
+                    var msg = MessageBox.Show($"{duplicities.Count} záznamů v souboru je již načteno. Chcete je nahradit záznamy ze souboru?", "Duplicity",
+                        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+                    if (msg == MessageBoxResult.No)
+                        comments = comments.Where(c => !duplicities.Contains(c.Id)).ToList();
+                    else
+                        Comments = new ObservableCollection<Comment>(Comments.Where(c => !duplicities.Contains(c.Id)));
+                }
+                foreach (var comment in comments)
+                {
+                    Comments.Add(comment);
+                }
+            }
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
@@ -229,12 +384,19 @@ namespace LOIN.Comments
         {
             base.OnInitialized(e);
 
-            var startFile = (Application.Current as App).StartupFile;
-            if (!string.IsNullOrWhiteSpace(startFile))
+            var startFile = App.Settings.LastIFC;
+            if (!string.IsNullOrWhiteSpace(startFile) && File.Exists(startFile))
                 OpenFile(startFile);
+
+            var commentsFile = App.Settings.LastComments;
+            if (!string.IsNullOrWhiteSpace(commentsFile) && File.Exists(commentsFile))
+                LoadComments(commentsFile);
 
             if (!string.IsNullOrWhiteSpace(App.Settings.User))
                 User = App.Settings.User;
+
+            if (string.IsNullOrWhiteSpace(User))
+                ChangeUser_Click(null, null);
         }
 
         private void OpenFile(string path)
@@ -244,6 +406,12 @@ namespace LOIN.Comments
             _model = LOIN.Model.Open(path);
 
             ContextSelector = new ContextSelector(_model, true);
+            SingleContext = new SingleContext(ContextSelector);
+
+            ContextSelector.ContextUpdatedEvent += (s, a) =>
+            {
+                CurrentComment = null;
+            };
 
             if (!_model.Requirements.Any())
                 MessageBox.Show(this, "This file doesn't contain any requirements.", "Not a LOIN", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -252,7 +420,7 @@ namespace LOIN.Comments
 
             // breakedown structure
             BreakedownItems = _model.BreakdownStructure.Where(bs => bs.Parent == null)
-                .Select(i => new BreakdownItemView(i, ContextSelector, false))
+                .Select(i => new BreakdownItemView(i, null, ContextSelector, false))
                 .ToList();
             if (BreakedownItems.Any())
                 BreakedownItems[0].IsSelected = true;
@@ -307,7 +475,7 @@ namespace LOIN.Comments
                 return false;
             }
 
-            if (CurrentRequirement == null)
+            if (CurrentRequirement == null && comment.Type == CommentType.Comment)
             {
                 MessageBox.Show("Není vybraný žádný požadavek");
                 return false;
@@ -322,9 +490,14 @@ namespace LOIN.Comments
             comment.ReasonName = reason?.Name;
             comment.BreakDownId = breakdown?.Entity.Id;
             comment.BreakDownName = breakdown?.Name;
-            comment.RequirementId = CurrentRequirement.Id;
-            comment.RequirementName = CurrentRequirement.Name;
             comment.CreatedOn = DateTime.UtcNow;
+
+            if (CurrentRequirement != null && comment.Type == CommentType.Comment)
+            {
+                comment.RequirementId = CurrentRequirement.Id;
+                comment.RequirementName = CurrentRequirement.Name;
+                comment.RequirementSetName = CurrentRequirement.Parent?.Name;
+            }
 
             return true;
         }
@@ -337,17 +510,94 @@ namespace LOIN.Comments
                 return;
             }
 
-            if (!UpdateComment(CurrentComment))
+            SaveComment(CurrentComment);
+        }
+
+        private void SaveComment(Comment comment)
+        {
+            if (comment == null)
             {
                 return;
             }
 
-            if (!Comments.Contains(CurrentComment))
+            if (!UpdateComment(comment))
             {
-                Comments.Add(CurrentComment);
+                return;
             }
 
-            SaveComments_Click(sender, null);
+            if (!Comments.Contains(comment))
+            {
+                Comments.Add(comment);
+            }
+
+            if (isClosing && !string.IsNullOrWhiteSpace(CurrentCommentsFile) && File.Exists(CurrentCommentsFile))
+            {
+                SaveComments(CurrentCommentsFile);
+            }
+        }
+
+        private void dgComments_Selected(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is DataGrid grid))
+                return;
+
+            if (!(grid.SelectedItem is Comment comment))
+                return;
+
+            var actor = Actors.FirstOrDefault(a => a.Entity.Id == comment.ActorId);
+            var reason = Reasons.FirstOrDefault(a => a.Entity.Id == comment.ReasonId);
+            var milestone = Milestones.FirstOrDefault(a => a.Entity.Id == comment.MilestoneId);
+            var breakdown = BreakedownItems.Select(i => i.GetDeep(comment.BreakDownId)).Where(i => i != null).FirstOrDefault();
+
+            if (actor != null)
+                actor.IsSelected = true;
+            if (reason != null)
+                reason.IsSelected = true;
+            if (milestone != null)
+                milestone.IsSelected = true;
+            if (breakdown != null)
+            {
+                breakdown.IsSelected = true;
+                var parent = breakdown.Parent;
+                while (parent != null)
+                {
+                    parent.IsExpanded = true;
+                    parent = parent.Parent;
+                }
+            }
+
+            var requirement = ContextSelector.Requirements.FirstOrDefault(r => r.Id == comment.RequirementId);
+            if (requirement != null)
+            { 
+                if (requirement.Parent != null)
+                    requirement.Parent.IsSelected = true;
+
+                requirement.IsSelected = true;
+                CurrentRequirement = requirement;
+            }
+            else
+            {
+                CurrentComment = comment;
+            }
+
+        }
+
+        private void NewRequirement_Click(object sender, RoutedEventArgs e)
+        {
+            if (SingleContext == null || !SingleContext.IsComplete)
+            {
+                MessageBox.Show(this, "Kontext není plně definován (kategorie, aktér, milník a účel)");
+                return;
+            }
+
+            var comment = new Comment(SingleContext)
+            {
+                Author = User,
+                Type = CommentType.NewRequirement,
+            };
+
+            Comments.Add(comment);
+            CurrentComment = comment;
         }
     }
 }

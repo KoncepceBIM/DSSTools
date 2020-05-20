@@ -635,7 +635,7 @@ namespace LOIN.Viewer
 
             // breakedown structure
             BreakedownItems = _model.BreakdownStructure.Where(bs => bs.Parent == null)
-                .Select(i => new BreakdownItemView(i, ContextSelector, true))
+                .Select(i => new BreakdownItemView(i, null, ContextSelector, true))
                 .ToList();
 
             Actors = _model.Actors.Select(a => new ActorView(a, ContextSelector)).ToList();

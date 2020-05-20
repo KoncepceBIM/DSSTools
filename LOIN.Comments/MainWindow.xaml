@@ -10,6 +10,7 @@
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:Commands.OpenFile}" Executed="OpenFile_Click"/>
         <CommandBinding Command="{x:Static local:Commands.SaveFile}" Executed="SaveComments_Click"/>
+        <CommandBinding Command="{x:Static local:Commands.SaveFileAs}" Executed="SaveCommentsAs_Click"/>
         <CommandBinding Command="{x:Static local:Commands.Load}" Executed="LoadComments_Click"/>
     </Window.CommandBindings>
     <Grid>
@@ -26,9 +27,14 @@
                 </MenuItem>
                 <MenuItem Header="Uložit komentáře (Ctrl+S)" Click="SaveComments_Click">
                 </MenuItem>
+                <MenuItem Header="Uložit komentáře jako (Ctrl+Shift+S)" Click="SaveCommentsAs_Click">
+                </MenuItem>
                 <MenuItem Header="Načíst komentáře (Ctrl+L)" Click="LoadComments_Click">
                 </MenuItem>
+                <MenuItem Header="Ukončit" Click="Close_Click">
+                </MenuItem>
             </MenuItem>
+            <MenuItem Header="{Binding ElementName=self, Path=User}" Click="ChangeUser_Click"/>
         </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -64,6 +70,12 @@
                             </StackPanel>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" 
+                                Value="{Binding IsExpanded}" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
                 </TreeView>
                 <TextBlock Grid.Row="2">Účely (<Run Text="{Binding ElementName=self, Path=Reasons.Count, Mode=OneWay}"></Run>)</TextBlock>
                 <DataGrid Grid.Row="3" Name="dgReasons"  ItemsSource="{Binding ElementName=self, Path=Reasons}"
@@ -196,6 +208,24 @@
                     <TabItem.Header>
                         <TextBlock Grid.Row="0">Komentáře (<Run Text="{Binding ElementName=self, Path=Comments.Count, Mode=OneWay}"></Run>)</TextBlock>
                     </TabItem.Header>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Top" Width="150" HorizontalAlignment="Left" Padding="3" Margin="5" Click="NewRequirement_Click">Přidat nový požadavek</Button>
+                        <DataGrid Name="dgComments" ItemsSource="{Binding ElementName=self, Path=Comments}"
+                        AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="False" SelectionMode="Single"
+                              SelectionChanged="dgComments_Selected">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Autor" Binding="{Binding Path=Author}"  IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Datum" Binding="{Binding Path=CreatedOn}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Typ" Binding="{Binding Path=Type, Converter={local:CommentTypeConverter}}"  IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Požadavek" Binding="{Binding Path=RequirementName}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Sada" Binding="{Binding Path=RequirementSetName}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Kategorie" Binding="{Binding Path=BreakDownName}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Aktér" Binding="{Binding Path=ActorName}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Účel" Binding="{Binding Path=ReasonName}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Milník" Binding="{Binding Path=MilestoneName}" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
                 </TabItem>
             </TabControl>
             <GridSplitter Grid.Column="3"
@@ -210,12 +240,30 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <DockPanel >
-                    <Label>Uživatel (email):</Label>
-                    <TextBox Text="{Binding ElementName=self, Path=User}"></TextBox>
-                </DockPanel>
-                <local:RequirementDetails Grid.Row="1" Requirement="{Binding ElementName=self, Path=CurrentRequirement}" Padding="5"/>
-                <local:CommentEditor Grid.Row="2" Comment="{Binding ElementName=self, Path=CurrentComment}" Padding="5" LostFocus="SaveComment_Click"/>
+                <DockPanel Grid.Row="0"></DockPanel>
+                <local:RequirementDetails  Grid.Row="1" Requirement="{Binding ElementName=self, Path=CurrentRequirement}" Context="{Binding ElementName=self, Path=SingleContext}" Padding="5"/>
+                <ContentPresenter Grid.Row="2" Content="{Binding ElementName=self, Path=CurrentComment}">
+                    <ContentPresenter.Resources>
+                        <DataTemplate x:Key="commentTemplate">
+                            <local:CommentEditor Grid.Row="2" Comment="{Binding}" Padding="5" LostFocus="SaveComment_Click"/>
+                        </DataTemplate>
+                        <DataTemplate x:Key="newRequirementTemplate">
+                            <local:RequirementEditor Grid.Row="2" Comment="{Binding}" Padding="5" LostFocus="SaveComment_Click"/>
+                        </DataTemplate>
+                    </ContentPresenter.Resources>
+                    <ContentPresenter.Style>
+                        <Style TargetType="{x:Type ContentPresenter}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Type}" Value="Comment">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource commentTemplate}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="NewRequirement">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource newRequirementTemplate}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentPresenter.Style>
+                </ContentPresenter>
             </Grid>
         </Grid>
     </Grid>

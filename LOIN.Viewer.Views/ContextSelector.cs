@@ -11,6 +11,12 @@ namespace LOIN.Viewer.Views
 {
     public class ContextSelector : INotifyPropertyChanged
     {
+        // Declare the delegate (if using non-generic pattern).
+        public delegate void ContextUpdatedEventHandler(object sender, EventArgs e);
+
+        // Declare the event.
+        public event ContextUpdatedEventHandler ContextUpdatedEvent;
+
         public ContextSelector(Model model, bool oneOfType) : this(model)
         {
             OneOfType = oneOfType;
@@ -26,17 +32,16 @@ namespace LOIN.Viewer.Views
         private readonly Dictionary<IContextEntity, List<ContextView>> _views = new Dictionary<IContextEntity, List<Views.ContextView>>();
         private readonly Model model;
 
-        public IEnumerable<IContextEntity> Context
-        {
-            get => _context;
-        }
+        public IEnumerable<IContextEntity> Context => _context;
+
+        public IEnumerable<ContextView> ContextViews => _views.SelectMany(kvp => kvp.Value);
 
         public void Add(ContextView view)
         {
             if (OneOfType)
             {
                 var contextType = view.Entity.GetType();
-                var existing = _context.Where(c => c.GetType() == contextType).ToList();
+                var existing = _context.Where(c => c.GetType() == contextType && c != view.Entity).ToList();
                 if (existing.Any())
                 {
                     foreach (var item in existing)
@@ -67,6 +72,8 @@ namespace LOIN.Viewer.Views
         public void Remove(IContextEntity entity)
         {
             _context.Remove(entity);
+            _views.Remove(entity);
+
             OnPropertyChanged(nameof(Context));
             Update();
         }
@@ -121,6 +128,9 @@ namespace LOIN.Viewer.Views
             OnPropertyChanged(nameof(Requirements));
             OnPropertyChanged(nameof(RequirementSets));
             OnPropertyChanged(nameof(LevelsOfInformationNeeded));
+
+            // raise event
+            ContextUpdatedEvent?.Invoke(this, EventArgs.Empty);
         }
 
         public List<RequirementView> Requirements { get; private set; }

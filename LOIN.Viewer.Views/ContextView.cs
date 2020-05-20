@@ -32,6 +32,8 @@ namespace LOIN.Viewer.Views
 
         public IContextEntity Entity { get; }
 
+        public string Id => Entity.Id;
+
         protected ContextView(IContextEntity entity, ContextSelector selector)
         {
             this.selector = selector;

@@ -5,16 +5,14 @@ using System.Windows.Controls;
 namespace LOIN.Comments
 {
     /// <summary>
-    /// Interaction logic for CommentEditor.xaml
+    /// Interaction logic for RequirementEditor.xaml
     /// </summary>
-    public partial class CommentEditor : UserControl
+    public partial class RequirementEditor : UserControl
     {
-        public CommentEditor()
+        public RequirementEditor()
         {
             InitializeComponent();
         }
-
-
 
         public Comment Comment
         {
@@ -24,8 +22,8 @@ namespace LOIN.Comments
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CommentProperty =
-            DependencyProperty.Register("Comment", typeof(Comment), typeof(CommentEditor), new PropertyMetadata(new Comment(), (s, a) => {
-                if (!(s is CommentEditor c))
+            DependencyProperty.Register("Comment", typeof(Comment), typeof(RequirementEditor), new PropertyMetadata(new Comment(), (s, a) => {
+                if (!(s is RequirementEditor c))
                     return;
 
                 if (a.NewValue == null)
@@ -36,7 +34,5 @@ namespace LOIN.Comments
                     c.DataContext = a.NewValue;
                 }
             }));
-
-
     }
 }
