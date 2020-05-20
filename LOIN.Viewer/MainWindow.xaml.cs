@@ -516,7 +516,7 @@ namespace LOIN.Viewer
         private mvdXML GetMvd(bool filtered, XbimSchemaVersion schema)
         {
             if (!filtered)
-                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID", null, null);
+                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplateID", null, null);
 
             var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakdownItem>());
             var milestones = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Milestone>());
@@ -534,7 +534,7 @@ namespace LOIN.Viewer
             var requirements = new HashSet<IfcPropertyTemplate>(props);
 
             // filtered export
-            return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplate ID",
+            return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplateID",
 
                 // context filter
                 c =>

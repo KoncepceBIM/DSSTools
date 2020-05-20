@@ -158,7 +158,7 @@ namespace LOIN.Tests
                             ps.Name = "CZ_DataTemplateDesignation";
                             ps.HasProperties.Add(c.PropertySingleValue(p =>
                             {
-                                p.Name = "DataTemplate ID";
+                                p.Name = "DataTemplateID";
                                 p.NominalValue = new IfcLabel("52459");
                             }));
                         });

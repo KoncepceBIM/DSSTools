@@ -235,30 +235,30 @@
                 <TemplateRule Parameters="T_CRefName[Value]='52459' OR T_CRefId[Value]='52459'" />
               </TemplateRules>
               <TemplateRules operator="or">
-                <TemplateRule Parameters="O_PName[Value]='DataTemplate ID' AND O_PSingleValue[Value]=52459" />
+                <TemplateRule Parameters="O_PName[Value]='DataTemplateID' AND O_PSingleValue[Value]=52459" />
                 <TemplateRules operator="and">
-                  <TemplateRule Parameters="T_PName[Value]='DataTemplate ID' AND T_PSingleValue[Value]=52459" />
+                  <TemplateRule Parameters="T_PName[Value]='DataTemplateID' AND T_PSingleValue[Value]=52459" />
                   <TemplateRules operator="not">
-                    <TemplateRule Parameters="O_PName[Value]='DataTemplate ID'" />
+                    <TemplateRule Parameters="O_PName[Value]='DataTemplateID'" />
                   </TemplateRules>
                 </TemplateRules>
               </TemplateRules>
               <TemplateRules operator="or">
                 <TemplateRules operator="or">
-                  <TemplateRule Parameters="O_PName[Value]='DataTemplate ID' AND O_PRefClassificationName[Value]=52459" />
+                  <TemplateRule Parameters="O_PName[Value]='DataTemplateID' AND O_PRefClassificationName[Value]=52459" />
                   <TemplateRules operator="and">
-                    <TemplateRule Parameters="T_PName[Value]='DataTemplate ID' AND T_PRefClassificationName[Value]=52459" />
+                    <TemplateRule Parameters="T_PName[Value]='DataTemplateID' AND T_PRefClassificationName[Value]=52459" />
                     <TemplateRules operator="not">
-                      <TemplateRule Parameters="O_PName[Value]='DataTemplate ID'" />
+                      <TemplateRule Parameters="O_PName[Value]='DataTemplateID'" />
                     </TemplateRules>
                   </TemplateRules>
                 </TemplateRules>
                 <TemplateRules operator="or">
-                  <TemplateRule Parameters="O_PName[Value]='DataTemplate ID' AND O_PRefClassificationIdentifier[Value]=52459" />
+                  <TemplateRule Parameters="O_PName[Value]='DataTemplateID' AND O_PRefClassificationIdentifier[Value]=52459" />
                   <TemplateRules operator="and">
-                    <TemplateRule Parameters="T_PName[Value]='DataTemplate ID' AND T_PRefClassificationIdentifier[Value]=52459" />
+                    <TemplateRule Parameters="T_PName[Value]='DataTemplateID' AND T_PRefClassificationIdentifier[Value]=52459" />
                     <TemplateRules operator="not">
-                      <TemplateRule Parameters="O_PName[Value]='DataTemplate ID'" />
+                      <TemplateRule Parameters="O_PName[Value]='DataTemplateID'" />
                     </TemplateRules>
                   </TemplateRules>
                 </TemplateRules>
