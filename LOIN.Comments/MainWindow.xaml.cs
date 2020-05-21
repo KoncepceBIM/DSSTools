@@ -340,6 +340,9 @@ namespace LOIN.Comments
             using (var file = new StreamReader(path, Encoding.UTF8))
             using (var reader = new CsvReader(file, CultureInfo.InvariantCulture))
             {
+                reader.Configuration.HeaderValidated = null;
+                reader.Configuration.MissingFieldFound = null;
+
                 var comments = reader.GetRecords<Comment>().ToList();
                 var check = new HashSet<Guid>(comments.Select(c => c.Id));
                 var duplicities = new HashSet<Guid>(Comments.Where(c => check.Contains(c.Id)).Select(c => c.Id));

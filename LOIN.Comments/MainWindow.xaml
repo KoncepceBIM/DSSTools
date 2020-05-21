@@ -34,6 +34,7 @@
                 <MenuItem Header="Ukončit" Click="Close_Click">
                 </MenuItem>
             </MenuItem>
+            <Separator />
             <MenuItem Header="{Binding ElementName=self, Path=User}" Click="ChangeUser_Click"/>
         </Menu>
         <Grid Grid.Row="1">
@@ -145,8 +146,6 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding ValueType}" Header="Typ hodnoty" IsReadOnly="True"/>
-                            <!--<DataGridTextColumn Header="Jednotky" IsReadOnly="True"/>-->
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
@@ -198,8 +197,6 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Binding="{Binding ValueType}" Header="Typ hodnoty" IsReadOnly="True"/>
-                                <!--<DataGridTextColumn Header="Unit" IsReadOnly="True"/>-->
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -216,6 +213,7 @@
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Autor" Binding="{Binding Path=Author}"  IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Datum" Binding="{Binding Path=CreatedOn}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Stav" Binding="{Binding Path=ResolutionType}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Typ" Binding="{Binding Path=Type, Converter={local:CommentTypeConverter}}"  IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Požadavek" Binding="{Binding Path=RequirementName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Sada" Binding="{Binding Path=RequirementSetName}" IsReadOnly="True"/>

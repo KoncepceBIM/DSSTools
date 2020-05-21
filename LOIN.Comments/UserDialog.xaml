@@ -10,9 +10,28 @@
         Name="self"
         WindowStartupLocation="CenterOwner"
         Title="Uživatel" >
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-        <TextBlock Padding="5">Zadejte prosím Váš email</TextBlock>
-        <TextBox Padding="3" Margin="5" Text="{Binding ElementName=self, Path=User}"/>
-        <Button Width="80" Padding="3" Margin="5" Name="OK" Click="OK_Click">OK</Button>
-    </StackPanel>
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Padding="5" TextWrapping="Wrap" Grid.Row="0" Grid.ColumnSpan="2" MaxWidth="300">
+            Zadejte prosím Vaše jméno a email, abychom mohli zpracovat všechny Vaše komentáře.
+        </TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+            Jméno a příjmení
+        </TextBlock>
+        <TextBox Grid.Row="1" Grid.Column="1"  Padding="3" Margin="5" Text="{Binding ElementName=self, Path=UserName}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+            Email
+        </TextBlock>
+        <TextBox Grid.Row="2" Grid.Column="1" Padding="3" Margin="5" Text="{Binding ElementName=self, Path=Email}"/>
+        <Button Grid.Row="3" Grid.ColumnSpan="2" Width="80" Padding="3" Margin="5" Name="OK" Click="OK_Click">OK</Button>
+    </Grid>
 </Window>

@@ -65,6 +65,10 @@ namespace LOIN.Comments.Data
         // state
         public CommentType Type { get; set; }
 
+        // resolution
+        public string Resolution { get; set; }
+        public ResolutionType ResolutionType { get; set; }
+
         public bool IsEmpty() => 
             BadEnumeration == false && 
             WrongActor == false && 
@@ -74,6 +78,12 @@ namespace LOIN.Comments.Data
             string.IsNullOrWhiteSpace(Content) && 
             string.IsNullOrWhiteSpace(Suggestion);
         
+    }
+
+    public enum ResolutionType
+    {
+        Unresolved,
+        Accepted
     }
 
     public enum CommentType
