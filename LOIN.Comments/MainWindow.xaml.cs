@@ -304,7 +304,7 @@ namespace LOIN.Comments
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.Configuration.SanitizeForInjection = false;
-                csv.WriteRecords(Comments);
+                csv.WriteRecords(Comments.Where(c => !c.IsEmpty()));
             }
         }
         private void Close_Click(object sender, RoutedEventArgs e)
@@ -394,6 +394,12 @@ namespace LOIN.Comments
 
             if (!string.IsNullOrWhiteSpace(App.Settings.User))
                 User = App.Settings.User;
+
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
 
             if (string.IsNullOrWhiteSpace(User))
                 ChangeUser_Click(null, null);
@@ -527,9 +533,11 @@ namespace LOIN.Comments
 
             if (!Comments.Contains(comment))
             {
-                Comments.Add(comment);
+                if (!comment.IsEmpty())
+                    Comments.Add(comment);
             }
 
+            // there might be one last comment which hasn't been saved
             if (isClosing && !string.IsNullOrWhiteSpace(CurrentCommentsFile) && File.Exists(CurrentCommentsFile))
             {
                 SaveComments(CurrentCommentsFile);
@@ -596,6 +604,7 @@ namespace LOIN.Comments
                 Type = CommentType.NewRequirement,
             };
 
+            CurrentRequirement = null;
             Comments.Add(comment);
             CurrentComment = comment;
         }

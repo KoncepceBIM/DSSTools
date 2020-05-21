@@ -34,7 +34,7 @@ namespace LOIN.Comments
         private static string GetPath()
         {
             var dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
-            var path = Path.Combine(dir, "LOINApp");
+            var path = Path.Combine(dir, "LOIN.Comments");
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
             return Path.Combine(path, "settings.json");

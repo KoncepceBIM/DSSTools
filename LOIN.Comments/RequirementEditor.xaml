@@ -27,7 +27,7 @@
             </Grid.RowDefinitions>
             <TextBlock FontWeight="Bold" FontSize="20" Padding="0,10,0,10"
                    Grid.ColumnSpan="2" Grid.Row="0">
-                Návrh na nový požadavek
+                Návrh na novou požadovanou vlastnost
             </TextBlock>
 
             <Label Grid.Column="0" Grid.Row="1">Název požadované vlastnosti:</Label>
@@ -36,9 +36,11 @@
             <Label Grid.Column="0" Grid.Row="2">Název sady:</Label>
             <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding ElementName=self, Path=Comment.RequirementSetName}"  Padding="3" Margin="5"></TextBox>
 
-            <Label Grid.ColumnSpan="2" Grid.Row="6" FontWeight="Bold">Popis</Label>
-            <TextBox Grid.ColumnSpan="2" Grid.Row="7" Text="{Binding ElementName=self, Path=Comment.Content}"/>
+            <Label Grid.ColumnSpan="2" Grid.Row="6" FontWeight="Bold">Popis požadované vlastnosti</Label>
+            <TextBox Grid.ColumnSpan="2" Grid.Row="7" Text="{Binding ElementName=self, Path=Comment.Suggestion}"/>
 
+            <Label Grid.ColumnSpan="2" Grid.Row="8" FontWeight="Bold">Komentář</Label>
+            <TextBox Grid.ColumnSpan="2" Grid.Row="9" Text="{Binding ElementName=self, Path=Comment.Content}"/>
         </Grid>
     </Grid>
 </UserControl>
