@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LOIN.Comments"
         mc:Ignorable="d"
         Name="self" WindowState="Maximized" WindowStartupLocation="CenterScreen"
-        Title="Připomínky k DSS" Height="700" Width="1000" Icon="/ifc.ico">
+        Title="Připomínky k DSS" Height="700" Width="1000" Icon="/ddss.ico">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:Commands.OpenFile}" Executed="OpenFile_Click"/>
         <CommandBinding Command="{x:Static local:Commands.SaveFile}" Executed="SaveComments_Click"/>
@@ -213,8 +213,8 @@
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Autor" Binding="{Binding Path=Author}"  IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Datum" Binding="{Binding Path=CreatedOn}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Stav" Binding="{Binding Path=ResolutionType}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Typ" Binding="{Binding Path=Type, Converter={local:CommentTypeConverter}}"  IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Stav" Binding="{Binding Path=ResolutionType, Converter={local:EnumTypeConverter}}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Typ" Binding="{Binding Path=Type, Converter={local:EnumTypeConverter}}"  IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Požadavek" Binding="{Binding Path=RequirementName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Sada" Binding="{Binding Path=RequirementSetName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Kategorie" Binding="{Binding Path=BreakDownName}" IsReadOnly="True"/>

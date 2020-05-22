@@ -9,11 +9,12 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <ApplicationIcon>ifc.ico</ApplicationIcon>
+    <ApplicationIcon>ddss.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="bfc.ico" />
+    <None Remove="ddss.ico" />
     <None Remove="ifc.ico" />
     <None Remove="splash-screen.png" />
     <None Remove="xml.ico" />
@@ -31,6 +32,7 @@
 
   <ItemGroup>
     <Resource Include="bfc.ico" />
+    <Resource Include="ddss.ico" />
     <Resource Include="ifc.ico" />
     <Resource Include="xml.ico" />
   </ItemGroup>

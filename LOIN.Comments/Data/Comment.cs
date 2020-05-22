@@ -77,18 +77,36 @@ namespace LOIN.Comments.Data
             WrongReason == false && 
             string.IsNullOrWhiteSpace(Content) && 
             string.IsNullOrWhiteSpace(Suggestion);
-        
+
     }
 
+    // zadáno / k projednání / odsouhlaseno OTO / odsouhlaseno TK / zamítnuto
     public enum ResolutionType
     {
-        Unresolved,
-        Accepted
+        // default
+        [Description("Zadáno")]
+        Open = 0,
+
+        [Description("K projednání")]
+        ToBeDiscussed,
+
+        [Description("Odsouhlaseno OTO")]
+        AcceptedOTO,
+         
+        [Description("Odsouhlaseno TK")]
+        AcceptedTK,
+
+        [Description("Zamítnuto")]
+        Rejected
     }
 
     public enum CommentType
     {
-        Comment,
+        // default
+        [Description("Komentář")]
+        Comment = 0,
+
+        [Description("Nový požadavek")]
         NewRequirement
     }
 }

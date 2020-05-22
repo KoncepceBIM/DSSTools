@@ -21,8 +21,8 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <TextBlock Padding="5" TextWrapping="Wrap" Grid.Row="0" Grid.ColumnSpan="2" MaxWidth="300">
-            Zadejte prosím Vaše jméno a email, abychom mohli zpracovat všechny Vaše komentáře.
+        <TextBlock Padding="5" TextWrapping="Wrap" Grid.Row="0" Grid.ColumnSpan="2" MaxWidth="400">
+            Vítejte v nástroji LOIN checker České agentury pro standardizaci - pro evidenci a další zpracování Vašich požadavků je nutné, abyste vyplnili své jméno a emailovou adresu.
         </TextBlock>
         <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
             Jméno a příjmení
