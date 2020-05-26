@@ -513,10 +513,14 @@ namespace LOIN.Viewer
             ExportToMVD(false, XbimSchemaVersion.Ifc2X3);
         }
 
+        private const string classificationPropertyName = "DataTemplateID";
+        private const string classificationPropertySetName = "CZ_DataTemplateDesignation";
+
         private mvdXML GetMvd(bool filtered, XbimSchemaVersion schema)
         {
             if (!filtered)
-                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", "DataTemplateID", null, null);
+                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", classificationPropertyName, null, 
+                    pset => pset.Name != classificationPropertySetName);
 
             var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakdownItem>());
             var milestones = new HashSet<IContextEntity>(ContextSelector.Context.OfType<Milestone>());
@@ -552,7 +556,7 @@ namespace LOIN.Viewer
                 },
 
                 // property set filter
-                ps => setRequirements.Contains(ps), 
+                ps => setRequirements.Contains(ps) && ps.Name != classificationPropertySetName, 
 
                 // property filter
                 p => requirements.Contains(p));
