@@ -19,6 +19,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
             <MenuItem Header="Soubor">
                 <MenuItem Header="Otevřít (Ctrl+O)" Click="OpenFile_Click">
                     <MenuItem.Icon>
@@ -31,11 +36,13 @@
                 </MenuItem>
                 <MenuItem Header="Načíst komentáře (Ctrl+L)" Click="LoadComments_Click">
                 </MenuItem>
+                <MenuItem Header="Změnit uživatele" Click="ChangeUser_Click">
+                </MenuItem>
                 <MenuItem Header="Ukončit" Click="Close_Click">
                 </MenuItem>
             </MenuItem>
             <Separator />
-            <MenuItem Header="{Binding ElementName=self, Path=User}" Click="ChangeUser_Click"/>
+            <MenuItem Header="{Binding ElementName=self, Path=User}" Click="ChangeUser_Click" HorizontalAlignment="Right"/>
         </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -50,7 +57,7 @@
                 <!--Details and comments-->
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
+            <Grid Grid.Column="0" Margin="5,5,0,5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition/>
@@ -231,38 +238,40 @@
               VerticalAlignment="Stretch"
               Width="5"
               />
-            <Grid Grid.Column="4">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <DockPanel Grid.Row="0"></DockPanel>
-                <local:RequirementDetails  Grid.Row="1" Requirement="{Binding ElementName=self, Path=CurrentRequirement}" Context="{Binding ElementName=self, Path=SingleContext}" Padding="5"/>
-                <ContentPresenter Grid.Row="2" Content="{Binding ElementName=self, Path=CurrentComment}">
-                    <ContentPresenter.Resources>
-                        <DataTemplate x:Key="commentTemplate">
-                            <local:CommentEditor Grid.Row="2" Comment="{Binding}" Padding="5" LostFocus="SaveComment_Click"/>
-                        </DataTemplate>
-                        <DataTemplate x:Key="newRequirementTemplate">
-                            <local:RequirementEditor Grid.Row="2" Comment="{Binding}" Padding="5" LostFocus="SaveComment_Click"/>
-                        </DataTemplate>
-                    </ContentPresenter.Resources>
-                    <ContentPresenter.Style>
-                        <Style TargetType="{x:Type ContentPresenter}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Type}" Value="Comment">
-                                    <Setter Property="ContentTemplate" Value="{StaticResource commentTemplate}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Type}" Value="NewRequirement">
-                                    <Setter Property="ContentTemplate" Value="{StaticResource newRequirementTemplate}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentPresenter.Style>
-                </ContentPresenter>
-            </Grid>
+            <ScrollViewer  Grid.Column="4" VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0"></DockPanel>
+                    <local:RequirementDetails  Grid.Row="1" Requirement="{Binding ElementName=self, Path=CurrentRequirement}" Context="{Binding ElementName=self, Path=SingleContext}" Padding="5"/>
+                    <ContentPresenter Grid.Row="2" Content="{Binding ElementName=self, Path=CurrentComment}">
+                        <ContentPresenter.Resources>
+                            <DataTemplate x:Key="commentTemplate">
+                                <local:CommentEditor Grid.Row="2" Comment="{Binding}" Padding="5" LostFocus="SaveComment_Click"/>
+                            </DataTemplate>
+                            <DataTemplate x:Key="newRequirementTemplate">
+                                <local:RequirementEditor Grid.Row="2" Comment="{Binding}" Padding="5" LostFocus="SaveComment_Click"/>
+                            </DataTemplate>
+                        </ContentPresenter.Resources>
+                        <ContentPresenter.Style>
+                            <Style TargetType="{x:Type ContentPresenter}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Type}" Value="Comment">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource commentTemplate}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Type}" Value="NewRequirement">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource newRequirementTemplate}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentPresenter.Style>
+                    </ContentPresenter>
+                </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Window>
