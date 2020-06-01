@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using LOIN.Viewer.Views;
+using System.IO;
 using System.Windows;
 
 namespace LOIN.Comments
@@ -13,6 +14,9 @@ namespace LOIN.Comments
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // make Czech fixed secondary language
+            Language.Lang = "cs";
 
             Settings = Settings.Open();
         }

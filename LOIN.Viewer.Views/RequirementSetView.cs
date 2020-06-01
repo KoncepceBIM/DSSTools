@@ -21,6 +21,7 @@ namespace LOIN.Viewer.Views
                 .ToList();
 
 
+            lang = Language.Lang;
             Language.PropertyChanged += (_, p) => {
                 if (p.PropertyName != nameof(Language.Lang))
                     return;

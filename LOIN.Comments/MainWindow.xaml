@@ -144,9 +144,9 @@
                     <DataGrid ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single" SelectedItem="{Binding ElementName=self, Path=CurrentRequirement}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Název sady" IsReadOnly="True" Binding="{Binding Parent.Name}"/>
-                            <DataGridTextColumn Binding="{Binding Name}" Header="Název" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding Description}" Header="Popis"  Width="*" IsReadOnly="True">
+                            <DataGridTextColumn Header="Název sady" IsReadOnly="True" Binding="{Binding Parent.Name2}"/>
+                            <DataGridTextColumn Binding="{Binding Name2}" Header="Název" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Description2}" Header="Popis"  Width="*" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style>
                                         <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
@@ -181,8 +181,8 @@
                         <DataGrid Grid.Row="1" Name="dgPSets" ItemsSource="{Binding ElementName=self, Path=ContextSelector.RequirementSets}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single" Grid.ColumnSpan="2">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding Name}" Header="Název" IsReadOnly="True"/>
-                                <DataGridTextColumn Binding="{Binding Description}" Header="Popis"  Width="*" IsReadOnly="True">
+                                <DataGridTextColumn Binding="{Binding Name2}" Header="Název" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding Description2}" Header="Popis"  Width="*" IsReadOnly="True">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style>
                                             <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
@@ -196,8 +196,8 @@
                     AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single" Grid.ColumnSpan="2" Grid.RowSpan="2"
                                   SelectedItem="{Binding ElementName=self, Path=CurrentRequirement}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding Name}" Header="Název" IsReadOnly="True"/>
-                                <DataGridTextColumn Binding="{Binding Description}" Header="Popis"  Width="*" IsReadOnly="True">
+                                <DataGridTextColumn Binding="{Binding Name2}" Header="Název" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding Description2}" Header="Popis"  Width="*" IsReadOnly="True">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style>
                                             <Setter Property="TextBlock.TextWrapping" Value="Wrap" />

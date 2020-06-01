@@ -29,8 +29,9 @@ namespace LOIN.Viewer.Views
             return view;
         }
 
-        public RequirementView(IfcSimplePropertyTemplate property, Dictionary<int, RequirementSetView> map) : 
-            this(property, GetOrCreate(property, map), true) { }
+        public RequirementView(IfcSimplePropertyTemplate property, Dictionary<int, RequirementSetView> map) :
+            this(property, GetOrCreate(property, map), true)
+        { }
 
         public RequirementView(IfcSimplePropertyTemplate property, RequirementSetView requirementSet, bool addSelf = false)
         {
@@ -40,6 +41,7 @@ namespace LOIN.Viewer.Views
             if (addSelf)
                 Parent.Requirements.Add(this);
 
+            lang = Language.Lang;
             Language.PropertyChanged += (_, p) =>
             {
                 if (p.PropertyName != nameof(Language.Lang))

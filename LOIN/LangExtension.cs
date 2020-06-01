@@ -90,7 +90,14 @@ namespace LOIN
                 libs.Add(lang, lib);
         }
 
-        public static void SetNameAndDescription(this IfcDefinitionSelect definition, string lang, string name, string description)
+        public static string GetName(this IfcDefinitionSelect definition, string lang)
+        {
+            var lib = GetLib(definition, lang);
+            if (lib == null) return null;
+            return lib.Name;
+        }
+
+        public static void SetName(this IfcDefinitionSelect definition, string lang, string name)
         {
             var lib = GetLib(definition, lang);
             if (lib != null)
@@ -104,25 +111,12 @@ namespace LOIN
                 r.RelatedObjects.Add(definition);
                 r.RelatingLibrary = i.New<IfcLibraryReference>(libRef => {
                     libRef.Name = name;
-                    libRef.Description = description;
                     libRef.Language = lang;
                     libRef.Identification = dictionaryIdentifier;
 
                     AddOrSet(definition, lang, libRef);
                 });
             });
-        }
-
-        public static string GetName(this IfcDefinitionSelect definition, string lang)
-        {
-            var lib = GetLib(definition, lang);
-            if (lib == null) return null;
-            return lib.Name;
-        }
-
-        public static void SetName(this IfcDefinitionSelect definition, string lang, string name)
-        {
-            SetNameAndDescription(definition, lang, name, null);
         }
 
         public static string GetDescription(this IfcDefinitionSelect definition, string lang)
@@ -134,7 +128,24 @@ namespace LOIN
 
         public static void SetDescription(this IfcDefinitionSelect definition, string lang, string description)
         {
-            SetNameAndDescription(definition, lang, null, description);
+            var lib = GetLib(definition, lang);
+            if (lib != null)
+            {
+                lib.Description = description;
+                return;
+            }
+
+            var i = definition.Model.Instances;
+            i.New<IfcRelAssociatesLibrary>(r => {
+                r.RelatedObjects.Add(definition);
+                r.RelatingLibrary = i.New<IfcLibraryReference>(libRef => {
+                    libRef.Description = description;
+                    libRef.Language = lang;
+                    libRef.Identification = dictionaryIdentifier;
+
+                    AddOrSet(definition, lang, libRef);
+                });
+            });
         }
     }
 }

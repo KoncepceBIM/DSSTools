@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace LOIN.Viewer.Views
 {
-    public abstract class ContextView: INotifyPropertyChanged
+    public abstract class ContextView : INotifyPropertyChanged
     {
         protected readonly ContextSelector selector;
         protected string lang;
@@ -39,7 +39,9 @@ namespace LOIN.Viewer.Views
             this.selector = selector;
             Entity = entity;
 
-            Language.PropertyChanged += (_, p) => {
+            lang = Language.Lang;
+            Language.PropertyChanged += (_, p) =>
+            {
                 if (p.PropertyName != nameof(Language.Lang))
                     return;
                 lang = Language.Lang;
@@ -50,15 +52,15 @@ namespace LOIN.Viewer.Views
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    public abstract class ContextView<T>: ContextView where T: IContextEntity
+    public abstract class ContextView<T> : ContextView where T : IContextEntity
     {
 
-        protected ContextView(T context, ContextSelector selector): base(context, selector)
+        protected ContextView(T context, ContextSelector selector) : base(context, selector)
         {
             Context = context;
         }
 
-        
+
 
         public T Context { get; }
 
@@ -68,6 +70,6 @@ namespace LOIN.Viewer.Views
         public string Name2 => Context.GetName(lang) ?? Name;
         public string Description2 => Context.GetDescription(lang) ?? Description;
 
-        
+
     }
 }

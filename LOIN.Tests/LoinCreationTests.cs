@@ -36,13 +36,25 @@ namespace LOIN.Tests
 
 
             var width = loin.CreateSimplePropertyTemplate("Width", "Width of the window", nameof(IfcLengthMeasure));
+            width.SetName("cs", "Šířka");
+            width.SetDescription("cs", "Šířka okna");
+
+            Assert.IsNotNull(width.GetName("cs"));
+            Assert.IsNotNull(width.GetDescription("cs"));
+
             var height = loin.CreateSimplePropertyTemplate("Height", "Height of the window", nameof(IfcLengthMeasure));
+            height.SetName("cs", "Výška");
+            height.SetDescription("cs", "Výška okna");
             var code = loin.CreateSimplePropertyTemplate("BarCode", "Bar code of the window", nameof(IfcIdentifier));
+            code.SetName("cs", "Čárový kód");
+            code.SetDescription("cs", "Čárový kód okna");
 
             var requirement = loin.CreatePropertySetTemplate("FM Requirements", "Requirements for Facility Management");
             requirement.HasPropertyTemplates.Add(width);
             requirement.HasPropertyTemplates.Add(height);
             requirement.HasPropertyTemplates.Add(code);
+            requirement.SetName("cs", "Požadavky pro FM");
+            requirement.SetDescription("cs", "Požadavky pro správu a údržbu");
 
             var requirements = loin.CreateRequirementSet("Base requirements", "Base requirements for the window");
             requirements.Add(requirement);
