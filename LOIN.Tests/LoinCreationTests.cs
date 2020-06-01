@@ -30,7 +30,7 @@ namespace LOIN.Tests
 
             var actor = loin.CreateActor("Client", "Owner of the building");
             var milestone = loin.CreateMilestone("Preliminary design", "Preliminary design handover milestone");
-            var reason = loin.CreateReason("Handoved", "Handover of data");
+            var reason = loin.CreateReason("Handover", "Handover of data");
             var item = loin.CreateBreakedownItem("Window", "E456.789.12", "Window is a building element used to controll light flow into the space");
 
 
