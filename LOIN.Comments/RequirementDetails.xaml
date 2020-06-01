@@ -27,30 +27,32 @@
             <TextBlock Style="{StaticResource ResourceKey=Heading}" Padding="0,0,0,5"> Aktuální kontext</TextBlock>
             <TextBlock TextWrapping="Wrap" LineHeight="20">
             <Run Style="{StaticResource ResourceKey=Annotation}">Kategorie DSS:</Run>
-            <Run Text="{Binding ElementName=self, Path=Context.BreakdownItem.Name, Mode=OneWay}"/>
+            <Run Text="{Binding ElementName=self, Path=Context.BreakdownItem.Name2, Mode=OneWay}"/>
             <LineBreak/>
             
             <Run Style="{StaticResource ResourceKey=Annotation}">Účel:</Run>
-            <Run Text="{Binding ElementName=self, Path=Context.Reason.Name, Mode=OneWay}"/>
+            <Run Text="{Binding ElementName=self, Path=Context.Reason.Name2, Mode=OneWay}"/>
             <LineBreak/>
 
             <Run Style="{StaticResource ResourceKey=Annotation}">Aktér:</Run>
-            <Run Text="{Binding ElementName=self, Path=Context.Actor.Name, Mode=OneWay}"/>
+            <Run Text="{Binding ElementName=self, Path=Context.Actor.Name2, Mode=OneWay}"/>
             <LineBreak/>
         
             <Run Style="{StaticResource ResourceKey=Annotation}">Milník:</Run>
-            <Run Text="{Binding ElementName=self, Path=Context.Milestone.Name, Mode=OneWay}"/>
+            <Run Text="{Binding ElementName=self, Path=Context.Milestone.Name2, Mode=OneWay}"/>
             </TextBlock>
         </StackPanel>
         <StackPanel Orientation="Vertical" Name="propertyInformation" Visibility="Collapsed">
             <TextBlock Style="{StaticResource ResourceKey=Heading}" Padding="0,20,0,5"> Aktuální požadavek</TextBlock>
             <TextBlock TextWrapping="Wrap" LineHeight="20">
             <Run Style="{StaticResource ResourceKey=Annotation}">Sada požadavků:</Run>
-            <Run Text="{Binding ElementName=self, Path=Requirement.Parent.Name, Mode=OneWay}"/>
+            <Run Text="{Binding ElementName=self, Path=Requirement.Parent.Name2, Mode=OneWay}"/> 
+            (<Run Text="{Binding ElementName=self, Path=Requirement.Parent.Name, Mode=OneWay}"/>)
             <LineBreak/>
             
             <Run Style="{StaticResource ResourceKey=Annotation}">Název požadavku:</Run>
-            <Run Text="{Binding ElementName=self, Path=Requirement.Name, Mode=OneWay}"/>
+            <Run Text="{Binding ElementName=self, Path=Requirement.Name2, Mode=OneWay}"/> 
+            (<Run Text="{Binding ElementName=self, Path=Requirement.Name, Mode=OneWay}"/>)
             <LineBreak/>
 
             <Run Style="{StaticResource ResourceKey=Annotation}">Typ hodnoty</Run>
@@ -59,7 +61,9 @@
         
             <Run Style="{StaticResource ResourceKey=Annotation}">Popis požadavku:</Run>
             <LineBreak/>
-            <Run Text="{Binding ElementName=self, Path=Requirement.Description, Mode=OneWay}"/>
+            [cs] <Run Text="{Binding ElementName=self, Path=Requirement.Description2, Mode=OneWay}"/>
+            <LineBreak/>
+            [en] <Run Text="{Binding ElementName=self, Path=Requirement.Description, Mode=OneWay}"/>
             </TextBlock>
         </StackPanel>
 

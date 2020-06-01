@@ -504,8 +504,8 @@ namespace LOIN.Comments
             if (CurrentRequirement != null && comment.Type == CommentType.Comment)
             {
                 comment.RequirementId = CurrentRequirement.Id;
-                comment.RequirementName = CurrentRequirement.Name;
-                comment.RequirementSetName = CurrentRequirement.Parent?.Name;
+                comment.RequirementName = CurrentRequirement.Name2;
+                comment.RequirementSetName = CurrentRequirement.Parent?.Name2;
             }
 
             return true;
