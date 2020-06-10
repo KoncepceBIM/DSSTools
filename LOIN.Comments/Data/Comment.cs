@@ -28,6 +28,8 @@ namespace LOIN.Comments.Data
             MilestoneName = ctx.Milestone?.Name;
         }
 
+        public static readonly Comment Empty = new Comment();
+
         // identity
         public string Author { get; set; }
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -54,13 +56,17 @@ namespace LOIN.Comments.Data
         // free text content
         public string Content { get; set; }
         public string Suggestion { get; set; }
-        public bool BadEnumeration { get; set; }
 
         // wrong context report
         public bool WrongBreakDown { get; set; }
         public bool WrongActor { get; set; }
         public bool WrongReason { get; set; }
         public bool WrongMilestone { get; set; }
+
+        // other suggestions
+        public bool BadEnumeration { get; set; }
+        public bool ShouldBeOptional { get; set; }
+        public bool WrongPropertySet { get; set; }
 
         // state
         public CommentType Type { get; set; }
@@ -70,11 +76,18 @@ namespace LOIN.Comments.Data
         public ResolutionType ResolutionType { get; set; }
 
         public bool IsEmpty() => 
-            BadEnumeration == false && 
-            WrongActor == false && 
-            WrongBreakDown == false && 
-            WrongMilestone == false && 
-            WrongReason == false && 
+            WrongActor == Empty.WrongActor&& 
+            WrongBreakDown == Empty.WrongBreakDown && 
+            WrongMilestone == Empty.WrongMilestone && 
+            WrongReason == Empty.WrongReason && 
+
+            BadEnumeration == Empty.BadEnumeration && 
+            ShouldBeOptional == Empty.ShouldBeOptional &&
+            WrongPropertySet == Empty.WrongPropertySet &&
+
+            ResolutionType == Empty.ResolutionType &&
+            string.IsNullOrWhiteSpace(Resolution) &&
+            
             string.IsNullOrWhiteSpace(Content) && 
             string.IsNullOrWhiteSpace(Suggestion);
 

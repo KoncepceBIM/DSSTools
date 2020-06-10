@@ -10,15 +10,7 @@
              Name="self"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -28,33 +20,59 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock FontWeight="Bold" FontSize="20" Padding="0,10,0,5"
-                   Grid.ColumnSpan="2" Grid.Row="0">
+        <TextBlock FontWeight="Bold" FontSize="20" Padding="0,10,0,5" Grid.Row="0">
             Komentář aktuálního požadavku
         </TextBlock>
-        
-        <Label Grid.Column="1" Grid.Row="1">Nevhodné pro danou kategorii</Label>
-        <CheckBox Grid.Column="0" Grid.Row="1" IsChecked="{Binding ElementName=self, Path=Comment.WrongBreakDown}" Margin="5"/>
 
-        <Label Grid.Column="1" Grid.Row="2">Nevhodné pro daného aktéra</Label>
-        <CheckBox Grid.Column="0" Grid.Row="2" IsChecked="{Binding ElementName=self, Path=Comment.WrongActor}" Margin="5"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <Style TargetType="Label">
+                    <Setter Property="Margin" Value="0,0,30,0"/>
+                </Style>
+            </Grid.Resources>
 
-        <Label Grid.Column="1" Grid.Row="3">Nevhodné pro daný milník</Label>
-        <CheckBox Grid.Column="0" Grid.Row="3" IsChecked="{Binding ElementName=self, Path=Comment.WrongMilestone}" Margin="5"/>
+            <Label Grid.Column="1" Grid.Row="0">Nevhodné pro danou kategorii</Label>
+            <CheckBox Grid.Column="0" Grid.Row="0" IsChecked="{Binding ElementName=self, Path=Comment.WrongBreakDown}" Margin="5"/>
 
-        <Label Grid.Column="1" Grid.Row="4">Nevhodné pro daný účel</Label>
-        <CheckBox Grid.Column="0" Grid.Row="4" IsChecked="{Binding ElementName=self, Path=Comment.WrongReason}" Margin="5"/>
+            <Label Grid.Column="1" Grid.Row="1">Nevhodné pro daného aktéra</Label>
+            <CheckBox Grid.Column="0" Grid.Row="1" IsChecked="{Binding ElementName=self, Path=Comment.WrongActor}" Margin="5"/>
 
-        <Label Grid.Column="1" Grid.Row="5">Nevhodná enumerace hodnot</Label>
-        <CheckBox Grid.Column="0" Grid.Row="5" IsChecked="{Binding ElementName=self, Path=Comment.BadEnumeration}" Margin="5"/>
+            <Label Grid.Column="1" Grid.Row="2">Nevhodné pro daný milník</Label>
+            <CheckBox Grid.Column="0" Grid.Row="2" IsChecked="{Binding ElementName=self, Path=Comment.WrongMilestone}" Margin="5"/>
 
-        <Label Grid.ColumnSpan="2" Grid.Row="6" FontWeight="Bold">Komentář</Label>
-        <TextBox Grid.ColumnSpan="2" Grid.Row="7" Text="{Binding ElementName=self, Path=Comment.Content}"/>
+            <Label Grid.Column="1" Grid.Row="3">Nevhodné pro daný účel</Label>
+            <CheckBox Grid.Column="0" Grid.Row="3" IsChecked="{Binding ElementName=self, Path=Comment.WrongReason}" Margin="5"/>
 
-        <Label Grid.ColumnSpan="2" Grid.Row="8" FontWeight="Bold">Návrh řešení</Label>
-        <TextBox Grid.ColumnSpan="2" Grid.Row="9" Text="{Binding ElementName=self, Path=Comment.Suggestion}"/>
+            <Label Grid.Column="3" Grid.Row="0">Nevhodná enumerace hodnot</Label>
+            <CheckBox Grid.Column="2" Grid.Row="0" IsChecked="{Binding ElementName=self, Path=Comment.BadEnumeration}" Margin="5"/>
 
-        <StackPanel Grid.ColumnSpan="2" Grid.Row="10" Orientation="Horizontal">
+            <Label Grid.Column="3" Grid.Row="1">Nevhodná sada požadavků</Label>
+            <CheckBox Grid.Column="2" Grid.Row="1" IsChecked="{Binding ElementName=self, Path=Comment.WrongPropertySet}" Margin="5"/>
+
+            <Label Grid.Column="3" Grid.Row="2">Požadavek by měl být pouze volitelný</Label>
+            <CheckBox Grid.Column="2" Grid.Row="2" IsChecked="{Binding ElementName=self, Path=Comment.ShouldBeOptional}" Margin="5"/>
+
+        </Grid>
+
+        <Label Grid.Row="2" FontWeight="Bold">Komentář</Label>
+        <TextBox Grid.Row="3" Text="{Binding ElementName=self, Path=Comment.Content}"/>
+
+        <Label Grid.Row="4" FontWeight="Bold">Návrh řešení</Label>
+        <TextBox Grid.Row="5" Text="{Binding ElementName=self, Path=Comment.Suggestion}"/>
+
+        <StackPanel Grid.Row="6" Orientation="Horizontal">
             <StackPanel.Resources>
                 <ObjectDataProvider x:Key="dataFromEnum" MethodName="GetValues"
                             ObjectType="{x:Type System:Enum}">
@@ -72,6 +90,6 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </StackPanel>
-        <TextBox Grid.ColumnSpan="2" Grid.Row="11" Text="{Binding ElementName=self, Path=Comment.Resolution}"/>
+        <TextBox Grid.Row="7" Text="{Binding ElementName=self, Path=Comment.Resolution}"/>
     </Grid>
 </UserControl>

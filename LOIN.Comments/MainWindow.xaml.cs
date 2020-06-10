@@ -210,7 +210,8 @@ namespace LOIN.Comments
 
         // Using a DependencyProperty as the backing store for Comment.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CurrentCommentProperty =
-            DependencyProperty.Register("CurrentComment", typeof(Comment), typeof(MainWindow), new PropertyMetadata(null, (s, a) => {
+            DependencyProperty.Register("CurrentComment", typeof(Comment), typeof(MainWindow), new PropertyMetadata(null, (s, a) =>
+            {
                 if (!(s is MainWindow self))
                     return;
             }));
@@ -255,10 +256,10 @@ namespace LOIN.Comments
             if (!dlg.IsValid())
                 ChangeUser_Click(sender, e);
             else
-            { 
+            {
                 User = dlg.User;
                 App.Settings.User = User;
-            } 
+            }
         }
 
         private void SaveComments_Click(object sender, RoutedEventArgs e)
@@ -337,29 +338,38 @@ namespace LOIN.Comments
             CurrentCommentsFile = path;
             App.Settings.LastComments = path;
 
-            using (var file = new StreamReader(path, Encoding.UTF8))
-            using (var reader = new CsvReader(file, CultureInfo.InvariantCulture))
+            try
             {
-                reader.Configuration.HeaderValidated = null;
-                reader.Configuration.MissingFieldFound = null;
+                using (var file = new StreamReader(path, Encoding.UTF8))
+                using (var reader = new CsvReader(file, CultureInfo.InvariantCulture))
+                {
+                    reader.Configuration.HeaderValidated = null;
+                    reader.Configuration.MissingFieldFound = null;
 
-                var comments = reader.GetRecords<Comment>().ToList();
-                var check = new HashSet<Guid>(comments.Select(c => c.Id));
-                var duplicities = new HashSet<Guid>(Comments.Where(c => check.Contains(c.Id)).Select(c => c.Id));
-                if (duplicities.Any())
-                {
-                    var msg = MessageBox.Show($"{duplicities.Count} záznamů v souboru je již načteno. Chcete je nahradit záznamy ze souboru?", "Duplicity",
-                        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-                    if (msg == MessageBoxResult.No)
-                        comments = comments.Where(c => !duplicities.Contains(c.Id)).ToList();
-                    else
-                        Comments = new ObservableCollection<Comment>(Comments.Where(c => !duplicities.Contains(c.Id)));
-                }
-                foreach (var comment in comments)
-                {
-                    Comments.Add(comment);
+                    var comments = reader.GetRecords<Comment>().ToList();
+                    var check = new HashSet<Guid>(comments.Select(c => c.Id));
+                    var duplicities = new HashSet<Guid>(Comments.Where(c => check.Contains(c.Id)).Select(c => c.Id));
+                    if (duplicities.Any())
+                    {
+                        var msg = MessageBox.Show($"{duplicities.Count} záznamů v souboru je již načteno. Chcete je nahradit záznamy ze souboru?", "Duplicity",
+                            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+                        if (msg == MessageBoxResult.No)
+                            comments = comments.Where(c => !duplicities.Contains(c.Id)).ToList();
+                        else
+                            Comments = new ObservableCollection<Comment>(Comments.Where(c => !duplicities.Contains(c.Id)));
+                    }
+                    foreach (var comment in comments)
+                    {
+                        Comments.Add(comment);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show(this, $"Soubor s komentáři '{Path.GetFileName(path)}' se nepodařilo načíst: {e.Message}");
+                App.Settings.LastComments = "";
+            }
+
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
@@ -412,7 +422,18 @@ namespace LOIN.Comments
         {
             CurrentFile = path;
             Title = $"Připomínky k DSS: {path}";
-            _model = LOIN.Model.Open(path);
+
+            try
+            {
+                _model = Model.Open(path);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(this, $"Nepodařilo se načíst požadavky ze souboru {Path.GetFileName(path)}: {e.Message}", "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                CurrentFile = "";
+                Title = $"Připomínky k DSS";
+                return;
+            }
 
             ContextSelector = new ContextSelector(_model, true);
             SingleContext = new SingleContext(ContextSelector);
@@ -423,7 +444,9 @@ namespace LOIN.Comments
             };
 
             if (!_model.Requirements.Any())
-                MessageBox.Show(this, "This file doesn't contain any requirements.", "Not a LOIN", MessageBoxButton.OK, MessageBoxImage.Warning);
+            { 
+                MessageBox.Show(this, "Tento soubor neobsahuje žádné požadavky", "Not a LOIN", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
 
             DataContext = _model;
 
@@ -579,7 +602,7 @@ namespace LOIN.Comments
 
             var requirement = ContextSelector.Requirements.FirstOrDefault(r => r.Id == comment.RequirementId);
             if (requirement != null)
-            { 
+            {
                 if (requirement.Parent != null)
                     requirement.Parent.IsSelected = true;
 
