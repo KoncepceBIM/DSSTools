@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
 using Xbim.Common;
 using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Interfaces;
@@ -15,7 +12,8 @@ namespace LOIN
     {
         public const string dictionaryIdentifier = "dictionary";
         private static IModel model;
-        private static Dictionary<IIfcDefinitionSelect, Dictionary<string, IIfcLibraryReference>> cache = new Dictionary<IIfcDefinitionSelect, Dictionary<string, IIfcLibraryReference>>();
+        private static readonly Dictionary<IIfcDefinitionSelect, Dictionary<string, IIfcLibraryReference>> cache = 
+            new Dictionary<IIfcDefinitionSelect, Dictionary<string, IIfcLibraryReference>>();
 
         public static void ClearCache()
         {
