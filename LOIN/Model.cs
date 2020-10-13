@@ -233,6 +233,11 @@ namespace LOIN
             });
         }
 
+        public GeometryRequirements CreateGeometryRequirements()
+        {
+            return new GeometryRequirements(_model);
+        }
+
         public IfcSimplePropertyTemplate CreateSimplePropertyTemplate(string name, string description, string measureType = null,  IfcUnit unit = null)
         {
             return New<IfcSimplePropertyTemplate>(p => {

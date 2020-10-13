@@ -1,6 +1,7 @@
 ﻿using LOIN.Context;
 using LOIN.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using Xbim.Common.Step21;
 using Xbim.Ifc;
@@ -59,22 +60,31 @@ namespace LOIN.Tests
             var requirements = loin.CreateRequirementSet("Base requirements", "Base requirements for the window");
             requirements.Add(requirement);
 
+            var geomReq = loin.CreateGeometryRequirements();
+            geomReq.ID = Guid.NewGuid().ToString();
+            geomReq.Name = "Window geometry requirements";
+            geomReq.Appearance = "No textures";
+            geomReq.Definition = "Definition of the window geometry requirements";
+            geomReq.Detailing = Requirements.DetailingEnum.LowDetail;
+            geomReq.Dimensionality = Requirements.DimensionalityEnum.Dim_3D;
+            geomReq.ParametricBehaviour = false;
+
             var context = new IContextEntity[] { actor, milestone, reason, item };
             foreach (var contextItem in context)
                 contextItem.AddToContext(requirements);
 
             txn.Commit();
 
-            // validate IFC model
-            var validator = new IfcValidator();
-            var ok = validator.Check(loin.Internal);
-            Assert.IsTrue(ok);
-
             // serialize as IFC
             loin.Save("LOIN.ifc");
 
             // serialize as XML
             loin.Save("LOIN.ifcXML");
+
+            // validate IFC model
+            var validator = new IfcValidator();
+            var ok = validator.Check(loin.Internal);
+            Assert.IsTrue(ok);
 
             // get MVD
             var mvd = loin.GetMvd(XbimSchemaVersion.Ifc4, "en", "LOIN Representation", "Requirements defined using LOIN, represented as validation MVD", "LOIN", "Classification");
