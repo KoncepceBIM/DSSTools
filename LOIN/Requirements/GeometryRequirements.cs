@@ -79,10 +79,10 @@ namespace LOIN.Requirements
             set => SetProperty(_pLocation, value != null ? new IfcText(value) : null);
         }
 
-        public bool? ParametricBehaviour
+        public string ParametricBehaviour
         {
-            get => GetPropertyBool(_pParametricBehaviour);
-            set => SetProperty(_pParametricBehaviour, value.HasValue ? (new IfcBoolean(value.Value) as IfcValue) : null);
+            get => GetPropertyString(_pParametricBehaviour);
+            set => SetProperty(_pParametricBehaviour, value != null ? new IfcText(value) : null);
         }
 
         private IfcPropertySingleValue GetProperty(string name)

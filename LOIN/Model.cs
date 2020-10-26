@@ -197,7 +197,7 @@ namespace LOIN
             return proxy;
         }
 
-        public Reason CreateReason(string name, string description)
+        public Reason CreatePurpose(string name, string description)
         {
             var i = Internal.Instances;
             var reason = i.New<IfcActionRequest>(a => {
@@ -238,6 +238,14 @@ namespace LOIN
             return new GeometryRequirements(_model);
         }
 
+        public IfcSimplePropertyTemplate CreateDocumentPropertyTemplate(string name, string description)
+        {
+            var tmpl = CreateSimplePropertyTemplate(name, description);
+            tmpl.TemplateType = IfcSimplePropertyTemplateTypeEnum.P_REFERENCEVALUE;
+            tmpl.PrimaryMeasureType = nameof(IfcDocumentReference);
+            return tmpl;
+        }
+
         public IfcSimplePropertyTemplate CreateSimplePropertyTemplate(string name, string description, string measureType = null,  IfcUnit unit = null)
         {
             return New<IfcSimplePropertyTemplate>(p => {
@@ -245,6 +253,7 @@ namespace LOIN
                 p.Description = description;
                 p.PrimaryMeasureType = measureType;
                 p.PrimaryUnit = unit;
+                p.TemplateType = IfcSimplePropertyTemplateTypeEnum.P_SINGLEVALUE;
             });
         }
 

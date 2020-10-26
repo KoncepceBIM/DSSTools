@@ -31,7 +31,7 @@ namespace LOIN.Tests
 
             var actor = loin.CreateActor("Client", "Owner of the building");
             var milestone = loin.CreateMilestone("Preliminary design", "Preliminary design handover milestone");
-            var reason = loin.CreateReason("Handover", "Handover of data");
+            var reason = loin.CreatePurpose("Handover", "Handover of data");
             var item = loin.CreateBreakedownItem("Window", "E456.789.12", "Window is a building element used to controll light flow into the space");
 
 
@@ -67,7 +67,7 @@ namespace LOIN.Tests
             geomReq.Definition = "Definition of the window geometry requirements";
             geomReq.Detailing = Requirements.DetailingEnum.LowDetail;
             geomReq.Dimensionality = Requirements.DimensionalityEnum.Dim_3D;
-            geomReq.ParametricBehaviour = false;
+            geomReq.ParametricBehaviour = "not parametric";
 
             var context = new IContextEntity[] { actor, milestone, reason, item };
             foreach (var contextItem in context)
