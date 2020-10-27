@@ -1,0 +1,209 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ifcXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ifc="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2" xsi:schemaLocation="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2 https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2/XML/IFC4_ADD2.xsd" id="uos_1" express="https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2/EXPRESS/IFC4_ADD2.exp" xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2">
+  <header>
+    <time_stamp>2020-10-26T21:30:01</time_stamp>
+    <preprocessor_version>Processor version 5.1.0.0</preprocessor_version>
+    <originating_system>Xbim.IO.MemoryModel</originating_system>
+  </header>
+  <IfcActionRequest id="i7" GlobalId="1OFCX8m9rCqgrfjTOI7ws$" Name="Design review" Description="Review of detailed design information">
+    <OwnerHistory id="i2" xsi:type="IfcOwnerHistory" ChangeAction="added" LastModifiedDate="1603747808" CreationDate="0">
+      <OwningUser id="i5" xsi:type="IfcPersonAndOrganization">
+        <ThePerson id="i3" xsi:type="IfcPerson" FamilyName="Cerny" GivenName="Martin" MiddleNames="" PrefixTitles="" SuffixTitles="" />
+        <TheOrganization id="i4" xsi:type="IfcOrganization" Name="Czech Standardization Agency" />
+      </OwningUser>
+      <OwningApplication id="i6" xsi:type="IfcApplication" Version="1.0" ApplicationFullName="Level of Information Need Sample" ApplicationIdentifier="LOIN">
+        <ApplicationDeveloper ref="i4" xsi:type="IfcOrganization" xsi:nil="true" />
+      </OwningApplication>
+    </OwnerHistory>
+  </IfcActionRequest>
+  <IfcActor id="i8" GlobalId="1AtU6eIQzBvPrNStiQZIHC" Name="Design Lead" Description="Person responsible for the coordination of design disciplines">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <TheActor>
+      <IfcOrganization id="i9" Name="Design Lead" Description="Person responsible for the coordination of design disciplines" />
+    </TheActor>
+  </IfcActor>
+  <IfcActor id="i10" GlobalId="3_Jc4gmYf6aAGSUQzKiA_X" Name="Archtect-Engineer (AE)" Description="Person providing joint architectural-engineering services">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <TheActor>
+      <IfcOrganization id="i11" Name="Archtect-Engineer (AE)" Description="Person providing joint architectural-engineering services" />
+    </TheActor>
+  </IfcActor>
+  <IfcTask id="i12" GlobalId="2jQC1URLn5PhsvzcP1Brqz" Name="Design Package A" Description="First design package to be issued for construction" IsMilestone="true">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+  </IfcTask>
+  <IfcRelAssociatesClassification id="i20" GlobalId="0kzjvb0fb8RxBYBMdyKLP_">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcProjectLibrary id="i1" pos="0" GlobalId="0n08jxsvPCmQ10fsV3h$zy" Name="LOIN-C Issued for Construction DP A" Description="Level of Information need - Issued for Construction for Architectural Design - Design Package A">
+        <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+        <Declares>
+          <IfcRelDeclares id="i31" pos="0" GlobalId="2lw4vZkfL2p86w$nZAPVtE">
+            <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+            <RelatedDefinitions>
+              <IfcPropertySet id="i21" pos="0" GlobalId="3KfYDfQtzEoxkxEW8YFYsz" Name="Geometry requirements">
+                <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                <HasProperties>
+                  <IfcPropertySingleValue id="i22" pos="0" Name="ID">
+                    <NominalValue>
+                      <IfcIdentifier-wrapper>ee6b5bc5-370a-4fb6-85f8-b610abfd0940</IfcIdentifier-wrapper>
+                    </NominalValue>
+                  </IfcPropertySingleValue>
+                  <IfcPropertySingleValue id="i23" pos="1" Name="Name">
+                    <NominalValue>
+                      <IfcLabel-wrapper>Geometrical information issued for construction relative offset</IfcLabel-wrapper>
+                    </NominalValue>
+                  </IfcPropertySingleValue>
+                  <IfcPropertySingleValue id="i24" pos="2" Name="Definition">
+                    <NominalValue>
+                      <IfcText-wrapper>Geometrical information for objects with relative height offset; to be issued for construction</IfcText-wrapper>
+                    </NominalValue>
+                  </IfcPropertySingleValue>
+                  <IfcPropertyEnumeratedValue id="i25" pos="3" Name="Detailing">
+                    <EnumerationValues>
+                      <IfcIdentifier-wrapper pos="0">HighDetail</IfcIdentifier-wrapper>
+                    </EnumerationValues>
+                    <EnumerationReference id="i26" xsi:type="IfcPropertyEnumeration" Name="DetailingEnum">
+                      <EnumerationValues>
+                        <IfcIdentifier-wrapper pos="0">Simplified</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="1">LowDetail</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="2">MediumDetail</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="3">HighDetail</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="4">FinalDetail</IfcIdentifier-wrapper>
+                      </EnumerationValues>
+                    </EnumerationReference>
+                  </IfcPropertyEnumeratedValue>
+                  <IfcPropertyEnumeratedValue id="i27" pos="4" Name="Dimensionality">
+                    <EnumerationValues>
+                      <IfcIdentifier-wrapper pos="0">Dim_3D</IfcIdentifier-wrapper>
+                    </EnumerationValues>
+                    <EnumerationReference id="i28" xsi:type="IfcPropertyEnumeration" Name="DimensionalityEnum">
+                      <EnumerationValues>
+                        <IfcIdentifier-wrapper pos="0">Dim_0D</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="1">Dim_1D</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="2">Dim_2D</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="3">Dim_3D</IfcIdentifier-wrapper>
+                      </EnumerationValues>
+                    </EnumerationReference>
+                  </IfcPropertyEnumeratedValue>
+                  <IfcPropertySingleValue id="i29" pos="5" Name="Appearance">
+                    <NominalValue>
+                      <IfcText-wrapper>No texture</IfcText-wrapper>
+                    </NominalValue>
+                  </IfcPropertySingleValue>
+                  <IfcPropertySingleValue id="i30" pos="6" Name="ParametricBehaviour">
+                    <NominalValue>
+                      <IfcText-wrapper>parametric geometry</IfcText-wrapper>
+                    </NominalValue>
+                  </IfcPropertySingleValue>
+                </HasProperties>
+              </IfcPropertySet>
+              <IfcPropertySetTemplate id="i32" pos="1" GlobalId="1bMoDf5wDDPRdm3Z3IBzbF" Name="suspended ceiling characteristics" Description="Suspended ceiling characteristics necessary for commence of construction">
+                <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                <HasPropertyTemplates>
+                  <IfcSimplePropertyTemplate id="i33" pos="0" GlobalId="0zqubcVzf7EB2eIHdprthv" Name="design thermal conductivity according to ISO 10456" Description="" TemplateType="p_singlevalue" PrimaryMeasureType="IfcThermalConductivityMeasure">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                  </IfcSimplePropertyTemplate>
+                  <IfcSimplePropertyTemplate id="i35" pos="1" GlobalId="1gn5hadEL1ixoXBYdHALsC" Name="admissible load of metal suspension according to EN 13964" Description="" TemplateType="p_singlevalue" PrimaryMeasureType="IfcForceMeasure">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                    <PrimaryUnit>
+                      <IfcSIUnit id="i34" UnitType="forceunit" Name="newton" />
+                    </PrimaryUnit>
+                  </IfcSimplePropertyTemplate>
+                  <IfcSimplePropertyTemplate id="i38" pos="2" GlobalId="1ZVre0Sbz6RfbGBJD4Bnip" Name="reaction to fire classification of substructure according to EN 13501-1" Description="" TemplateType="p_enumeratedvalue" PrimaryMeasureType="IfcIdentifier">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                    <Enumerators id="i41" xsi:type="IfcPropertyEnumeration" Name="reaction to fire classification">
+                      <EnumerationValues>
+                        <IfcIdentifier-wrapper pos="0">A1</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="1">A2</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="2">A3</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="3">A4</IfcIdentifier-wrapper>
+                        <IfcIdentifier-wrapper pos="4">A5</IfcIdentifier-wrapper>
+                      </EnumerationValues>
+                    </Enumerators>
+                  </IfcSimplePropertyTemplate>
+                  <IfcSimplePropertyTemplate id="i42" pos="3" GlobalId="3uaKQyxxj2gwHI3oQk3Sci" Name="manufacturer" Description="" TemplateType="p_singlevalue" PrimaryMeasureType="IfcIdentifier">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                  </IfcSimplePropertyTemplate>
+                </HasPropertyTemplates>
+              </IfcPropertySetTemplate>
+              <IfcPropertySetTemplate id="i43" pos="2" GlobalId="1TebDBycv3JgOOlGPHZt_l" Name="Documentation for suspended ceilings - DPA" Description="Required Documentation for suspended ceilings at design package A">
+                <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                <HasPropertyTemplates>
+                  <IfcSimplePropertyTemplate id="i44" pos="0" GlobalId="25nLrIfID9FB9zHrfPCrH_" Name="Installation instruction" Description="Manufacturer's installation instruction" TemplateType="p_referencevalue" PrimaryMeasureType="IfcDocumentReference">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                  </IfcSimplePropertyTemplate>
+                  <IfcSimplePropertyTemplate id="i45" pos="1" GlobalId="1zvZGW3xv9kPu046xD1W$g" Name="DoP" Description="Manufacturer's declaration of performance" TemplateType="p_referencevalue" PrimaryMeasureType="IfcDocumentReference">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                  </IfcSimplePropertyTemplate>
+                  <IfcSimplePropertyTemplate id="i46" pos="2" GlobalId="0O344LcD1CF9FQa2uQfB_6" Name="Detail wall-ceiling" Description="Detail for the connection between the wall and the ceiling" TemplateType="p_referencevalue" PrimaryMeasureType="IfcDocumentReference">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                  </IfcSimplePropertyTemplate>
+                  <IfcSimplePropertyTemplate id="i47" pos="3" GlobalId="0AavQOm9fDLfs1pMS5pdI4" Name="Detail expansion joint" Description="Detail for expansion joint" TemplateType="p_referencevalue" PrimaryMeasureType="IfcDocumentReference">
+                    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+                  </IfcSimplePropertyTemplate>
+                </HasPropertyTemplates>
+              </IfcPropertySetTemplate>
+            </RelatedDefinitions>
+          </IfcRelDeclares>
+        </Declares>
+      </IfcProjectLibrary>
+    </RelatedObjects>
+    <RelatingClassification>
+      <IfcClassificationReference id="i13" Identification="2RBXAUzUb4jxhBy1TJPbpm" Name="Suspended ceiling" Description="a secondary ceiling, hung below the main ceiling" />
+    </RelatingClassification>
+  </IfcRelAssociatesClassification>
+  <IfcRelAssociatesConstraint id="i36" GlobalId="0f5RgwJ6HCUQl3rV8$ASbO">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcSimplePropertyTemplate ref="i35" pos="0" xsi:nil="true" />
+    </RelatedObjects>
+    <RelatingConstraint id="i37" xsi:type="IfcMetric" Name="admissible load of metal suspension according to EN 13964 constraint" ConstraintGrade="notdefined" Benchmark="greaterthan">
+      <DataValue>
+        <IfcForceMeasure-wrapper>900</IfcForceMeasure-wrapper>
+      </DataValue>
+    </RelatingConstraint>
+  </IfcRelAssociatesConstraint>
+  <IfcRelAssociatesConstraint id="i39" GlobalId="3WXLezh89AAAs0cZqQQqJX">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcSimplePropertyTemplate ref="i38" pos="0" xsi:nil="true" />
+    </RelatedObjects>
+    <RelatingConstraint id="i40" xsi:type="IfcMetric" Name="reaction to fire classification of substructure according to EN 13501-1 constraint" ConstraintGrade="notdefined" Benchmark="equalto">
+      <DataValue>
+        <IfcIdentifier-wrapper>A1</IfcIdentifier-wrapper>
+      </DataValue>
+    </RelatingConstraint>
+  </IfcRelAssociatesConstraint>
+  <IfcRelAssignsToActor id="i16" GlobalId="0gLUn1X$H0D8YrN8TZVL_L">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcProjectLibrary ref="i1" pos="0" xsi:nil="true" />
+    </RelatedObjects>
+    <RelatingActor ref="i8" xsi:type="IfcActor" xsi:nil="true" />
+    <ActingRole id="i15" xsi:type="IfcActorRole" Role="userdefined" UserDefinedRole="APPOINTING_PARTY" />
+  </IfcRelAssignsToActor>
+  <IfcRelAssignsToActor id="i18" GlobalId="0fMmucRqr3VPIEm14cxGvc">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcProjectLibrary ref="i1" pos="0" xsi:nil="true" />
+    </RelatedObjects>
+    <RelatingActor ref="i10" xsi:type="IfcActor" xsi:nil="true" />
+    <ActingRole id="i17" xsi:type="IfcActorRole" Role="userdefined" UserDefinedRole="APPOINTED_PARTY" />
+  </IfcRelAssignsToActor>
+  <IfcRelAssignsToControl id="i14" GlobalId="0$3fQar8L7Oer0FLJfE1sL">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcProjectLibrary ref="i1" pos="0" xsi:nil="true" />
+    </RelatedObjects>
+    <RelatingControl ref="i7" xsi:type="IfcActionRequest" xsi:nil="true" />
+  </IfcRelAssignsToControl>
+  <IfcRelAssignsToProcess id="i19" GlobalId="2bNnmmGDL0WACAKFH_w1j5">
+    <OwnerHistory ref="i2" xsi:type="IfcOwnerHistory" xsi:nil="true" />
+    <RelatedObjects>
+      <IfcProjectLibrary ref="i1" pos="0" xsi:nil="true" />
+    </RelatedObjects>
+    <RelatingProcess>
+      <IfcTask ref="i12" xsi:nil="true" />
+    </RelatingProcess>
+  </IfcRelAssignsToProcess>
+</ifcXML>

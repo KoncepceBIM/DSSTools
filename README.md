@@ -62,7 +62,7 @@ This if how this library can be used to create Level of Information Need as IFC:
 
 ```cs
 // details of the creator and the application
-var editor = new XbimEditorCredentials```
+var editor = new XbimEditorCredentials
 {
     ApplicationDevelopersName = "TC442 WG2 TG1",
     ApplicationFullName = "Level of Information Need Sample",
@@ -160,3 +160,8 @@ model.Save("LevelOfInformationNeed_Sample1.ifc");
 
 // serialize as IFC XML
 model.Save("LevelOfInformationNeed_Sample1.ifcXML");
+```
+
+Resulting files:
+  - [LevelOfInformationNeed_Sample1.ifc](Examples/LevelOfInformationNeed_Sample1.ifc)
+  - [LevelOfInformationNeed_Sample1.ifcxml](Examples/LevelOfInformationNeed_Sample1.ifcxml)
