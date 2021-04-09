@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LOIN.Server.Contracts
 {
-    public class Reason : ContextItem
+    public class Reason : LoinItem
     {
         public Reason(Context.Reason reason): base(reason)
         {

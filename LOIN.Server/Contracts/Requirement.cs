@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Contracts
 {
-    public class Milestone: LoinItem
+    public class Requirement: LoinItem
     {
-        public Milestone(Context.Milestone milestone): base(milestone)
+        public Requirement(IIfcPropertyTemplate property): base(property)
         {
-
+            
         }
     }
 }

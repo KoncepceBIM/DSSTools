@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LOIN.Server.Contracts
 {
-    public class Actor: ContextItem
+    public class Actor: LoinItem
     {
         public Actor(Context.Actor actor): base (actor)
         {

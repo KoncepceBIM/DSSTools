@@ -13,7 +13,7 @@ namespace LOIN.Server.Controllers
 {
     [ApiController]
     [Route("{repositoryId}/[controller]")]
-    public class ActorsController : ContextController<Actor>
+    public class ActorsController : LoinController
     {
         public ActorsController(ILogger<ActorsController> logger) : base(logger)
         {
