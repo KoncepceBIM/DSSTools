@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
 using Xbim.Ifc4.SharedMgmtElements;
@@ -14,6 +15,7 @@ namespace LOIN.Context
         private readonly HashSet<int> _cache;
 
         public string Id => Entity.GlobalId;
+        IPersistEntity IContextEntity.Entity => Entity;
 
         public IEnumerable<IfcRelAssignsToControl> Relations => _relations.AsReadOnly();
 

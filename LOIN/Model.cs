@@ -18,7 +18,7 @@ using Xbim.MvdXml;
 
 namespace LOIN
 {
-    public class Model: IDisposable
+    public class Model : IDisposable, ILoinModel
     {
         private IfcStore _model;
         /// <summary>
@@ -27,7 +27,7 @@ namespace LOIN
         /// </summary>
         public IModel Internal => _model;
 
-        private readonly  List<Actor> _actors = new List<Actor>();
+        private readonly List<Actor> _actors = new List<Actor>();
         public IEnumerable<Actor> Actors => _actors;
 
         private readonly List<Reason> _reasons = new List<Reason>();
@@ -118,10 +118,12 @@ namespace LOIN
         public Actor CreateActor(string name, string description)
         {
             var i = Internal.Instances;
-            var actor = i.New<IfcActor>(a => {
+            var actor = i.New<IfcActor>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
-                a.TheActor = i.New<IfcOrganization>(o => {
+                a.TheActor = i.New<IfcOrganization>(o =>
+                {
                     o.Name = name;
                     o.Description = description;
                 });
@@ -135,7 +137,8 @@ namespace LOIN
         public BreakdownItem CreateBreakedownRoot(string name, string description)
         {
             var i = Internal.Instances;
-            var clsref = i.New<IfcClassification>(a => {
+            var clsref = i.New<IfcClassification>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
             });
@@ -149,7 +152,8 @@ namespace LOIN
         public BreakdownItem CreateBreakedownItem(string name, string code, string description, BreakdownItem parent = null)
         {
             var i = Internal.Instances;
-            var clsref = i.New<IfcClassificationReference>(a => {
+            var clsref = i.New<IfcClassificationReference>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
                 a.Identification = code;
@@ -171,7 +175,8 @@ namespace LOIN
         public BreakdownItem CreateClassificationRoot(string name, string description)
         {
             var i = Internal.Instances;
-            var clsref = i.New<IfcClassification>(a => {
+            var clsref = i.New<IfcClassification>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
             });
@@ -185,7 +190,8 @@ namespace LOIN
         public Milestone CreateMilestone(string name, string description)
         {
             var i = Internal.Instances;
-            var milestone = i.New<IfcTask>(a => {
+            var milestone = i.New<IfcTask>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
                 a.IsMilestone = true;
@@ -200,7 +206,8 @@ namespace LOIN
         public Reason CreatePurpose(string name, string description)
         {
             var i = Internal.Instances;
-            var reason = i.New<IfcActionRequest>(a => {
+            var reason = i.New<IfcActionRequest>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
             });
@@ -214,7 +221,8 @@ namespace LOIN
         public RequirementsSet CreateRequirementSet(string name, string description)
         {
             var i = Internal.Instances;
-            var requirements = i.New<IfcProjectLibrary>(a => {
+            var requirements = i.New<IfcProjectLibrary>(a =>
+            {
                 a.Name = name;
                 a.Description = description;
             });
@@ -227,7 +235,8 @@ namespace LOIN
 
         public IfcPropertySetTemplate CreatePropertySetTemplate(string name, string description)
         {
-            return New<IfcPropertySetTemplate>(p => {
+            return New<IfcPropertySetTemplate>(p =>
+            {
                 p.Name = name;
                 p.Description = description;
             });
@@ -246,9 +255,10 @@ namespace LOIN
             return tmpl;
         }
 
-        public IfcSimplePropertyTemplate CreateSimplePropertyTemplate(string name, string description, string measureType = null,  IfcUnit unit = null)
+        public IfcSimplePropertyTemplate CreateSimplePropertyTemplate(string name, string description, string measureType = null, IfcUnit unit = null)
         {
-            return New<IfcSimplePropertyTemplate>(p => {
+            return New<IfcSimplePropertyTemplate>(p =>
+            {
                 p.Name = name;
                 p.Description = description;
                 p.PrimaryMeasureType = measureType;

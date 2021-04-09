@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Viewer.Views", "LOIN.V
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Comments", "LOIN.Comments\LOIN.Comments.csproj", "{D4B7647D-D18E-439C-8842-482725F5019E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN.Server", "LOIN.Server\LOIN.Server.csproj", "{F85BC444-9DD1-4A04-A10B-A9C7569414E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{D4B7647D-D18E-439C-8842-482725F5019E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4B7647D-D18E-439C-8842-482725F5019E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4B7647D-D18E-439C-8842-482725F5019E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

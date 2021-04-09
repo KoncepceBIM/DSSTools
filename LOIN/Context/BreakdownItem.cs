@@ -21,6 +21,8 @@ namespace LOIN.Context
             _cache = new HashSet<int>(_relations.SelectMany(r => r.RelatedObjects).Select(o => o.EntityLabel));
         }
 
+        IPersistEntity IContextEntity.Entity => Entity;
+
         public string Id => Code;
 
         public BreakdownItem Parent { get; internal set; }

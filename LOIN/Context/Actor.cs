@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xbim.Common;
 using Xbim.Ifc4.ActorResource;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
@@ -9,6 +10,8 @@ namespace LOIN.Context
 {
     public class Actor : AbstractLoinEntity<IfcActor>, IContextEntity
     {
+        IPersistEntity IContextEntity.Entity => Entity;
+
         public bool IsContextFor(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
 
         public bool RemoveFromContext(Requirements.RequirementsSet requirements)

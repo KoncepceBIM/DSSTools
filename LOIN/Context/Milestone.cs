@@ -16,6 +16,8 @@ namespace LOIN.Context
 
         public string Id => Entity.GlobalId;
 
+        IPersistEntity IContextEntity.Entity => Entity;
+
         public IEnumerable<IfcRelAssignsToProcess> Relations => _relations.AsReadOnly();
 
 

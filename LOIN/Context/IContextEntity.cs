@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Xbim.Common;
 
 namespace LOIN.Context
 {
@@ -11,6 +12,7 @@ namespace LOIN.Context
         string Id { get; }
         string Name { get; }
         string Description { get; }
+        IPersistEntity Entity { get; }
 
         string GetName(string lang);
         string GetDescription(string lang);
