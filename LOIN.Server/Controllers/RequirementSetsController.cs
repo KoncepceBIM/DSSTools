@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.OData;
+﻿using LOIN.Server.Exceptions;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -39,18 +40,30 @@ namespace LOIN.Server.Controllers
                     .Distinct()
                     .Select(a => new Contracts.RequirementSet(a)));
 
-            var context = BuildContext(
-                actors: actors, 
-                reasons: reasons, 
-                milestones: milestones, 
-                breakdown: breakdown);
+            try
+            {
+                var context = BuildContext(
+                    actors: actors,
+                    reasons: reasons,
+                    milestones: milestones,
+                    breakdown: breakdown);
 
-            var loins = ApplyContextFilter(context);
+                var loins = ApplyContextFilter(context);
 
-            var requirementSets = loins.SelectMany(rs => rs.RequirementSets).Distinct()
-                .Select(rs => new Contracts.RequirementSet(rs))
-                .ToList();
-            return Ok(requirementSets);
+                var requirementSets = loins.SelectMany(rs => rs.RequirementSets).Distinct()
+                    .Select(rs => new Contracts.RequirementSet(rs))
+                    .ToList();
+                return Ok(requirementSets);
+            }
+            catch (EntityNotFoundException e)
+            {
+                return NotFound(new ProblemDetails { 
+                    Detail = e.Message,
+                    Status  = StatusCodes.Status404NotFound,
+                    Type = nameof(EntityNotFoundException),
+                    Title = $"Context entity '{e.EntityLabel}' not found"
+                });
+            }
         }
 
         [HttpGet("{id}")]

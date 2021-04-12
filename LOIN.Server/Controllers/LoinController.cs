@@ -1,4 +1,5 @@
 ﻿using LOIN.Context;
+using LOIN.Server.Exceptions;
 using LOIN.Server.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -56,7 +57,15 @@ namespace LOIN.Server.Controllers
             if (labels.Count == 0)
                 return Enumerable.Empty<T>();
 
-            return source.Where(s => labels.Contains(s.Entity.EntityLabel));
+            var result = source.Where(s => labels.Contains(s.Entity.EntityLabel)).ToList();
+            if (labels.Count != result.Count)
+            {
+                var notFound = labels.Except(result.Select(r => r.Entity.EntityLabel)).FirstOrDefault();
+                throw new EntityNotFoundException(notFound, $"Context entity {notFound} doesn't exist");
+            }
+
+
+            return result;
         }
 
 
