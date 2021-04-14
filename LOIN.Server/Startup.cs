@@ -48,6 +48,18 @@ namespace LOIN.Server
                 }
             }).AddNewtonsoftJson();
 
+            // TODO: Configure for a specific web app
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowAnyOrigin();
+                    });
+            });
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(opts => {
@@ -63,7 +75,8 @@ namespace LOIN.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            // TODO: Re-enable for production
+            // app.UseHttpsRedirection();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -76,6 +89,8 @@ namespace LOIN.Server
             });
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
