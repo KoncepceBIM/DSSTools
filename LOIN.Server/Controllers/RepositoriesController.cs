@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace LOIN.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class RepositoriesController : ControllerBase
     {
         private readonly ILogger<RepositoriesController> logger;

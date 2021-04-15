@@ -35,6 +35,8 @@ namespace LOIN.Server
         {
             services.AddSingleton<ILoinRepository, LoinRepository>();
 
+            services.AddRouting(options => options.LowercaseUrls = true);
+
             services.AddOData();
             services.AddControllers(options =>
             {

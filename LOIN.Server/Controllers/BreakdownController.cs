@@ -8,7 +8,7 @@ using System.Linq;
 namespace LOIN.Server.Controllers
 {
     [ApiController]
-    [Route("{repositoryId}/[controller]")]
+    [Route("api/{repositoryId}/[controller]")]
     public class BreakdownController : LoinController
     {
         public BreakdownController(ILogger<BreakdownController> logger) : base(logger)

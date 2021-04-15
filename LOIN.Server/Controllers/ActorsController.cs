@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace LOIN.Server.Controllers
 {
     [ApiController]
-    [Route("{repositoryId}/[controller]")]
+    [Route("api/{repositoryId}/[controller]")]
     public class ActorsController : LoinController
     {
         public ActorsController(ILogger<ActorsController> logger) : base(logger)

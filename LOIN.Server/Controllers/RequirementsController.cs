@@ -12,7 +12,7 @@ using Xbim.Ifc4.Interfaces;
 namespace LOIN.Server.Controllers
 {
     [ApiController]
-    [Route("{repositoryId}/[controller]")]
+    [Route("api/{repositoryId}/[controller]")]
     public class RequirementsController : LoinController
     {
         public RequirementsController(ILogger<RequirementsController> logger) : base(logger)

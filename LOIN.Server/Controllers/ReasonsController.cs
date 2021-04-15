@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace LOIN.Server.Controllers
 {
     [ApiController]
-    [Route("{repositoryId}/[controller]")]
+    [Route("api/{repositoryId}/[controller]")]
     public class ReasonsController : LoinController
     {
         public ReasonsController(ILogger<ReasonsController> logger) : base(logger)
