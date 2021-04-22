@@ -8,6 +8,6 @@ namespace LOIN.Server.Services.Interfaces
     public interface ILoinRepository
     {
         IEnumerable<string> GetRepositoryIds();
-        ILoinModel OpenRepository(string id);
+        Task<ILoinModel> OpenRepository(string id);
     }
 }

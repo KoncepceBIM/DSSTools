@@ -108,7 +108,7 @@ namespace LOIN.Server
                         repositoryId = repository.GetRepositoryIds().OrderBy(id => id).LastOrDefault();
                     }
 
-                    var repo = repository.OpenRepository(repositoryId);
+                    var repo = await repository.OpenRepository(repositoryId);
                     context.Items[Constants.RepositoryContextKey] = repo;
                 }
 

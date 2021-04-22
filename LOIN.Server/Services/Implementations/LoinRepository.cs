@@ -1,9 +1,11 @@
 ﻿using LOIN.Server.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace LOIN.Server.Services.Implementations
 {
@@ -12,7 +14,12 @@ namespace LOIN.Server.Services.Implementations
         private static readonly string BasePath = Path.Combine("Data", "Repositories");
         private const string RepositoryExtension = ".ifc";
 
-        private Dictionary<string, Repository> Cache = new Dictionary<string, Repository>();
+        public IMemoryCache Cache { get; }
+
+        public LoinRepository(IMemoryCache cache)
+        {
+            Cache = cache;
+        }
 
         public IEnumerable<string> GetRepositoryIds()
         {
@@ -21,7 +28,7 @@ namespace LOIN.Server.Services.Implementations
                 .Select(f => Path.GetFileNameWithoutExtension(f));
         }
 
-        public ILoinModel OpenRepository(string id)
+        public async Task<ILoinModel> OpenRepository(string id)
         {
             var path = GetFilePath(id);
             if (!File.Exists(path))
@@ -37,16 +44,21 @@ namespace LOIN.Server.Services.Implementations
                     Cache.Remove(id);
             }
 
-            var model = Model.Open(path);
-            repository = new Repository
+            repository = await Cache.GetOrCreateAsync(id, async (entry) =>
             {
-                Id = id,
-                Checksum = hash,
-                Model = model,
-                Path = path
-            };
-            Cache.Add(id, repository);
-            return model;
+                var model = await Task.Run(() => Model.Open(path)) ;
+                var r = new Repository
+                {
+                    Id = id,
+                    Checksum = hash,
+                    Model = model,
+                    Path = path
+                };
+                entry.Value = r;
+                return r;
+            });
+            
+            return repository.Model;
         }
 
         private static string GetFilePath(string id)
