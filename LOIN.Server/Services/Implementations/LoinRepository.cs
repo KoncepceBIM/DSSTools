@@ -34,6 +34,7 @@ namespace LOIN.Server.Services.Implementations
             if (!File.Exists(path))
                 throw new FileNotFoundException("Repository fine not found", id);
 
+            // TODO: We mightnot want to compute the hash with every request
             var hash = ComputeHash(path);
             if (Cache.TryGetValue(id, out Repository repository))
             {

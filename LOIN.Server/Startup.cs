@@ -33,6 +33,9 @@ namespace LOIN.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // repositories are kept in the cache
+            services.AddMemoryCache();
+
             services.AddSingleton<ILoinRepository, LoinRepository>();
 
             services.AddRouting(options => options.LowercaseUrls = true);
