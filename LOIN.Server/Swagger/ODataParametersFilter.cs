@@ -56,6 +56,15 @@ namespace LOIN.Server.Swagger
                 Required = false,
                 Schema = new OpenApiSchema { Type = "integer" }
             });
+
+            operation.Parameters.Add(new OpenApiParameter
+            {
+                Name = "$apply",
+                Description = "OData 'apply' attribute. Usable for grouping, aggregations etc.",
+                In = ParameterLocation.Query,
+                Required = false,
+                Schema = new OpenApiSchema { Type = "integer" }
+            });
         }
     }
 }

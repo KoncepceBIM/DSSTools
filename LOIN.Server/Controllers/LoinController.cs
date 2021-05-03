@@ -3,6 +3,7 @@ using LOIN.Server.Exceptions;
 using LOIN.Server.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,25 @@ namespace LOIN.Server.Controllers
         protected ILogger Logger { get; }
 
         protected ILoinModel Model => HttpContext.Items[Constants.RepositoryContextKey] as ILoinModel;
+
+        protected HashSet<IContextEntity> BuildContext()
+        {
+            if (!HttpContext.Request.Query.TryGetValue("actors", out StringValues actors))
+                actors = new StringValues();
+            if (!HttpContext.Request.Query.TryGetValue("reasons", out StringValues reasons))
+                reasons = new StringValues();
+            if (!HttpContext.Request.Query.TryGetValue("breakdown", out StringValues breakdown))
+                breakdown = new StringValues();
+            if (!HttpContext.Request.Query.TryGetValue("milestones", out StringValues milestones))
+                milestones = new StringValues();
+
+            return BuildContext(
+                actors: actors.Count > 0 ? string.Join(",", actors) : null, 
+                reasons: reasons.Count > 0 ? string.Join(",", reasons) : null,
+                milestones: milestones.Count > 0 ? string.Join(",", milestones) : null,
+                breakdown: breakdown.Count > 0 ? string.Join(",", breakdown) : null
+                );
+        }
 
         protected HashSet<IContextEntity> BuildContext(string actors, string reasons, string milestones, string breakdown)
         {
@@ -79,6 +99,12 @@ namespace LOIN.Server.Controllers
                     result.Add(intId);
             }
             return result;
+        }
+
+        protected IEnumerable<Requirements.RequirementsSet> ApplyContextFilter()
+        {
+            var ctx = BuildContext();
+            return ApplyContextFilter(ctx);
         }
 
         protected IEnumerable<Requirements.RequirementsSet> ApplyContextFilter(IEnumerable<IContextEntity> context)

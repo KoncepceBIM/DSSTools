@@ -1,4 +1,5 @@
 ﻿using LOIN.Server.Exceptions;
+using LOIN.Server.Swagger;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,40 +22,21 @@ namespace LOIN.Server.Controllers
 
         [HttpGet]
         [EnableQuery]
+        [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.Requirement[]), StatusCodes.Status200OK)]
-        public IActionResult Get(
-            [FromQuery(Name = "actors")] string actors = null,
-            [FromQuery(Name = "reasons")] string reasons = null,
-            [FromQuery(Name = "breakdown")] string breakdown = null,
-            [FromQuery(Name = "milestones")] string milestones = null)
+        public IActionResult Get()
         {
-            if (
-                string.IsNullOrWhiteSpace(actors) &&
-                string.IsNullOrWhiteSpace(reasons) &&
-                string.IsNullOrWhiteSpace(breakdown) &&
-                string.IsNullOrWhiteSpace(milestones)
-                )
-                return Ok(Model.Requirements
-                .SelectMany(r => r.RequirementSets)
-                .Distinct()
-                .SelectMany(r => r.HasPropertyTemplates)
-                .Distinct()
-                .Select(a => new Contracts.Requirement(a)));
-
             try
             {
-                var context = BuildContext(
-                    actors: actors,
-                    reasons: reasons,
-                    milestones: milestones,
-                    breakdown: breakdown);
+                var loins = ApplyContextFilter();
+                var requirements = loins
+                   .SelectMany(r => r.RequirementSets).Distinct()
+                   .SelectMany(r => r.HasPropertyTemplates.Select(p => new Contracts.Requirement(p, r)));
+                var directRequirements = loins
+                   .SelectMany(r => r.DirectRequirements).Distinct()
+                   .Select(r => new Contracts.Requirement(r, null));
 
-                var loins = ApplyContextFilter(context);
-                var requirements = loins.SelectMany(rs => rs.Requirements).Distinct()
-                    .Select(r => new Contracts.Requirement(r))
-                    .ToList();
-
-                return Ok(requirements);
+                return Ok(requirements.Union(directRequirements));
             }
             catch (EntityNotFoundException e)
             {
@@ -77,7 +59,8 @@ namespace LOIN.Server.Controllers
             try
             {
                 var result = Model.Internal.Instances[id] as IIfcPropertyTemplate;
-                return Ok(new Contracts.Requirement(result));
+                var parent = result.PartOfPsetTemplate.FirstOrDefault();
+                return Ok(new Contracts.Requirement(result, parent));
             }
             catch (Exception)
             {

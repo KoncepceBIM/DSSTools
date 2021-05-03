@@ -54,6 +54,12 @@ namespace LOIN.Requirements
         public IEnumerable<IfcPropertyTemplate> Requirements => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertyTemplate>())
             .Union(RequirementSets.SelectMany(r => r.HasPropertyTemplates));
 
+        /// <summary>
+        /// requirements assigned to the requirement set directly, not through any property set template
+        /// </summary>
+        public IEnumerable<IfcPropertyTemplate> DirectRequirements => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertyTemplate>());
+
+
         // alphanumeric requirements which are grouped in sets or are referenced directly
         public IEnumerable<IfcPropertyTemplate> AlphanumericRequirements => _relations.SelectMany(r => r.RelatedDefinitions.OfType<IfcPropertyTemplate>())
             .Union(RequirementSets.SelectMany(r => r.HasPropertyTemplates))

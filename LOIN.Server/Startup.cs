@@ -69,6 +69,7 @@ namespace LOIN.Server
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(opts => {
                 opts.OperationFilter<ODataParametersFilter>();
+                opts.OperationFilter<LoinContextParameterFilter>();
             });
         }
 

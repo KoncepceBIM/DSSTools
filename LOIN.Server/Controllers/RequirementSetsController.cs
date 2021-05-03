@@ -1,4 +1,5 @@
 ﻿using LOIN.Server.Exceptions;
+using LOIN.Server.Swagger;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,35 +22,13 @@ namespace LOIN.Server.Controllers
 
         [HttpGet]
         [EnableQuery]
+        [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.RequirementSet[]), StatusCodes.Status200OK)]
-        public IActionResult Get(
-            [FromQuery(Name = "actors")] string actors = null,
-            [FromQuery(Name = "reasons")] string reasons = null,
-            [FromQuery(Name = "breakdown")] string breakdown = null,
-            [FromQuery(Name = "milestones")] string milestones = null)
+        public IActionResult Get()
         {
-
-            if (
-                string.IsNullOrWhiteSpace(actors) &&
-                string.IsNullOrWhiteSpace(reasons) &&
-                string.IsNullOrWhiteSpace(breakdown) &&
-                string.IsNullOrWhiteSpace(milestones)
-                )
-                return Ok(Model.Requirements
-                    .SelectMany(r => r.RequirementSets)
-                    .Distinct()
-                    .Select(a => new Contracts.RequirementSet(a)));
-
             try
             {
-                var context = BuildContext(
-                    actors: actors,
-                    reasons: reasons,
-                    milestones: milestones,
-                    breakdown: breakdown);
-
-                var loins = ApplyContextFilter(context);
-
+                var loins = ApplyContextFilter();
                 var requirementSets = loins.SelectMany(rs => rs.RequirementSets).Distinct()
                     .Select(rs => new Contracts.RequirementSet(rs))
                     .ToList();
@@ -92,7 +71,7 @@ namespace LOIN.Server.Controllers
             try
             {
                 var pset = Model.Internal.Instances[id] as IIfcPropertySetTemplate;
-                var dto = pset.HasPropertyTemplates.Select(p => new Contracts.Requirement(p));
+                var dto = pset.HasPropertyTemplates.Select(p => new Contracts.Requirement(p, pset));
                 return Ok(dto);
             }
             catch (Exception)

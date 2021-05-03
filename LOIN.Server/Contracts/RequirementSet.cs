@@ -13,7 +13,7 @@ namespace LOIN.Server.Contracts
             if (template.HasPropertyTemplates.Count > 0)
             {
                 Requirements = template.HasPropertyTemplates
-                    .Select(p => new Requirement(p))
+                    .Select(p => new Requirement(p, template))
                     .ToList();
             }
         }
