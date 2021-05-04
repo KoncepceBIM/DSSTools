@@ -50,7 +50,10 @@ namespace LOIN.Server.Controllers
                         .Select(rs => new Contracts.RequirementSet(rs))
                         .ToList();
                     if (requirementSets.Any())
-                        result.Add(new Contracts.GrouppedRequirementSets(item, requirementSets));
+                        result.Add(new Contracts.GrouppedRequirementSets(
+                            item, 
+                            requirementSets.OrderBy(s => s.Name)
+                            ));
                 }
 
                 return Ok(result);
@@ -92,7 +95,10 @@ namespace LOIN.Server.Controllers
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements).Distinct().Select(r => new Contracts.Requirement(r, null)))
                         .ToList();
                     if (requirementSets.Any())
-                        result.Add(new Contracts.GrouppedRequirements(item, requirementSets));
+                        result.Add(new Contracts.GrouppedRequirements(
+                            item, 
+                            requirementSets.OrderBy(s => s.SetName).ThenBy(s => s.Name)
+                            ));
                 }
 
                 return Ok(result);
