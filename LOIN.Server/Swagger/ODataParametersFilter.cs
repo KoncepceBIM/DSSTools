@@ -63,7 +63,7 @@ namespace LOIN.Server.Swagger
                 Description = "OData 'apply' attribute. Usable for grouping, aggregations etc.",
                 In = ParameterLocation.Query,
                 Required = false,
-                Schema = new OpenApiSchema { Type = "integer" }
+                Schema = new OpenApiSchema { Type = "string" }
             });
         }
     }
