@@ -79,7 +79,7 @@ namespace LOIN.Server.Controllers
             try
             {
                 var ctx = BuildContext();
-                var items = ctx.OfType<Context.BreakdownItem>();
+                var items = ctx.OfType<BreakdownItem>();
                 if (!items.Any())
                     items = Model.BreakdownStructure;
 

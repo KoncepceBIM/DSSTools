@@ -25,7 +25,7 @@ namespace LOIN
             var i = tmpl.Model.Instances;
             tmpl.TemplateType = Xbim.Ifc4.Interfaces.IfcSimplePropertyTemplateTypeEnum.P_ENUMERATEDVALUE;
             tmpl.Enumerators = i.New<IfcPropertyEnumeration>(e => {
-                e.Name = "reaction to fire classification";
+                e.Name = enumerationName;
                 e.EnumerationValues.AddRange(enumerationValues.Select(v => new IfcIdentifier(v)).Cast<IfcValue>());
             });
             return tmpl;

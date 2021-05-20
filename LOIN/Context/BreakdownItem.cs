@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using LOIN.Requirements;
 using Xbim.Common;
 using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
+using Xbim.Ifc4.MeasureResource;
+using Xbim.Ifc4.PropertyResource;
 
 namespace LOIN.Context
 {
     public class BreakdownItem : AbstractLoinEntity<IfcClassificationSelect>, IContextEntity
     {
+        public const string IfcMappingPsetName = "CZ_IFC_Mapping";
+        public const string CCIMappingPsetName = "CZ_CCI_Mapping";
+
         private readonly List<IfcRelAssociatesClassification> _relations;
         private readonly HashSet<int> _cache;
 
@@ -32,7 +38,7 @@ namespace LOIN.Context
 
         public IEnumerable<BreakdownItem> Parents
         {
-            get 
+            get
             {
                 var p = Parent;
                 while (p != null)
@@ -124,7 +130,7 @@ namespace LOIN.Context
             return true;
         }
 
-        public IEnumerable<IfcRelAssociatesClassification>  Relations => _relations.AsReadOnly();
+        public IEnumerable<IfcRelAssociatesClassification> Relations => _relations.AsReadOnly();
 
         public string Code
         {
@@ -145,6 +151,124 @@ namespace LOIN.Context
         {
             get => Entity is IfcClassificationReference r ? r.Description?.ToString() : (Entity as IfcClassification)?.Description?.ToString();
         }
+
+        // public IfcPropertySet IfcMappingSet { get => GetPset(IfcMappingPsetName);  set => SetPset(value, IfcMappingPsetName); }
+        // public IfcPropertySet CCIMappingSet { get => GetPset(CCIMappingPsetName);  set => SetPset(value, CCIMappingPsetName); }
+
+        public CCIMapping GetOrCreateCCIMapping()
+        {
+            var pset = GetOrCreatePset(CCIMappingPsetName);
+            return new CCIMapping(pset);
+        }
+
+        public IFCMapping GetOrCreateIFCMapping()
+        {
+            var pset = GetOrCreatePset(IfcMappingPsetName);
+            return new IFCMapping(pset);
+        }
+
+
+        private IfcPropertySet GetOrCreatePset(string name)
+        {
+            var ps = GetPset(name);
+            if (ps != null)
+                return ps;
+            ps = Model.Internal.Instances.New<IfcPropertySet>();
+            SetPset(ps, name);
+            return ps;
+        }
+
+        private IfcPropertySet GetPset(string name)
+        {
+            return _relations?
+            .SelectMany(r => r.RelatedObjects)
+            .OfType<IfcPropertySet>()
+            .Where(ps => ps.Name == name)
+            .FirstOrDefault();
+        }
+
+        private void SetPset(IfcPropertySet value, string name)
+        {
+            var rel = _relations
+                   .Where(r => r.RelatedObjects.Any(o => o is IfcPropertySet ps && ps.Name == name))
+                   .FirstOrDefault();
+            if (rel == null && value == null)
+                return;
+
+            // remove current if exists
+            if (rel != null)
+            {
+                var ps = rel.RelatedObjects
+                    .OfType<IfcPropertySet>()
+                    .Where(p => p.Name == name)
+                    .FirstOrDefault();
+                if (ps != null)
+                    rel.RelatedObjects.Remove(ps);
+            }
+
+            // stop of no value is to be set
+            if (value == null)
+                return;
+
+            // create if not exists
+            if (rel == null)
+            {
+                rel = Model.Internal.Instances.New<IfcRelAssociatesClassification>(r =>
+                {
+                    r.GlobalId = Guid.NewGuid();
+                    r.RelatingClassification = Entity;
+                });
+            }
+
+            // add the value, make sure the name key is set
+            value.Name = name;
+            rel.RelatedObjects.Add(value);
+        }
+    }
+
+    public abstract class MappingPropertySet
+    {
+        protected readonly IfcPropertySet set;
+
+        protected MappingPropertySet(IfcPropertySet set)
+        {
+            this.set = set;
+        }
+
+        protected string Get([CallerMemberName] string name = null) => set.HasProperties.OfType<IfcPropertySingleValue>()
+            .Where(p => p.Name == name).FirstOrDefault().NominalValue?.Value.ToString();
+        protected void Set(string value, [CallerMemberName] string name = null)
+        {
+            var exists = set.HasProperties.OfType<IfcPropertySingleValue>()
+            .Where(p => p.Name == name).FirstOrDefault();
+            if (exists != null)
+                exists.NominalValue = new IfcIdentifier(value);
+            else
+                set.HasProperties.Add(set.Model.Instances.New<IfcPropertySingleValue>(p => {
+                    p.Name = name;
+                    p.NominalValue = new IfcIdentifier(value);
+                }));
+        }
+    }
+
+    public class CCIMapping : MappingPropertySet
+    {
+        public CCIMapping(IfcPropertySet set) : base(set) { }
+
+        public string StavebniKomplex { get => Get(); set=> Set(value); }
+        public string StavebniEntita { get => Get(); set=> Set(value); }
+        public string VybudovanyProstor { get => Get(); set=> Set(value); }
+        public string FunkcniSystem { get => Get(); set=> Set(value); }
+        public string KonstrukcniSystem { get => Get(); set=> Set(value); }
+        public string Komponenta { get => Get(); set=> Set(value); }
+    }
+
+    public class IFCMapping : MappingPropertySet
+    {
+        public IFCMapping(IfcPropertySet set) : base(set) { }
+
+        public string Entity { get => Get(); set => Set(value); }
+        public string PredefinedType { get => Get(); set => Set(value); }
 
     }
 }
