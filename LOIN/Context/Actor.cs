@@ -44,7 +44,7 @@ namespace LOIN.Context
 
         public bool AddToContext(Requirements.RequirementsSet requirements, string role)
         {
-            var actorRole = Entity.Model.Instances.FirstOrDefault<IfcActorRole>(r => r.UserDefinedRole == role);
+            var actorRole = Entity.Model.Instances.FirstOrDefault<IfcActorRole>(r => r.UserDefinedRole == role && role.Equals(r.UserDefinedRole, StringComparison.OrdinalIgnoreCase));
             if (actorRole == null)
                 actorRole = Model.New<IfcActorRole>(r => { 
                     r.Role = IfcRoleEnum.USERDEFINED;
