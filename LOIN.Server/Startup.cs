@@ -70,6 +70,7 @@ namespace LOIN.Server
             services.AddSwaggerGen(opts => {
                 opts.OperationFilter<ODataParametersFilter>();
                 opts.OperationFilter<LoinContextParameterFilter>();
+                opts.OperationFilter<FileResultContentTypeOperationFilter>();
             });
         }
 
