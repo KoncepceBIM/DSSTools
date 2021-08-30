@@ -94,6 +94,11 @@ namespace LOIN.Context
             return allItems;
         }
 
+        /// <summary>
+        /// True if this breakdown item or any children has any requirements defined in their context
+        /// </summary>
+        public bool HasRequirements => _cache.Any() || (_children.Count > 0 && _children.Any(c => c.HasRequirements));
+
         public bool IsContextFor(RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
 
         public bool RemoveFromContext(RequirementsSet requirements)

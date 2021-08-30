@@ -5,12 +5,19 @@ namespace LOIN.Server.Contracts
 {
     public class LoinItem
     {
-        private const string lang = "cs";
+        private const string cs = "cs";
+        private const string en = "en";
 
         public int Id { get; set; }
         public string UUID { get; set; }
+        
         public string Name { get; set; }
+        public string NameCS { get; set; }
+        public string NameEN { get; set; }
+        
         public string Description { get; set; }
+        public string DescriptionCS { get; set; }
+        public string DescriptionEN { get; set; }
 
         /// <summary>
         /// IFC Identifier
@@ -31,8 +38,11 @@ namespace LOIN.Server.Contracts
 
             if (root is Xbim.Ifc4.Kernel.IfcDefinitionSelect def)
             {
-                Name = def.GetName(lang) ?? root.Name;
-                Description = def.GetDescription(lang) ?? root.Description;
+                NameCS = def.GetName(cs) ?? Name;
+                NameEN = def.GetName(en) ?? Name;
+
+                DescriptionCS = def.GetDescription(cs) ?? Description;
+                DescriptionEN = def.GetDescription(en) ?? Description;
             }
         }
 

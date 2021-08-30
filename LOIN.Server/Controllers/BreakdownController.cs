@@ -21,10 +21,10 @@ namespace LOIN.Server.Controllers
         [HttpGet]
         [EnableQuery]
         [ProducesResponseType(typeof(Contracts.BreakdownItem[]), StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] bool nonEmpty = false)
         {
-            return Ok(Model.BreakdownStructure.Where(i => i.Parent == null)
-                .Select(a => new Contracts.BreakdownItem(a)));
+            return Ok(Model.BreakdownStructure.Where(i => i.Parent == null && i.HasRequirements)
+                .Select(a => new Contracts.BreakdownItem(a, nonEmpty)));
         }
 
         [HttpGet("requirement-sets")]

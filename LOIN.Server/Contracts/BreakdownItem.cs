@@ -7,13 +7,16 @@ namespace LOIN.Server.Contracts
 {
     public class BreakdownItem: LoinItem
     {
-        public BreakdownItem(Context.BreakdownItem item): base(item)
+        public BreakdownItem(Context.BreakdownItem item, bool onlyWithRequirements): base(item)
         {
             Code = item.Code;
 
             if (item.Children != null && item.Children.Any())
             {
-                Children = item.Children.Select(c => new BreakdownItem(c)).ToList();
+                var query = onlyWithRequirements ?
+                    item.Children.Where(c => c.HasRequirements) :
+                    item.Children;
+                Children = query.Select(c => new BreakdownItem(c, onlyWithRequirements)).ToList();
             }
         }
         public string Code { get; set; }

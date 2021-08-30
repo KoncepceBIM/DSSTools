@@ -7,13 +7,20 @@ namespace LOIN.Server.Contracts
 {
     public class Requirement: LoinItem
     {
-        private const string lang = "cs";
+        private const string cs = "cs";
+        private const string en = "en";
 
         public string Units { get; set; }
         public string ValueType { get; set; }
         public string DataType { get; set; }
+        
         public string SetName { get; set; }
-        public string SetIdentifier { get; set; }
+        public string SetNameCS { get; set; }
+        public string SetNameEN { get; set; }
+
+        public string SetDescription { get; set; }
+        public string SetDescriptionCS { get; set; }
+        public string SetDescriptionEN { get; set; }
 
         public List<string> Enumeration { get; set; }
 
@@ -21,7 +28,12 @@ namespace LOIN.Server.Contracts
         {
             // set might be null, it the requirement is assigned directly, not through a set
             SetName = set?.Name;
-            SetIdentifier = set.GetName(lang) ?? SetName;
+            SetNameCS = set?.GetName(cs) ?? SetName;
+            SetNameEN = set?.GetName(en) ?? SetName;
+
+            SetDescription = set?.Description;
+            SetDescriptionCS = set?.GetDescription(cs) ?? SetDescription;
+            SetDescriptionEN = set?.GetDescription(en) ?? SetDescription;
 
             if (property is IIfcSimplePropertyTemplate simple)
             {
