@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LOIN;
 using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Contracts
@@ -23,6 +24,8 @@ namespace LOIN.Server.Contracts
         public string SetDescriptionEN { get; set; }
 
         public List<string> Enumeration { get; set; }
+
+        public List<string> Examples { get; set; }
 
         public Requirement(IIfcPropertyTemplate property, IIfcPropertySetTemplate set): base(property)
         {
@@ -49,6 +52,8 @@ namespace LOIN.Server.Contracts
                 {
                     Enumeration = simple.Enumerators.EnumerationValues.Select(v => v.Value.ToString()).ToList();
                 }
+
+                Examples = simple.GetExamples(set).Select(v => v.ToString()).ToList();
             }
             else
                 throw new NotSupportedException("Only simple property templates are supported.");

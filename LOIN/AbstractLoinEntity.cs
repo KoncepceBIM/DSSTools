@@ -45,12 +45,16 @@ namespace LOIN
         {
             if (Entity is IfcDefinitionSelect definition)
                 definition.SetName(lang, name);
+            else
+                throw new NotSupportedException("Setting language specific name is only supported for IfcDefinitionSelect subtypes.");
         }
 
         public void SetDescription(string lang, string description)
         {
             if (Entity is IfcDefinitionSelect definition)
                 definition.SetDescription(lang, description);
+            else
+                throw new NotSupportedException("Setting language specific description is only supported for IfcDefinitionSelect subtypes.");
         }
     }
 }
