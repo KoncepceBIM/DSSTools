@@ -34,7 +34,7 @@ namespace LOIN.Server.Controllers
                    .SelectMany(r => r.HasPropertyTemplates.Select(p => new Contracts.Requirement(p, r)));
                 var directRequirements = loins
                    .SelectMany(r => r.DirectRequirements).Distinct()
-                   .Select(r => new Contracts.Requirement(r, null));
+                   .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault()));
 
                 return Ok(requirements.Union(directRequirements));
             }

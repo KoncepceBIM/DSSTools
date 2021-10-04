@@ -9,9 +9,9 @@ namespace LOIN.Server.Contracts
     {
         public string Code { get; set; }
         public List<int> Path { get; set; }
-        public IEnumerable<RequirementSet> RequirementSets { get; }
+        public IEnumerable<NamedRequirementSet> RequirementSets { get; }
 
-        public GrouppedRequirementSets(Context.BreakdownItem item, IEnumerable<RequirementSet> requirementSets): base(item)
+        public GrouppedRequirementSets(Context.BreakdownItem item, IEnumerable<NamedRequirementSet> requirementSets): base(item)
         {
             Code = item.Code;
 
@@ -21,5 +21,12 @@ namespace LOIN.Server.Contracts
             Path = path;
             RequirementSets = requirementSets;
         }
+    }
+
+    public class NamedRequirementSet
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public IEnumerable<Requirement> Requirements { get; set; }
     }
 }
