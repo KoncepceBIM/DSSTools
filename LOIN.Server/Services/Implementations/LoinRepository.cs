@@ -47,7 +47,10 @@ namespace LOIN.Server.Services.Implementations
 
             repository = await Cache.GetOrCreateAsync(id, async (entry) =>
             {
-                var model = await Task.Run(() => Model.Open(path)) ;
+                var model = await Task.Run(() => Model.Open(path));
+                if (model.Internal.InverseCache == null)
+                    model.Internal.BeginInverseCaching();
+
                 var r = new Repository
                 {
                     Id = id,
@@ -81,6 +84,7 @@ namespace LOIN.Server.Services.Implementations
             public string Id { get; set; }
             public string Path { get; set; }
             public string Checksum { get; set; }
+            public long FileLength { get; set; }
             public ILoinModel Model { get; set; }
         }
     }
