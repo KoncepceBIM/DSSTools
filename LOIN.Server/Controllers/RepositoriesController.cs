@@ -48,7 +48,6 @@ namespace LOIN.Server.Controllers
                 return NotFound();
 
             return File(System.IO.File.OpenRead(path), "application/octet-stream", $"{id}.ifc");
-        }
-
+        }        
     }
 }

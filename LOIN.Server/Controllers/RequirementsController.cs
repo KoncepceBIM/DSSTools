@@ -1,4 +1,5 @@
-﻿using LOIN.Server.Exceptions;
+﻿using LOIN.Export;
+using LOIN.Server.Exceptions;
 using LOIN.Server.Swagger;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
@@ -37,6 +38,30 @@ namespace LOIN.Server.Controllers
                    .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault()));
 
                 return Ok(requirements.Union(directRequirements));
+            }
+            catch (EntityNotFoundException e)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Detail = e.Message,
+                    Status = StatusCodes.Status404NotFound,
+                    Type = nameof(EntityNotFoundException),
+                    Title = $"Context entity '{e.EntityLabel}' not found"
+                });
+            }
+        }
+
+        [HttpGet("export")]
+        [EnableLoinContext]
+        [FileResultContentType("application/octet-stream")]
+        public IActionResult GetIFC()
+        {
+            try
+            {
+                var ctx = BuildContext();
+                var result = IfcExporter.ExportContext(Model, ctx);
+                var timestamp = DateTime.Now.ToString("s").Replace(" ", "_");
+                return File(result, "application/octet-stream", timestamp + ".ifc");
             }
             catch (EntityNotFoundException e)
             {

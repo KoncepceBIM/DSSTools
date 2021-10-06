@@ -35,11 +35,13 @@ namespace LOIN.Server.Services.Implementations
                 throw new FileNotFoundException("Repository fine not found", id);
 
             // TODO: We mightnot want to compute the hash with every request
-            var hash = ComputeHash(path);
+            // var hash = ComputeHash(path);
+            var check = (new FileInfo(path)).Length;
             if (Cache.TryGetValue(id, out Repository repository))
             {
                 // make sure the file is the same
-                if (string.Equals(repository.Checksum, hash))
+                //if (string.Equals(repository.Checksum, hash))
+                if (string.Equals(repository.FileLength, check))
                     return repository.Model;
                 else
                     Cache.Remove(id);
@@ -54,7 +56,8 @@ namespace LOIN.Server.Services.Implementations
                 var r = new Repository
                 {
                     Id = id,
-                    Checksum = hash,
+                    // Checksum = hash,
+                    FileLength = check,
                     Model = model,
                     Path = path
                 };
@@ -83,7 +86,7 @@ namespace LOIN.Server.Services.Implementations
         {
             public string Id { get; set; }
             public string Path { get; set; }
-            public string Checksum { get; set; }
+            // public string Checksum { get; set; }
             public long FileLength { get; set; }
             public ILoinModel Model { get; set; }
         }

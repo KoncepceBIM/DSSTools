@@ -20,7 +20,6 @@ namespace LOIN.Server.Controllers
         }
 
         [HttpGet]
-        [EnableQuery]
         [ProducesResponseType(typeof(Contracts.BreakdownItem[]), StatusCodes.Status200OK)]
         public IActionResult Get([FromQuery] bool nonEmpty = false)
         {
