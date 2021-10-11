@@ -38,7 +38,7 @@ namespace LOIN
                 return null;
 
             // create new cache
-            CreateCache(model);
+            CreateCache(m);
 
             // try retrieve from current cache
             return GetLibs(m, entityLabel);
