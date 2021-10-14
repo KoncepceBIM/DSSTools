@@ -77,6 +77,15 @@ namespace LOIN.Viewer.Views
         public string Name2 => PropertyTemplate.GetName(lang) ?? Name;
         public string Description2 => PropertyTemplate.GetDescription(lang) ?? Description;
 
+        public string NameCS => PropertyTemplate.GetName("cs") ?? Name;
+        public string NameEN => PropertyTemplate.GetName("en") ?? Name;
+
+        public string DescriptionCS => PropertyTemplate.GetDescription("cs") ?? Name;
+        public string DescriptionEN => PropertyTemplate.GetDescription("en") ?? Name;
+
+
+        public string Example => string.Join("\r\n", PropertyTemplate.GetExamples(Parent.PsetTemplate));
+
         public string ValueType => PropertyTemplate.PrimaryMeasureType;
 
         public IReadOnlyList<string> Enumeration => PropertyTemplate.Enumerators?.EnumerationValues.Select(e => e.ToString()).ToArray() ?? Array.Empty<string>();

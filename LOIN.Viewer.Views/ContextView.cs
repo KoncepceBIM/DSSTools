@@ -71,5 +71,11 @@ namespace LOIN.Viewer.Views
         public string Description2 => Context.GetDescription(lang) ?? Description;
 
 
+        public string NameCS => Context.GetName("cs") ?? Name;
+        public string NameEN => Context.GetName("en") ?? Name;
+
+        public string DescriptionCS => Context.GetDescription("cs") ?? Name;
+        public string DescriptionEN => Context.GetDescription("en") ?? Name;
+
     }
 }

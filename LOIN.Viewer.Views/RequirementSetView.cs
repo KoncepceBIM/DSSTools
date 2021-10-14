@@ -60,6 +60,12 @@ namespace LOIN.Viewer.Views
         public string Name2 => PsetTemplate.GetName(lang) ?? Name;
         public string Description2 => PsetTemplate.GetDescription(lang) ?? Description;
 
+        public string NameCS => PsetTemplate.GetName("cs") ?? Name;
+        public string NameEN => PsetTemplate.GetName("en") ?? Name;
+
+        public string DescriptionCS => PsetTemplate.GetDescription("cs") ?? Name;
+        public string DescriptionEN => PsetTemplate.GetDescription("en") ?? Name;
+
         public List<RequirementView> Requirements { get; }
 
         public IfcPropertySetTemplate PsetTemplate { get; }

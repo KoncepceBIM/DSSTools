@@ -18,38 +18,38 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
-            <MenuItem Header="_File">
-                <MenuItem Header="Open (Ctrl+O)" Click="OpenFile_Click">
+            <MenuItem Header="_Soubor">
+                <MenuItem Header="Otevřít (Ctrl+O)" Click="OpenFile_Click">
                     <MenuItem.Icon>
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Export to MVD XML for IFC4" Click="ExportToMVD4_Click">
+                <MenuItem Header="_Export do MVD XML pro IFC4" Click="ExportToMVD4_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Export to MVD XML for IFC2x3" Click="ExportToMVD2x3_Click">
+                <MenuItem Header="Export do MVD XML pro IFC2x3" Click="ExportToMVD2x3_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Selection to MVD XML for IFC4" Click="SelectionToMVD4_Click">
+                <MenuItem Header="_Výběr do MVD XML pro IFC4" Click="SelectionToMVD4_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Selection to MVD XML for IFC2x3" Click="SelectionToMVD2x3_Click">
+                <MenuItem Header="Výběr do MVD XML pro IFC2x3" Click="SelectionToMVD2x3_Click">
                     <MenuItem.Icon>
                         <Image Source="xml.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Export selection to partial _IFC  (Ctrl+E)" Click="SelectionToIFC_Click">
+                <MenuItem Header="Export výběru do částečného _IFC  (Ctrl+E)" Click="SelectionToIFC_Click">
                     <MenuItem.Icon>
                         <Image Source="ifc.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Validate model file against selection  (Ctrl+M)" Click="Validate_Click">
+                <MenuItem Header="_Validace modelu podle vybraných požadavků  (Ctrl+M)" Click="Validate_Click">
                     <MenuItem.Icon>
                         <Image Source="bcf.ico"/>
                     </MenuItem.Icon>
@@ -59,11 +59,11 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <!--Context-->
-                <ColumnDefinition/>
+                <ColumnDefinition Width="*"/>
                 <!--Splitter-->
                 <ColumnDefinition Width="Auto"/>
                 <!--Requirements-->
-                <ColumnDefinition/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -76,7 +76,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0">Breakedown Structure</TextBlock>
+                <TextBlock Grid.Row="0">Klasifikace</TextBlock>
                 <TreeView Grid.Row="1" Name="twBreakDownStructure" ItemsSource="{Binding ElementName=self, Path=BreakedownItems}">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
@@ -87,13 +87,13 @@
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
-                <TextBlock Grid.Row="2">Reasons (<Run Text="{Binding ElementName=self, Path=Reasons.Count, Mode=OneWay}"></Run>)</TextBlock>
+                <TextBlock Grid.Row="2">Účel užití (<Run Text="{Binding ElementName=self, Path=Reasons.Count, Mode=OneWay}"></Run>)</TextBlock>
                 <DataGrid Grid.Row="3" Name="dgReasons"  ItemsSource="{Binding ElementName=self, Path=Reasons}"
                           AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding Description}" Header="Description" Width="*" IsReadOnly="True">
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Vybrat"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Název" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Popis" Width="*" IsReadOnly="True">
                             <DataGridTextColumn.ElementStyle>
                                 <Style>
                                     <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
@@ -102,13 +102,13 @@
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="4">Actors (<Run Text="{Binding ElementName=self, Path=Actors.Count, Mode=OneWay}"></Run>)</TextBlock>
+                <TextBlock Grid.Row="4">Aktér (<Run Text="{Binding ElementName=self, Path=Actors.Count, Mode=OneWay}"></Run>)</TextBlock>
                 <DataGrid Grid.Row="5" Name="dgActors" ItemsSource="{Binding ElementName=self, Path=Actors}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding Description}" Header="Description" Width="*" IsReadOnly="True">
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Vybrat"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Název" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Popis" Width="*" IsReadOnly="True">
                             <DataGridTextColumn.ElementStyle>
                                 <Style>
                                     <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
@@ -117,13 +117,13 @@
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="6">Milestones (<Run Text="{Binding ElementName=self, Path=Milestones.Count, Mode=OneWay}"></Run>)</TextBlock>
+                <TextBlock Grid.Row="6">Milník (<Run Text="{Binding ElementName=self, Path=Milestones.Count, Mode=OneWay}"></Run>)</TextBlock>
                 <DataGrid Grid.Row="7" Name="dgMilestones" ItemsSource="{Binding ElementName=self, Path=Milestones}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Vybrat"/>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Název" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Popis"  Width="*" IsReadOnly="True">
                             <DataGridTextColumn.ElementStyle>
                                 <Style>
                                     <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
@@ -147,22 +147,31 @@
                     <DataGrid ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Set name" IsReadOnly="True" Binding="{Binding Parent.Name}"/>
-                            <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select"/>
-                            <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding Description}" Header="Description"  Width="*" IsReadOnly="True">
+                            <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Vybrat"/>
+                            <DataGridTextColumn Header="Skupina [IFC]" IsReadOnly="True" Binding="{Binding Parent.Name}"/>
+                            <DataGridTextColumn Header="Skupina [CS]" IsReadOnly="True" Binding="{Binding Parent.NameCS}"/>
+                            <DataGridTextColumn Binding="{Binding Name}" Header="Název [IFC]" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding NameCS}" Header="Název [CS]" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding DescriptionCS}" Header="Popis"  Width="*" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style>
                                         <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding ValueType}" Header="Value Type" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Unit" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Example}" Header="Příklad"  Width="*" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding ValueType}" Header="Typ hodnoty" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Jednotky" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
-                <TabItem>
+                <!--<TabItem>
                     <TabItem.Header>
                         <TextBlock Grid.Row="0">Requirement sets (<Run Text="{Binding ElementName=self, Path=ContextSelector.RequirementSets.Count, Mode=OneWay}"></Run>)</TextBlock>
                     </TabItem.Header>
@@ -212,7 +221,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
-                </TabItem>
+                </TabItem>-->
             </TabControl>
 
         </Grid>
