@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xbim.Ifc;
+using Xbim.Ifc4.ExternalReferenceResource;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.MeasureResource;
 
@@ -83,6 +84,34 @@ namespace LOIN.Tests
                 Assert.IsTrue(name == "Šířka");
                 Assert.IsTrue(description == "Celková šířka včetně všech přesahů");
                 Assert.IsTrue(dataType == "Šířka");
+
+            }
+        }
+
+        [TestMethod]
+        public void Breakdown_item_should_have_CS_name()
+        {
+            var fileName = $"{Guid.NewGuid()}.ifc";
+
+            {
+                using var loin = GetTestModel();
+                var window = loin.Internal.Instances.FirstOrDefault<IfcClassificationReference>(p => p.Name == "Window");
+                using var txn = loin.Internal.BeginTransaction("Localization");
+                window.SetName("cs", "Okno");
+                window.SetDescription("cs", "Taková ta díra ve zdi");
+                txn.Commit();
+                loin.Save(fileName);
+            }
+
+            {
+                using var loin = Model.Open(fileName);
+                var window = loin.Internal.Instances.FirstOrDefault<IfcClassificationReference>(p => p.Name == "Window");
+
+                var name = window.GetName("cs");
+                var description = window.GetDescription("cs");
+
+                Assert.IsTrue(name == "Okno");
+                Assert.IsTrue(description == "Taková ta díra ve zdi");
 
             }
         }

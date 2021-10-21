@@ -44,6 +44,15 @@ namespace LOIN.Server.Contracts
                 DescriptionCS = def.GetDescription(cs) ?? Description;
                 DescriptionEN = def.GetDescription(en) ?? Description;
             }
+
+            if (root is Xbim.Ifc4.ExternalReferenceResource.IfcExternalReference eref)
+            {
+                NameCS = eref.GetName(cs) ?? Name;
+                NameEN = eref.GetName(en) ?? Name;
+
+                DescriptionCS = eref.GetDescription(cs) ?? Description;
+                DescriptionEN = eref.GetDescription(en) ?? Description;
+            }
         }
 
         public LoinItem(IContextEntity entity): this()
@@ -52,6 +61,25 @@ namespace LOIN.Server.Contracts
             UUID = entity.Id;
             Name = entity.Name;
             Description = entity.Description;
+
+            var ifcEntity = entity.Entity;
+            if (ifcEntity is Xbim.Ifc4.Kernel.IfcDefinitionSelect def)
+            {
+                NameCS = def.GetName(cs) ?? Name;
+                NameEN = def.GetName(en) ?? Name;
+
+                DescriptionCS = def.GetDescription(cs) ?? Description;
+                DescriptionEN = def.GetDescription(en) ?? Description;
+            }
+
+            if (ifcEntity is Xbim.Ifc4.ExternalReferenceResource.IfcExternalReference eref)
+            {
+                NameCS = eref.GetName(cs) ?? Name;
+                NameEN = eref.GetName(en) ?? Name;
+
+                DescriptionCS = eref.GetDescription(cs) ?? Description;
+                DescriptionEN = eref.GetDescription(en) ?? Description;
+            }
         }
     }
 }
