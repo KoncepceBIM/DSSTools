@@ -13,7 +13,10 @@ namespace LOIN.Server.Contracts
 
         public string Units { get; set; }
         public string ValueType { get; set; }
+
         public string DataType { get; set; }
+        public string DataTypeCS { get; set; }
+        public string DataTypeEN { get; set; }
         
         public string SetName { get; set; }
         public string SetNameCS { get; set; }
@@ -40,8 +43,14 @@ namespace LOIN.Server.Contracts
 
             if (property is IIfcSimplePropertyTemplate simple)
             {
-                DataType = simple.PrimaryMeasureType?.Value.ToString();
                 ValueType = simple.TemplateType?.ToString();
+
+                if (simple.PrimaryMeasureType.HasValue)
+                { 
+                    DataType = simple.PrimaryMeasureType.Value.ToString();
+                    DataTypeCS = simple.GetDataTypeName(cs);
+                    DataTypeEN = simple.GetDataTypeName(en);
+                }
 
                 if (simple.PrimaryUnit != null)
                     Units = Unit.GetSymbol(simple.PrimaryUnit);
