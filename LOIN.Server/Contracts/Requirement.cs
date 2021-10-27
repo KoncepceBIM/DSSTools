@@ -26,6 +26,9 @@ namespace LOIN.Server.Contracts
         public string SetDescriptionCS { get; set; }
         public string SetDescriptionEN { get; set; }
 
+        public string NoteCS { get; set; }
+        public string NoteEN { get; set; }
+
         public List<string> Enumeration { get; set; }
 
         public List<string> Examples { get; set; }
@@ -43,6 +46,9 @@ namespace LOIN.Server.Contracts
 
             if (property is IIfcSimplePropertyTemplate simple)
             {
+                NoteCS = simple.GetNote(cs);
+                NoteEN = simple.GetNote(en);
+
                 ValueType = simple.TemplateType?.ToString();
 
                 if (simple.PrimaryMeasureType.HasValue)
