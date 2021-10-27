@@ -10,18 +10,16 @@ namespace LOIN
 {
     public static class DocumentExtension
     {
-        private static IModel model;
-        private static readonly Dictionary<IIfcDefinitionSelect, List<IIfcDocumentSelect>> cache = 
-            new Dictionary<IIfcDefinitionSelect, List<IIfcDocumentSelect>>();
-
-        public static void ClearCache()
+        private static Dictionary<IIfcDefinitionSelect, List<IIfcDocumentSelect>> GetCache(IModel model)
         {
-            model = null;
-            cache.Clear();
+            return model.GetCache<Dictionary<IIfcDefinitionSelect, List<IIfcDocumentSelect>>>(nameof(DocumentExtension));
         }
 
         public static IEnumerable<IIfcDocumentSelect> GetDocuments(this IfcDefinitionSelect definition)
         {
+            var model = definition.Model;
+            var cache = GetCache(model);
+
             if (cache.TryGetValue(definition, out List<IIfcDocumentSelect> docs))
                 return docs.AsReadOnly();
 
@@ -37,8 +35,8 @@ namespace LOIN
 
         private static void CreateCache(IModel m)
         {
-            cache.Clear();
-            model = m;
+            var model = m;
+            var cache = GetCache(model);
 
             foreach (var rel in model.Instances.OfType<IIfcRelAssociatesDocument>())
             {
@@ -59,6 +57,9 @@ namespace LOIN
 
         public static void AddDocument(this IfcDefinitionSelect definition, IfcDocumentSelect doc)
         {
+            var model = definition.Model;
+            var cache = GetCache(model);
+
             var i = definition.Model.Instances;
             i.New<IfcRelAssociatesDocument>(r => {
                 r.RelatedObjects.Add(definition);

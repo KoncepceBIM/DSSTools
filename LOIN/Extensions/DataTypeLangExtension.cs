@@ -10,14 +10,10 @@ namespace LOIN
     public static class DataTypeLangExtension
     {
         public const string dictionaryIdentifier = "datatype_dictionary";
-        private static IModel model;
-        private static readonly Dictionary<int, Dictionary<string, IIfcLibraryReference>> cache = 
-            new Dictionary<int, Dictionary<string, IIfcLibraryReference>>();
 
-        public static void ClearCache()
+        private static Dictionary<int, Dictionary<string, IIfcLibraryReference>> GetCache(IModel model)
         {
-            model = null;
-            cache.Clear();
+            return model.GetCache<Dictionary<int, Dictionary<string, IIfcLibraryReference>>>(dictionaryIdentifier);
         }
 
         private static IIfcLibraryReference GetLib(IModel m, int entityLabel, string lang)
@@ -32,10 +28,9 @@ namespace LOIN
 
         private static Dictionary<string, IIfcLibraryReference> GetLibs(IModel m, int entityLabel)
         {
+            var cache = GetCache(m);
             if (cache.TryGetValue(entityLabel, out Dictionary<string, IIfcLibraryReference> libs))
                 return libs;
-            if (model == m)
-                return null;
 
             // create new cache
             CreateCache(m);
@@ -46,10 +41,8 @@ namespace LOIN
 
         private static void CreateCache(IModel m)
         {
-            cache.Clear();
-            model = m;
-
-            foreach (var rel in model.Instances.OfType<IIfcRelAssociatesLibrary>()
+            var cache = GetCache(m);
+            foreach (var rel in m.Instances.OfType<IIfcRelAssociatesLibrary>()
                 .Where(r => r.RelatingLibrary is IIfcLibraryReference lr &&
                     lr.Identification == dictionaryIdentifier && 
                     lr.Language.HasValue))
@@ -72,7 +65,7 @@ namespace LOIN
                 }
             }
 
-            foreach (var rel in model.Instances.OfType<IIfcExternalReferenceRelationship>()
+            foreach (var rel in m.Instances.OfType<IIfcExternalReferenceRelationship>()
                 .Where(r => r.RelatingReference is IIfcLibraryReference lr &&
                     lr.Identification == dictionaryIdentifier &&
                     lr.Language.HasValue))
@@ -98,6 +91,8 @@ namespace LOIN
 
         private static void AddOrSet(IfcDefinitionSelect definition, string lang, IIfcLibraryReference lib)
         {
+            var cache = GetCache(definition.Model);
+
             if (!cache.TryGetValue(definition.EntityLabel, out Dictionary<string, IIfcLibraryReference> libs))
             {
                 libs = new Dictionary<string, IIfcLibraryReference>();

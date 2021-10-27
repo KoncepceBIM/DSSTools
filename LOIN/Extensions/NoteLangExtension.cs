@@ -7,13 +7,13 @@ using Xbim.Ifc4.Kernel;
 
 namespace LOIN
 {
-    public static class LangExtension
+    public static class NoteLangExtension
     {
-        public const string dictionaryIdentifier = "dictionary";
+        public const string dictionaryIdentifier = "note_dictionary";
 
         private static Dictionary<int, Dictionary<string, IIfcLibraryReference>> GetCache(IModel model)
         {
-            return model.GetCache<Dictionary<int, Dictionary<string, IIfcLibraryReference>>>(nameof(LangExtension));
+            return model.GetCache<Dictionary<int, Dictionary<string, IIfcLibraryReference>>>(nameof(NoteLangExtension));
         }
 
         private static IIfcLibraryReference GetLib(IModel m, int entityLabel, string lang)
@@ -47,7 +47,7 @@ namespace LOIN
         {
             var model = m;
             var cache = GetCache(model);
-            
+
             foreach (var rel in model.Instances.OfType<IIfcRelAssociatesLibrary>()
                 .Where(r => r.RelatingLibrary is IIfcLibraryReference lr &&
                     lr.Identification == dictionaryIdentifier && 
@@ -97,8 +97,7 @@ namespace LOIN
 
         private static void AddOrSet(IfcDefinitionSelect definition, string lang, IIfcLibraryReference lib)
         {
-            var model = definition.Model;
-            var cache = GetCache(model);
+            var cache = GetCache(definition.Model);
 
             if (!cache.TryGetValue(definition.EntityLabel, out Dictionary<string, IIfcLibraryReference> libs))
             {
@@ -112,96 +111,14 @@ namespace LOIN
                 libs.Add(lang, lib);
         }
 
-        private static void AddOrSet(IfcExternalReference reference, string lang, IIfcLibraryReference lib)
-        {
-            var model = reference.Model;
-            var cache = GetCache(model);
-
-            if (!cache.TryGetValue(reference.EntityLabel, out Dictionary<string, IIfcLibraryReference> libs))
-            {
-                libs = new Dictionary<string, IIfcLibraryReference>();
-                cache.Add(reference.EntityLabel, libs);
-            }
-
-            if (libs.ContainsKey(lang))
-                libs[lang] = lib;
-            else
-                libs.Add(lang, lib);
-        }
-
-        public static string GetName(this IfcDefinitionSelect definition, string lang)
-        {
-            var lib = GetLib(definition.Model, definition.EntityLabel, lang);
-            if (lib == null) return null;
-            return lib.Name;
-        }
-
-        public static string GetName(this IfcExternalReference reference, string lang)
-        {
-            var lib = GetLib(reference.Model, reference.EntityLabel, lang);
-            if (lib == null) return null;
-            return lib.Name;
-        }
-
-        public static void SetName(this IfcDefinitionSelect definition, string lang, string name)
-        {
-            var lib = GetLib(definition.Model, definition.EntityLabel, lang);
-            if (lib != null)
-            {
-                lib.Name = name;
-                return;
-            }
-
-            var i = definition.Model.Instances;
-            i.New<IfcRelAssociatesLibrary>(r => {
-                r.RelatedObjects.Add(definition);
-                r.RelatingLibrary = i.New<IfcLibraryReference>(libRef => {
-                    libRef.Name = name;
-                    libRef.Language = lang;
-                    libRef.Identification = dictionaryIdentifier;
-
-                    AddOrSet(definition, lang, libRef);
-                });
-            });
-        }
-
-        public static void SetName(this IfcExternalReference reference, string lang, string name)
-        {
-            var lib = GetLib(reference.Model, reference.EntityLabel, lang);
-            if (lib != null)
-            {
-                lib.Name = name;
-                return;
-            }
-
-            var i = reference.Model.Instances;
-            i.New<IfcExternalReferenceRelationship>(r => {
-                r.RelatedResourceObjects.Add(reference);
-                r.RelatingReference = i.New<IfcLibraryReference>(libRef => {
-                    libRef.Name = name;
-                    libRef.Language = lang;
-                    libRef.Identification = dictionaryIdentifier;
-
-                    AddOrSet(reference, lang, libRef);
-                });
-            });
-        }
-
-        public static string GetDescription(this IfcDefinitionSelect definition, string lang)
+        public static string GetNote(this IIfcPropertyTemplate definition, string lang)
         {
             var lib = GetLib(definition.Model, definition.EntityLabel, lang);
             if (lib == null) return null;
             return lib.Description;
         }
 
-        public static string GetDescription(this IfcExternalReference reference, string lang)
-        {
-            var lib = GetLib(reference.Model, reference.EntityLabel, lang);
-            if (lib == null) return null;
-            return lib.Description;
-        }
-
-        public static void SetDescription(this IfcDefinitionSelect definition, string lang, string description)
+        public static void SetNote(this IIfcPropertyTemplate definition, string lang, string description)
         {
             var lib = GetLib(definition.Model, definition.EntityLabel, lang);
             if (lib != null)
@@ -214,32 +131,12 @@ namespace LOIN
             i.New<IfcRelAssociatesLibrary>(r => {
                 r.RelatedObjects.Add(definition);
                 r.RelatingLibrary = i.New<IfcLibraryReference>(libRef => {
+                    libRef.Name = "Note";
                     libRef.Description = description;
                     libRef.Language = lang;
                     libRef.Identification = dictionaryIdentifier;
 
                     AddOrSet(definition, lang, libRef);
-                });
-            });
-        }
-        public static void SetDescription(this IfcExternalReference reference, string lang, string description)
-        {
-            var lib = GetLib(reference.Model, reference.EntityLabel, lang);
-            if (lib != null)
-            {
-                lib.Description = description;
-                return;
-            }
-
-            var i = reference.Model.Instances;
-            i.New<IfcExternalReferenceRelationship>(r => {
-                r.RelatedResourceObjects.Add(reference);
-                r.RelatingReference = i.New<IfcLibraryReference>(libRef => {
-                    libRef.Description = description;
-                    libRef.Language = lang;
-                    libRef.Identification = dictionaryIdentifier;
-
-                    AddOrSet(reference, lang, libRef);
                 });
             });
         }
