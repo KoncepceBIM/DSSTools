@@ -142,6 +142,9 @@ namespace LOIN.Context
             get => Entity is IfcClassificationReference r ? r.Identification?.ToString() : (Entity as IfcClassification)?.Edition?.ToString();
         }
 
+        public string GetNote(string lang) => 
+            Entity is IfcClassificationReference r ? r.GetNote(lang) : null;
+
         public string Uri
         {
             get => Entity is IfcClassificationReference r ? r.Location?.ToString() : (Entity as IfcClassification)?.Location?.ToString();

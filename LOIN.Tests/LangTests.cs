@@ -115,5 +115,30 @@ namespace LOIN.Tests
 
             }
         }
+
+        [TestMethod]
+        public void Breakdown_item_should_have_CS_note()
+        {
+            var fileName = $"{Guid.NewGuid()}.ifc";
+
+            {
+                using var loin = GetTestModel();
+                var window = loin.Internal.Instances.FirstOrDefault<IfcClassificationReference>(p => p.Name == "Window");
+                using var txn = loin.Internal.BeginTransaction("Localization");
+                window.SetNote("cs", "Taková ta díra ve zdi");
+                txn.Commit();
+                loin.Save(fileName);
+            }
+
+            {
+                using var loin = Model.Open(fileName);
+                var window = loin.Internal.Instances.FirstOrDefault<IfcClassificationReference>(p => p.Name == "Window");
+
+                var note = window.GetNote("cs");
+
+                Assert.IsTrue(note == "Taková ta díra ve zdi");
+
+            }
+        }
     }
 }

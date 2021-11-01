@@ -99,6 +99,7 @@ namespace LOIN.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void ConvertIfcLoinToMVD()
         {
             const string path = @"c:\Users\Martin\Dropbox (Personal)\xBIM.cz\Zakazky\@CAS\PS03\Datovy_standard\SW_Vendors\sample_20190809_1625.ifc";

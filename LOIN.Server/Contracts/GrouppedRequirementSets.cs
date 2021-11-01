@@ -7,6 +7,8 @@ namespace LOIN.Server.Contracts
 {
     public class GrouppedRequirementSets: LoinItem
     {
+        public string NoteCS { get; set; }
+        public string NoteEN { get; set; }
         public string Code { get; set; }
         public List<int> Path { get; set; }
         public IEnumerable<NamedRequirementSet> RequirementSets { get; }
@@ -14,6 +16,8 @@ namespace LOIN.Server.Contracts
         public GrouppedRequirementSets(Context.BreakdownItem item, IEnumerable<NamedRequirementSet> requirementSets): base(item)
         {
             Code = item.Code;
+            NoteCS = item.GetNote("cs");
+            NoteEN = item.GetNote("en");
 
             var path = new List<int> { item.Entity.EntityLabel };
             path.AddRange(item.Parents.Select(p => p.Entity.EntityLabel));
