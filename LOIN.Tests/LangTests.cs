@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xbim.Ifc;
 using Xbim.Ifc4.ExternalReferenceResource;
@@ -126,6 +127,10 @@ namespace LOIN.Tests
                 var window = loin.Internal.Instances.FirstOrDefault<IfcClassificationReference>(p => p.Name == "Window");
                 using var txn = loin.Internal.BeginTransaction("Localization");
                 window.SetNote("cs", "Taková ta díra ve zdi");
+
+                var item = loin.CreateBreakedownItem("Test Item", "123456", "");
+                item.SetNote("cs", "Testovací položka či podložka");
+
                 txn.Commit();
                 loin.Save(fileName);
             }
@@ -133,10 +138,13 @@ namespace LOIN.Tests
             {
                 using var loin = Model.Open(fileName);
                 var window = loin.Internal.Instances.FirstOrDefault<IfcClassificationReference>(p => p.Name == "Window");
-
                 var note = window.GetNote("cs");
 
+                var item = loin.BreakdownStructure.FirstOrDefault(i => i.Code == "123456");
+                var itemNote = item.GetNote("cs");
+
                 Assert.IsTrue(note == "Taková ta díra ve zdi");
+                Assert.IsTrue(itemNote == "Testovací položka či podložka");
 
             }
         }

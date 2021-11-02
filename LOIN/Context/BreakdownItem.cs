@@ -145,6 +145,19 @@ namespace LOIN.Context
         public string GetNote(string lang) => 
             Entity is IfcClassificationReference r ? r.GetNote(lang) : null;
 
+        public void SetNote(string lang, string note)
+        {
+            if (Entity is IfcClassificationReference r)
+            {
+                r.SetNote(lang, note);
+            }
+            else
+            {
+                throw new NotSupportedException("Notes are only supported for classification items, not the classification itself (the root)");
+            }
+        }
+            
+
         public string Uri
         {
             get => Entity is IfcClassificationReference r ? r.Location?.ToString() : (Entity as IfcClassification)?.Location?.ToString();
