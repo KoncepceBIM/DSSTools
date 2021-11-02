@@ -5,6 +5,7 @@ using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
@@ -16,7 +17,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace LOIN.Server
@@ -77,10 +80,29 @@ namespace LOIN.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoinRepository repository)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            // top level exception handler
+            app.Use(async (ctx, next) => {
+                try
+                {
+                    await next();
+                }
+                catch (Exception e)
+                {
+                    var log = ctx.RequestServices.GetRequiredService<ILogger<Startup>>();
+                    log.LogError(e, "Failed request: {path}", ctx.Request.Path.Value);
+
+
+                    ctx.Response.StatusCode = 400;
+                    var err = new ProblemDetails 
+                    {
+                        Title = $"Failed request at '{ctx.Request.Path.Value}'. See the log for more details.",
+                        Status = 400,
+                        Detail = e.Message
+                    };
+                    var data = JsonSerializer.Serialize(err);
+                    await ctx.Response.WriteAsync(data);
+                }
+            });
 
             // TODO: Re-enable for production
             // app.UseHttpsRedirection();
