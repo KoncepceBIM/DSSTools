@@ -14,6 +14,7 @@ namespace LOIN.Viewer.Views
         }
 
         public string Code => Context.Code;
+        public string Note => Context.GetNote("cs");
 
         public IEnumerable<BreakdownItemView> Children { get; }
 

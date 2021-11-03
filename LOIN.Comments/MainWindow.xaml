@@ -73,6 +73,47 @@
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal">
+                                <StackPanel.ToolTip>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0">
+                                            Kód:
+                                        </Label>
+                                        <TextBlock Grid.Row="0" Grid.Column="1">
+                                                        <Run Text="{Binding Code, Mode=OneWay}"></Run>
+                                        </TextBlock>
+
+                                        <Label Grid.Row="1" Grid.Column="0">
+                                            Název:
+                                        </Label>
+                                        <TextBlock Grid.Row="1" Grid.Column="1">
+                                                        <Run Text="{Binding NameCS, Mode=OneWay}"></Run>
+                                        </TextBlock>
+
+                                        <Label Grid.Row="2" Grid.Column="0">
+                                            Název [EN]:
+                                        </Label>
+                                        <TextBlock Grid.Row="2" Grid.Column="1">
+                                                        <Run Text="{Binding NameEN, Mode=OneWay}"></Run>
+                                        </TextBlock>
+
+                                        <Label Grid.Row="3" Grid.Column="0">
+                                            Poznámka:
+                                        </Label>
+                                        <TextBlock Grid.Row="3" Grid.Column="1">
+                                                        <Run Text="{Binding Note, Mode=OneWay}"></Run>
+                                        </TextBlock>
+                                    </Grid>
+                                </StackPanel.ToolTip>
                                 <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"></CheckBox>
                                 <Label Content="{Binding ShowName}"></Label>
                             </StackPanel>
@@ -144,19 +185,38 @@
                     <DataGrid ItemsSource="{Binding ElementName=self, Path=ContextSelector.Requirements}"
                            AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" SelectionMode="Single" SelectedItem="{Binding ElementName=self, Path=CurrentRequirement}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Název sady" IsReadOnly="True" Binding="{Binding Parent.Name2}"/>
-                            <DataGridTextColumn Binding="{Binding Name2}" Header="Název" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding Description2}" Header="Popis"  Width="*" IsReadOnly="True">
+                            <DataGridTextColumn Header="Název sady [CS]" IsReadOnly="True" Binding="{Binding Parent.NameCS}"/>
+                            <DataGridTextColumn Header="Název sady [EN]" IsReadOnly="True" Binding="{Binding Parent.NameEN}"/>
+                            <DataGridTextColumn Binding="{Binding NameCS}" Header="Název [CS]" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding NameEN}" Header="Název [EN]" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding DescriptionCS}" Header="Popis [CS]"  Width="*" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style>
                                         <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding DescriptionEN}" Header="Popis [EN]"  Width="*" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Example}" Header="Ukázka"  Width="*" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding ValueType}" Header="Datový typ [IFC]" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding ValueTypeCS}" Header="Datový typ [CS]" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding ValueTypeEN}" Header="Datový typ [EN]" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
-                <TabItem>
+                <!--<TabItem>
                     <TabItem.Header>
                         <TextBlock Grid.Row="0">Sady požadavků (<Run Text="{Binding ElementName=self, Path=ContextSelector.RequirementSets.Count, Mode=OneWay}"></Run>)</TextBlock>
                     </TabItem.Header>
@@ -207,7 +267,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
-                </TabItem>
+                </TabItem>-->
                 <TabItem>
                     <TabItem.Header>
                         <TextBlock Grid.Row="0">Komentáře (<Run Text="{Binding ElementName=self, Path=Comments.Count, Mode=OneWay}"></Run>)</TextBlock>

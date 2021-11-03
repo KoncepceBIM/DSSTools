@@ -435,7 +435,7 @@ namespace LOIN.Comments
                 return;
             }
 
-            ContextSelector = new ContextSelector(_model, true);
+            ContextSelector = new ContextSelector(_model, false);
             SingleContext = new SingleContext(ContextSelector);
 
             ContextSelector.ContextUpdatedEvent += (s, a) =>
@@ -452,7 +452,7 @@ namespace LOIN.Comments
 
             // breakedown structure
             BreakedownItems = _model.BreakdownStructure.Where(bs => bs.Parent == null)
-                .Select(i => new BreakdownItemView(i, null, ContextSelector, false))
+                .Select(i => new BreakdownItemView(i, null, ContextSelector, true))
                 .ToList();
             if (BreakedownItems.Any())
                 BreakedownItems[0].IsSelected = true;

@@ -87,6 +87,8 @@ namespace LOIN.Viewer.Views
         public string Example => string.Join("\r\n", PropertyTemplate.GetExamples(Parent.PsetTemplate));
 
         public string ValueType => PropertyTemplate.PrimaryMeasureType;
+        public string ValueTypeCS => PropertyTemplate.GetDataTypeName("cs");
+        public string ValueTypeEN => PropertyTemplate.GetDataTypeName("en");
 
         public IReadOnlyList<string> Enumeration => PropertyTemplate.Enumerators?.EnumerationValues.Select(e => e.ToString()).ToArray() ?? Array.Empty<string>();
 
