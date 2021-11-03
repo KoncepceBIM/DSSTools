@@ -71,14 +71,21 @@ namespace LOIN.Server.Contracts
                 DescriptionCS = def.GetDescription(cs) ?? Description;
                 DescriptionEN = def.GetDescription(en) ?? Description;
             }
-
-            if (ifcEntity is Xbim.Ifc4.ExternalReferenceResource.IfcExternalReference eref)
+            else if (ifcEntity is Xbim.Ifc4.ExternalReferenceResource.IfcExternalReference eref)
             {
                 NameCS = eref.GetName(cs) ?? Name;
                 NameEN = eref.GetName(en) ?? Name;
 
                 DescriptionCS = eref.GetDescription(cs) ?? Description;
                 DescriptionEN = eref.GetDescription(en) ?? Description;
+            }
+            else
+            {
+                NameCS = Name;
+                NameEN = Name;
+
+                DescriptionCS = Description;
+                DescriptionEN = Description;
             }
         }
     }
