@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xbim.Ifc4.ExternalReferenceResource;
 
 namespace LOIN.Server.Contracts
 {
@@ -9,6 +10,10 @@ namespace LOIN.Server.Contracts
     {
         public string NoteCS { get; set; }
         public string NoteEN { get; set; }
+
+        public string IFCType { get; set; }
+        public string IFCPredefinedType { get; set; }
+
         public string Code { get; set; }
         public List<int> Path { get; set; }
         public IEnumerable<Requirement> Requirements { get; }
@@ -18,6 +23,12 @@ namespace LOIN.Server.Contracts
             Code = item.Code;
             NoteCS = item.GetNote("cs");
             NoteEN = item.GetNote("en");
+
+            if (item.Entity is IfcClassificationReference cref)
+            {
+                IFCType = cref.GetIFCType();
+                IFCPredefinedType = cref.GetIFCPredefinedType();
+            }
 
             var path = new List<int> { item.Entity.EntityLabel };
             path.AddRange(item.Parents.Select(p => p.Entity.EntityLabel));

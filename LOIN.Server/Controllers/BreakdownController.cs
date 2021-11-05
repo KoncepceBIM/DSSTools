@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace LOIN.Server.Controllers
@@ -21,10 +22,24 @@ namespace LOIN.Server.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(Contracts.BreakdownItem[]), StatusCodes.Status200OK)]
-        public IActionResult Get([FromQuery] bool nonEmpty = false)
+        public IActionResult Get([FromQuery] bool nonEmpty = false, [FromQuery] string orderBy = "Name")
         {
+            var type = typeof(Contracts.BreakdownItem);
+            var orderInfo = type.GetProperty(nameof(Contracts.BreakdownItem.Name));
+            if (!string.IsNullOrWhiteSpace(orderBy))
+            {
+                var found = type.GetProperty(orderBy, BindingFlags.Public | BindingFlags.IgnoreCase);
+                if (found != null)
+                    orderInfo = found;
+            }
+
+            string order(Contracts.BreakdownItem item)
+            {
+                return orderInfo.GetValue(item)?.ToString() ?? "";
+            }
+
             return Ok(Model.BreakdownStructure.Where(i => i.Parent == null && i.HasRequirements)
-                .Select(a => new Contracts.BreakdownItem(a, nonEmpty)));
+                .Select(a => new Contracts.BreakdownItem(a, nonEmpty, order)));
         }
 
         [HttpGet("requirement-sets")]

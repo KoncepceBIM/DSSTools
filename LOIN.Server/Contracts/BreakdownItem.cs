@@ -10,7 +10,7 @@ namespace LOIN.Server.Contracts
 {
     public class BreakdownItem: LoinItem
     {
-        public BreakdownItem(Context.BreakdownItem item, bool onlyWithRequirements): base(item)
+        public BreakdownItem(Context.BreakdownItem item, bool onlyWithRequirements, Func<BreakdownItem,string> orderBy): base(item)
         {
             Code = item.Code;
 
@@ -22,7 +22,7 @@ namespace LOIN.Server.Contracts
                 var query = onlyWithRequirements ?
                     item.Children.Where(c => c.HasRequirements) :
                     item.Children;
-                Children = query.Select(c => new BreakdownItem(c, onlyWithRequirements)).ToList();
+                Children = query.Select(c => new BreakdownItem(c, onlyWithRequirements, orderBy)).OrderBy(orderBy).ToList();
             }
 
             if (item.Entity is IfcClassificationReference cref)
