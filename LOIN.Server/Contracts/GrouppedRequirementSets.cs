@@ -18,6 +18,13 @@ namespace LOIN.Server.Contracts
         public List<int> Path { get; set; }
         public IEnumerable<NamedRequirementSet> RequirementSets { get; }
 
+        public string CciSE { get; set; } // Stavebni entity   
+        public string CciVS { get; set; } // Vybudovane systemy
+        public string CciFS { get; set; } // Funkcni systemy   
+        public string CciTS { get; set; } // Technicke systemy 
+        public string CciKO { get; set; } // Komponenty        
+        public string CciSK { get; set; } // Stavebni komplexy 
+
         public GrouppedRequirementSets(Context.BreakdownItem item, IEnumerable<NamedRequirementSet> requirementSets): base(item)
         {
             Code = item.Code;
@@ -28,6 +35,13 @@ namespace LOIN.Server.Contracts
             {
                 IFCType = cref.GetIFCType();
                 IFCPredefinedType = cref.GetIFCPredefinedType();
+
+                CciSE = cref.GetCCI_SE("cs");
+                CciVS = cref.GetCCI_VS("cs");
+                CciFS = cref.GetCCI_FS("cs");
+                CciTS = cref.GetCCI_TS("cs");
+                CciKO = cref.GetCCI_KO("cs");
+                CciSK = cref.GetCCI_SK("cs");
             }
 
             var path = new List<int> { item.Entity.EntityLabel };
