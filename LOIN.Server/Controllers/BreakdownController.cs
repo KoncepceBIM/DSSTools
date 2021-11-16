@@ -22,13 +22,13 @@ namespace LOIN.Server.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(Contracts.BreakdownItem[]), StatusCodes.Status200OK)]
-        public IActionResult Get([FromQuery] bool nonEmpty = false, [FromQuery] string orderBy = "Name")
+        public IActionResult Get([FromQuery] bool nonEmpty = false, [FromQuery] string orderBy = nameof(Contracts.BreakdownItem.NameCS))
         {
             var type = typeof(Contracts.BreakdownItem);
             var orderInfo = type.GetProperty(nameof(Contracts.BreakdownItem.Name));
             if (!string.IsNullOrWhiteSpace(orderBy))
             {
-                var found = type.GetProperty(orderBy, BindingFlags.Public | BindingFlags.IgnoreCase);
+                var found = type.GetProperty(orderBy, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
                 if (found != null)
                     orderInfo = found;
             }
