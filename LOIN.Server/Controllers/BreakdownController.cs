@@ -46,7 +46,7 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.GrouppedRequirementSets[]), StatusCodes.Status200OK)]
-        public IActionResult GetGrouppedRequirementSets(GroupingType groupingType = GroupingType.IFC)
+        public IActionResult GetGrouppedRequirementSets(GroupingType groupingType = GroupingType.CS)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace LOIN.Server.Controllers
                             };
                         }
 
-                        string getName(Contracts.Requirement r)
+                        string getSetName(Contracts.Requirement r)
                         {
                             return groupingType switch
                             {
@@ -92,7 +92,18 @@ namespace LOIN.Server.Controllers
                             };
                         }
 
-                        var requirementSets = requirements.GroupBy(getName)
+                        string getName(Contracts.Requirement r)
+                        {
+                            return groupingType switch
+                            {
+                                GroupingType.IFC => r.Name,
+                                GroupingType.EN => r.NameEN,
+                                GroupingType.CS => r.NameCS,
+                                _ => r.Name
+                            };
+                        }
+
+                        var requirementSets = requirements.GroupBy(getSetName)
                             .Select(g => new Contracts.NamedRequirementSet { 
                                 Name = g.Key, 
                                 Description = g.Select(getDescription).FirstOrDefault(d => !string.IsNullOrWhiteSpace(d)),
@@ -121,8 +132,30 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.GrouppedRequirements[]), StatusCodes.Status200OK)]
-        public IActionResult GetGrouppedRequirements()
+        public IActionResult GetGrouppedRequirements([FromQuery]OrderingType ordering = OrderingType.CS)
         {
+            string getName(Contracts.Requirement r)
+            {
+                return ordering switch
+                {
+                    OrderingType.IFC => r.Name,
+                    OrderingType.EN => r.NameEN,
+                    OrderingType.CS => r.NameCS,
+                    _ => r.Name
+                };
+            }
+
+            string getSetName(Contracts.Requirement r)
+            {
+                return ordering switch
+                {
+                    OrderingType.IFC => r.SetName,
+                    OrderingType.EN => r.SetNameEN,
+                    OrderingType.CS => r.SetNameCS,
+                    _ => r.SetName
+                };
+            }
+
             try
             {
                 var ctx = BuildContext();
@@ -146,7 +179,7 @@ namespace LOIN.Server.Controllers
                     if (requirementSets.Any())
                         result.Add(new Contracts.GrouppedRequirements(
                             item, 
-                            requirementSets.OrderBy(s => s.SetName).ThenBy(s => s.Name)
+                            requirementSets.OrderBy(getSetName).ThenBy(getName)
                             ));
                 }
 
@@ -168,6 +201,14 @@ namespace LOIN.Server.Controllers
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GroupingType
+    {
+        IFC,
+        EN,
+        CS
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum OrderingType
     {
         IFC,
         EN,
