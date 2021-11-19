@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Xbim.Ifc4.Kernel;
 
 namespace LOIN.Server.Controllers
 {
@@ -65,7 +67,7 @@ namespace LOIN.Server.Controllers
                         .SelectMany(rs => rs.RequirementSets).Distinct()
                         .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(r, rs)))
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements)
-                        .Distinct()
+                        .Distinct(new RequirementComparer())
                         .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault())))
                         .ToList();
                     if (requirements.Any())
@@ -173,7 +175,7 @@ namespace LOIN.Server.Controllers
                         .SelectMany(rs => rs.RequirementSets).Distinct()
                         .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(r,rs)))
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements)
-                        .Distinct()
+                        .Distinct(new RequirementComparer())
                         .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault())))
                         .ToList();
                     if (requirementSets.Any())
@@ -197,6 +199,18 @@ namespace LOIN.Server.Controllers
             }
         }
 
+        private class RequirementComparer : IEqualityComparer<IfcPropertyTemplate>
+        {
+            public bool Equals([AllowNull] IfcPropertyTemplate x, [AllowNull] IfcPropertyTemplate y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+
+                return x.GlobalId == y.GlobalId;
+            }
+
+            public int GetHashCode([DisallowNull] IfcPropertyTemplate obj) => obj.GlobalId.ToString().GetHashCode();
+        }
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
