@@ -1,4 +1,5 @@
 ﻿using LOIN.Context;
+using LOIN.Server.Equality;
 using LOIN.Server.Exceptions;
 using LOIN.Server.Swagger;
 using Microsoft.AspNet.OData;
@@ -67,7 +68,7 @@ namespace LOIN.Server.Controllers
                         .SelectMany(rs => rs.RequirementSets).Distinct()
                         .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(r, rs)))
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements)
-                        .Distinct(new RequirementComparer())
+                        .Distinct(PropertyEquality.Comparer)
                         .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault())))
                         .ToList();
                     if (requirements.Any())
@@ -175,7 +176,7 @@ namespace LOIN.Server.Controllers
                         .SelectMany(rs => rs.RequirementSets).Distinct()
                         .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(r,rs)))
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements)
-                        .Distinct(new RequirementComparer())
+                        .Distinct(PropertyEquality.Comparer)
                         .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault())))
                         .ToList();
                     if (requirementSets.Any())
@@ -197,19 +198,6 @@ namespace LOIN.Server.Controllers
                     Title = $"Context entity '{e.EntityLabel}' not found"
                 });
             }
-        }
-
-        private class RequirementComparer : IEqualityComparer<IfcPropertyTemplate>
-        {
-            public bool Equals([AllowNull] IfcPropertyTemplate x, [AllowNull] IfcPropertyTemplate y)
-            {
-                if (ReferenceEquals(x, y))
-                    return true;
-
-                return x.GlobalId == y.GlobalId;
-            }
-
-            public int GetHashCode([DisallowNull] IfcPropertyTemplate obj) => obj.GlobalId.ToString().GetHashCode();
         }
     }
 

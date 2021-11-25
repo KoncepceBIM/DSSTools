@@ -1,4 +1,5 @@
 ﻿using LOIN.Export;
+using LOIN.Server.Equality;
 using LOIN.Server.Exceptions;
 using LOIN.Server.Swagger;
 using Microsoft.AspNet.OData;
@@ -34,10 +35,14 @@ namespace LOIN.Server.Controllers
                    .SelectMany(r => r.RequirementSets).Distinct()
                    .SelectMany(r => r.HasPropertyTemplates.Select(p => new Contracts.Requirement(p, r)));
                 var directRequirements = loins
-                   .SelectMany(r => r.DirectRequirements).Distinct()
+                   .SelectMany(r => r.DirectRequirements).Distinct(PropertyEquality.Comparer)
                    .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault()));
 
-                return Ok(requirements.Union(directRequirements));
+                var all = requirements
+                    .Union(directRequirements, RequirementEquality.Comparer)
+                    .Distinct(RequirementEquality.Comparer);
+
+                return Ok(all);
             }
             catch (EntityNotFoundException e)
             {
