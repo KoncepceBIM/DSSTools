@@ -1,0 +1,7 @@
+@import "./assets/scss/variables";
+
+.fa-info-circle {
+    color: $color-topbar-grey;
+}
+
+//dropdown se otvira mimo komponentu, takze stylovani v globalu (dropdown.scss)
