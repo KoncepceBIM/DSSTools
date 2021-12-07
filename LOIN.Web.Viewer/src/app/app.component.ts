@@ -158,8 +158,8 @@ export class AppComponent implements OnInit {
             // pokud se jedna o skupinu co ma v nazvu obecná, tak ji chceme ve vychozim stavu sbalenou
             req.requirementSets.forEach( set => { if ( set.name.includes('obecn') ) (set as any).collapsed = true; });
             this.dataTemplates[req.id] = req;
-            this.dataLoading = false;
           });
+          this.dataLoading = false;
         },
         error: (e) => { this.apiError(e) },
       }
