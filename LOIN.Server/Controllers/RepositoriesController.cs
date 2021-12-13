@@ -43,6 +43,9 @@ namespace LOIN.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetOne(string id)
         {
+            if (string.Equals(id, "latest", StringComparison.OrdinalIgnoreCase))
+                id = repositoryService.GetRepositoryIds().FirstOrDefault();
+
             var path = System.IO.Path.Combine("Data", "Repositories", $"{id}.ifc");
             if (!System.IO.File.Exists(path))
                 return NotFound();

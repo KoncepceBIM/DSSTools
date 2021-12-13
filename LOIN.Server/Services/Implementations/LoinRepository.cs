@@ -25,7 +25,8 @@ namespace LOIN.Server.Services.Implementations
         {
             return Directory
                 .GetFiles(BasePath, $"*{RepositoryExtension}", SearchOption.TopDirectoryOnly)
-                .Select(f => Path.GetFileNameWithoutExtension(f));
+                .Select(f => Path.GetFileNameWithoutExtension(f))
+                .OrderByDescending(id => id);
         }
 
         public async Task<ILoinModel> OpenRepository(string id)

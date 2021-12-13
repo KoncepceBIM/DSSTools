@@ -132,7 +132,7 @@ namespace LOIN.Server
                     // this will always return the latest version
                     if (string.Equals(repositoryId, "latest", StringComparison.OrdinalIgnoreCase))
                     {
-                        repositoryId = repository.GetRepositoryIds().OrderBy(id => id).LastOrDefault();
+                        repositoryId = repository.GetRepositoryIds().FirstOrDefault();
                     }
 
                     var repo = await repository.OpenRepository(repositoryId);
