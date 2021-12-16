@@ -1,0 +1,143 @@
+@import "./assets/scss/variables";
+
+
+.hidden {
+    display: none;
+}
+
+span.collapse {
+    cursor: pointer;
+    font-size: 8px;
+    color: $color-table-bg;
+    background-color: $color-topbar-grey;
+    padding: 0 4px;
+    margin: 0 5px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+H2 {
+    font-size: 150%;
+    font-weight: bold;
+    color: $color-primary-red;
+}
+
+.reggrid-wrapper {
+    background-color: $color-table-bg;
+    padding: 15px 15px 15px 0;
+    min-width: 100%;
+    width: fit-content;
+}
+.reqgrid {
+    //border-collapse: separate;
+    //border-spacing: 0 0.5em;
+    border-collapse: collapse;
+    //font-size: smaller;
+    width: 100%;
+    margin-bottom: 1em;
+
+    //background-color: $color-table-bg;
+
+    TR.nav {
+        //background-color: $color-table-bg;
+        font-weight: bold;
+        .path {
+            color: $color-topbar-grey;
+            margin-bottom: 0.1em;
+            margin-top: 0.1em;
+            SPAN {
+                cursor: pointer;
+            }
+        }
+        TD {
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        .tname {
+            cursor: pointer;
+            margin: 0.1em 0;
+            color: $color-primary-red;
+            //color: $color-topbar-grey;
+            //font-weight: bold;
+            //font-size: 125%;
+            &.opened {
+                margin-bottom: 0.5em;
+            }
+
+        }
+        .fa-fw.folder {
+            width: 1em;
+        }
+    }
+    TR.spacer {
+        //background-color: #000;
+        TD {
+            padding: 0;
+            height: 20px;
+        }
+        TD+TD {
+            width: 100%;
+        }
+    }
+
+
+
+    TR.req {
+        TH {
+            background-color: $color-primary-red; //$color-table-bgstripe;//$color-table-bg;
+            color: $color-white; //$color-topbar-grey;
+            //color: $color-table-sethead;
+            font-weight: bold;
+            white-space: nowrap;
+            text-align: left;
+        }
+        TD {
+            font-size: 80%;
+            background-color: $color-white;
+            border-top: solid 5px $color-table-border;
+            white-space: pre-line;
+        }
+        TD:first-child, 
+        TH:first-child {
+            border: none !important;
+            background-color: inherit !important;
+        }
+        &.r1 TD {
+            background: $color-table-bgstripe;
+            //border-bottom: solid 1px rgb(200,200,200);
+
+        }
+
+
+/*         &.sethead TH {
+            //padding-bottom: 0;
+            //background-color: $color-table-bgset;
+        } */
+        &.setname TH {
+            color: $color-primary-red;
+            //background-color: $color-table-bgset;
+            background-color: $color-table-bg;
+            font-weight: bold;
+            font-size: 90%;
+            padding-bottom: 0.5em;
+            padding-left: 0;
+            //padding: 1.5em 1em;
+            .click {
+                cursor: pointer;
+            }
+        }
+
+        &.empty TD {
+            color: $color-table-empty;
+            font-weight: bold;
+            font-style: italic;
+        }
+    }
+
+    TH, TD {
+        padding: 10px 15px; //nemuzem pouzit em, kdyz ma TH jinej font (bold), je to pak jine
+    }
+    TD {
+        color: #001737;
+    }
+}

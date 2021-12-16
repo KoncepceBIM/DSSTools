@@ -1,0 +1,27 @@
+@import "./assets/scss/variables";
+
+
+
+
+.selected {
+    margin-top: 1em;
+    list-style: none;
+    line-height: 1;
+    padding: 0 2em;
+    font-size: smaller;
+    color: $color-white;
+    LI {
+        margin-bottom: 0.5em;
+        .button:hover {
+            text-shadow: 0px 0px 2px;
+        }
+        &.more {
+            //color: $color-filter-more;
+            A {
+                background-color: $color-filter-more-bg;
+                padding: 0 0.5em;
+                text-transform: uppercase;
+            }
+        }
+    }
+}

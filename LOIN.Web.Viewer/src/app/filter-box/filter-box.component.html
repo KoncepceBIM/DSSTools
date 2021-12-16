@@ -1,0 +1,62 @@
+<div ngDropdown (open)="dropOpened()" (close)="prepareSelected()" [renderInPlace]="true" [disabled]="false">
+    <div ngDropdownControl >
+        <span class="text">{{ name }}</span>
+        <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+    </div>
+    <div ngDropdownContent dropdownClass="slide-fade">
+                
+        <div *ngIf="nodesSplit" ngDropdown [renderInPlace]="true" #drop1="ngDropdown" style="margin-bottom: 1em;font-size: smaller;">
+            <div ngDropdownControl >
+                <span class="text">{{ split_name }}</span>
+                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            <div ngDropdownContent dropdownClass="slide-fade invert">
+                <ul class="select">
+                    <li *ngFor="let n of nodes_bak" (click)="split_name=n.nameCS; drop1.close(); nodes=n.children">{{n.nameCS}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="toolbar">
+
+
+            <!-- <button *ngIf="hasChildren" (click)="tree.treeModel.expandAll()">expand all</button> -->
+            <div class="collall" *ngIf="hasChildren" (click)="tree.treeModel.collapseAll()"><i class="fas fa-compress-alt" title="Sbalit vše"></i></div>
+            <!-- <button (click)="tree.sizeChanged()">sizechanged</button> -->
+            
+            <div class="search">
+                <input id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="vyhledat šablony"/>
+                <div class="clear" *ngIf="filter.value" (click)="tree.treeModel.clearFilter(); filter.value='';tree.treeModel.collapseAll();">
+                    <i class="fas fa-times" title="Zrušit Filter"></i>
+                </div>
+            </div>
+        </div>
+        
+        <tree-root #tree [focused]="true" [options]="options" [nodes]="nodes" (select)="selectChange($event)" (deselect)="selectChange($event)"  ></tree-root>
+        
+    </div>
+    
+</div>
+
+<ul class="selected">
+    <!--
+    <li *ngFor="let s of selected">{{ s }} | {{ tree.treeModel.getNodeById(s).data.name  }} </li>
+    -->
+<!--     
+    <li *ngFor="let s of tree.treeModel.selectedLeafNodeIds | keyvalue" >
+        {{ s.key }} / {{ s.value }}
+    </li><hr>
+ -->
+    <li *ngFor="let s of selected | slice:0:selectedShortToggle?short:99999">
+        {{ s.data.nameCS  }} 
+        <span class="button" (click)="s.setIsSelected(false); prepareSelected();"><i class="far fa-trash-alt"></i></span>
+    </li>
+    <li *ngIf="selected.length>short" class="more"> 
+        <a class="button" (click)="selectedShortToggle=!selectedShortToggle">
+            <i class="fas" [class]="selectedShortToggle?'fa-long-arrow-alt-down':'fa-long-arrow-alt-up'"></i>
+            zobrazit {{ selectedShortToggle?'více':'méně' }}
+            <i class="fas" [class]="selectedShortToggle?'fa-long-arrow-alt-down':'fa-long-arrow-alt-up'"></i>
+        </a>
+    </li>
+</ul>
+

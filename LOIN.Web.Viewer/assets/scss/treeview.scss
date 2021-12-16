@@ -1,0 +1,90 @@
+@import "./assets/scss/variables";
+
+
+TREE-ROOT {
+    .node-wrapper {
+        align-items: center;
+        font-size: 75%;
+    }
+
+    .toggle-children-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .toggle-children {
+        background-image: none;
+        border-style: solid;
+        border-width: 0.2em 0.2em 0 0;
+        content: '';
+        display: inline-block;
+        height: 0.45em;
+        //position: relative;
+        //left: 0.15em;
+        //top: 0.15em;
+        //transform: rotate(-45deg);
+        //vertical-align: top;
+        width: 0.45em;
+    }
+    .toggle-children-wrapper-collapsed .toggle-children {
+        transform: rotate(45deg);
+    }
+    .toggle-children-wrapper-expanded .toggle-children {
+        transform: rotate(135deg);
+    }
+
+    .tree-children {
+        padding-left: 0.5em;
+    }
+
+    .node-content-wrapper-focused,
+    .node-content-wrapper:hover {
+            background-color: $color-table-bgstripe;
+            color: $color-topbar-grey;
+    }
+
+    tree-node-checkbox {
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+    
+            position: relative;
+            display: inline-flex;
+            width: 1.5em;
+            height: 1.5em;
+            border: solid 1px #fff;
+            //border-radius: 25%;
+            align-items: center;
+            justify-content: center;
+            font-size: inherit; // nejak to samo bez toho zlobi
+
+            &:focus {
+                outline: none;
+            }
+            &:checked {
+                background-color: #fff;
+            }
+            
+            &::after {
+                content: "✔";
+                color: $color-topbar-grey;
+                font-size: 1.2em;
+                //position: absolute;
+                //right: 1px;
+                visibility: hidden;
+            }
+            &:checked::after {
+                /* Use `visibility` instead of `display` to avoid recalculating layout */
+                visibility: visible;
+            }
+            
+            &:indeterminate { /* tristate - pro neuplne vybrane polozky */
+                background-color: $color-secondary-grey;
+                &::after {
+                    visibility: hidden;
+                }
+            }
+        }
+    }
+
+}

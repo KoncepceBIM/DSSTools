@@ -1,0 +1,188 @@
+    
+<h2>
+    Výpis požadavků: 
+    <ng-container *ngIf="maxlevel">
+
+        <span class="collapse" (click)="collapseRoot( true )" title="Sbalit vše"><i class="fas fa-long-arrow-alt-up"></i></span>
+        <span class="collapse" (click)="collapseRoot( false)" title="Rozbalit vše"><i class="fas fa-long-arrow-alt-down"></i></span>
+        
+        
+        <span *ngFor="let fake of [].constructor(maxlevel); let l = index" class="collapse" (click)="collapseByPathLevel( l )" title="ukaž level {{l+1}}">{{l+1}}</span>
+        <span class="collapse" (click)="collapseByPathLast()" title="ukaž datové šablony">DŠ</span>
+        <span class="collapse" (click)="collapsed={}" title="ukaž vše">vše</span>
+
+    </ng-container>
+</h2>
+
+<div class="reggrid-wrapper">
+    <table class="reqgrid" id="reqgrid">
+        <ng-container *ngFor="let n of flat; let t = index" >
+            <tr class="nav">
+                <td [attr.colspan]="cols">
+                    <ng-container *ngFor="let p of collapseFilter( n.path ); let level = index" >
+                    <div
+                        *ngIf="!(hidePath && flat[t-1]?.path[level]?.id == p.id)"
+                        class="path"
+                        [style]="'margin-left: '+level*indent+'px;'" 
+                    >
+                        <span (click)="collapsed[p.id]=!collapsed[p.id]">
+                            <i class="fas fa-fw folder" [class.fa-angle-right]="collapsed[p.id]" [class.fa-angle-down]="!collapsed[p.id]" ></i>
+                            {{ p.name }}
+                        </span>
+                        <ng-container *ngIf="!collapsed[p.id]">
+                            <span class="collapse" (click)="collapsePath(p.id, true )" title="Sbalit vše do této úrovně"><i class="fas fa-long-arrow-alt-up"></i></span>
+                            <span class="collapse" (click)="collapsePath(p.id, false)" title="Rozbalit vše do této úrovně"><i class="fas fa-long-arrow-alt-down"></i></span>
+                        </ng-container>
+                    </div>
+                    </ng-container>
+
+                    <div *ngIf="!collapsed[n.path[n.level-1]?.id] && collapseFilter( n.path ).length==n.path.length" 
+                        class="tname" 
+                        [class.opened]="!collapsed[n.id]"
+                        [style]="'margin-left: '+n.level*indent+'px;'" 
+                        (click)="collapsed[n.id]=!collapsed[n.id]"
+                    >
+                        <i class="fas fa-fw folder" [class.fa-angle-right]="collapsed[n.id]" [class.fa-angle-down]="!collapsed[n.id]" ></i>
+                        {{ n.name }}
+                        <!-- {{ data[n.id].nameCS }} -->
+                        <bd-popup [node]="data[n.id]"></bd-popup>
+                        <!-- <bd-popup [node]="n"></bd-popup>
+ -->
+
+                    </div>
+                </td>
+            </tr>
+            <ng-container *ngIf="!collapsed[n.id] && !collapsed[n.path[n.level-1]?.id] && collapseFilter( n.path ).length==n.path.length">
+                
+                <!-- Display Requirements table -->     
+                <ng-template
+                [ngTemplateOutlet]="style=='req'?ReqTableTemplateRef:SetTableTemplateRef"
+                [ngTemplateOutletContext]="{ data: data[n.id] }">
+            </ng-template>
+            
+            
+            <tr class="spacer">
+                <td>
+                    <!-- sirku musime vynutit divem, nastaveni width k TD ne vzdy funguje  -->
+                    <div [style]="'width:'+(n.level+3)*indent+'px; height: 1px;'"></div>
+                </td>
+                <td [attr.colspan]="cols-1"></td>
+            </tr> 
+                
+            </ng-container>
+        </ng-container>
+    </table>
+</div>
+
+
+<!-- 
+<select onchange="location='#break'+this.value;">
+    <option>Go to ..</option>
+    <option *ngFor="let o of data" [value]="o.id">{{o.name}}</option>
+</select>
+ -->
+
+ <ng-template #empty>
+         <tr class="req empty">
+             <td></td>
+             <td [attr.colspan]="cols-1">
+                Datová šablona pro zvolený filtr neobsahuje žádné vlastnosti.
+             </td>
+     </tr>
+ </ng-template>
+
+ <ng-template #ReqTableTemplateRef let-data="data">
+        <tr class="req">
+            <th></th>
+            <th>skupina vlastností</th>
+            <th>název vlastnosti</th>
+            <th>měrná jednotka</th>
+            <th>datový typ</th>
+            <th>Popis</th>
+            <th>Poznámka</th>
+            <th>kód (GUID)</th>
+            <th *ngIf="ifc">IFC Pset</th>
+            <th *ngIf="ifc">IFC property</th>
+            <th *ngIf="ifc">IFC data type</th>
+            <th *ngIf="ifc">IFC type</th>
+        </tr>
+        <ng-container *ngIf="data && data.requirements; else empty">
+
+            <tr class="req" [class]="'r'+r%2" *ngFor="let req of data.requirements; let r=index">
+                <td></td>
+                <td>{{ req.setNameCS }}</td>
+                <td>{{ req.nameCS }}</td>
+                <td>{{ req.units }}</td>
+                <td>{{ req.dataTypeCS }}</td>
+                <td>{{ req.description }}</td>
+                <td>{{ req.examples }}</td>
+                <td>{{ req.uuid }}</td>
+                <td *ngIf="ifc">{{ req.setName }}</td>
+                <td *ngIf="ifc">{{ req.name }}</td>
+                <td *ngIf="ifc">{{ req.dataType }}</td>
+                <td *ngIf="ifc">{{ req.valueType }}</td>
+            </tr>
+        </ng-container>
+
+ </ng-template>
+
+
+ <ng-template #SetTableTemplateRef let-data="data">
+
+    <ng-container *ngIf="data && data.requirementSets; else empty">
+        
+        <tr class="req sethead">
+            <th></th>
+            <th>název vlastnosti</th>
+            <th>měrná jednotka</th>
+            <th>datový typ</th>
+            <th>Popis</th>
+            <th>Poznámka</th>
+            <th>kód (GUID)</th>
+            <th *ngIf="ifc">IFC Pset</th>
+            <th *ngIf="ifc">IFC property</th>
+            <th *ngIf="ifc">IFC data type</th>
+            <th *ngIf="ifc">IFC type</th>
+        </tr>
+
+        <ng-container  *ngFor="let set of data.requirementSets">
+
+            <tr class="req setname">
+                <th></th>
+                <th [attr.colspan]="cols-1">
+                    <span class="click" (click)="set.collapsed=!set.collapsed">
+                        <i class="fas fa-fw folder" [class.fa-angle-right]="set.collapsed" [class.fa-angle-down]="!set.collapsed" ></i>
+                        {{ set.name }}
+                    </span>
+                </th>
+            </tr>
+
+            <ng-container *ngIf="!set.collapsed">
+                <ng-container *ngIf="set && set.requirements; else empty">
+                    
+                    <tr *ngFor="let req of set.requirements; let r=index" class="req" [class]="'r'+r%2">
+                        <td></td>
+                        <td>{{ req.nameCS }}</td>
+                        <td>{{ req.units }}</td>
+                        <td>{{ req.dataTypeCS }}</td>
+                        <td>{{ req.description }}</td>
+                        <td>{{ req.examples }}</td>
+                        <td>{{ req.uuid }}</td>
+                        <td *ngIf="ifc">{{ req.setName }}</td>
+                        <td *ngIf="ifc">{{ req.name }}</td>
+                        <td *ngIf="ifc">{{ req.dataType }}</td>
+                        <td *ngIf="ifc">{{ req.valueType }}</td>
+                    </tr>
+                </ng-container>
+            </ng-container>
+            
+        </ng-container>
+
+        <tr class="spacer">
+            <td [attr.colspan]="cols"></td>
+        </tr>
+
+    </ng-container>
+
+</ng-template>
+

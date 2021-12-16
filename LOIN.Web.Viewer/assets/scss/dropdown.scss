@@ -1,0 +1,129 @@
+@import "./assets/scss/variables";
+
+/*
+ * dame nakonec celej dropdown do globalnich stylu, at ho muzem stejne pouzivat ve vice komponentach
+ */
+
+.topbar {
+    .ng-dropdown {
+        
+        .ng-dropdown-control {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 1em 2em;
+            background-color: $color-white;
+            color: $color-primary-black;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            white-space: nowrap;
+            &.active .arrow {
+                transform: rotate(180deg);
+            }
+            .arrow {
+                margin-left: 1em;
+            }
+        }
+
+        .render-in-place {
+            width: 100%;
+        }
+
+
+    }
+    /* .ng-dropdown-content  --- musime to dat do globalnich stylu, protoze dropdown se otvira mimo komponentu! pri [renderInPlace]="true" nemusime */
+
+    /* musime to dat do globalnich stylu, protoze dropdown se otvira mimo komponentu! */
+    .ng-dropdown-content {
+        background-color: $color-topbar-grey;
+        color: #fff;
+        &.invert {
+            background-color: $color-primary-red;
+            //color: $color-topbar-grey;
+        }
+        padding: 1em;
+
+        .toolbar {
+            display: flex;
+            margin-bottom: 1em;
+            .search {
+                display: flex;
+                flex-direction: row;
+                background-color: #fff;
+                padding: 0.5em 1em;
+                flex-grow: 1;
+                INPUT {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    padding: 0;
+                    margin: 0;
+                    outline: 0;
+                    border: 0;
+                    color: $color-primary-black;
+                    width: 40px; // vychozi, ktera se pres grow/shrink upravi
+                    flex-grow: 1;
+                    flex-shrink: 1;
+                }
+                .clear {
+                    margin-left: 0.5em;
+                    color: $color-primary-grey;
+                    cursor: pointer;
+                }
+            }
+            .collall {
+                cursor: pointer;
+                margin-right: 0.5em;
+                background-color: $color-primary-red;
+                //border: solid 1px $color-primary-red;
+                color: $color-white;
+                padding: 0 0.5em;
+                display: flex;
+                align-items: center;
+                &:active {
+                    //border: solid 1px #000;
+                    background-color: $color-secondary-red;
+                }
+            }
+        }
+        &.render-in-place {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        UL.select {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            LI {
+                padding: 0.5em;
+                cursor: pointer;
+                text-align: left;
+            }
+            LI:hover {
+                background-color: $color-white;
+                color: $color-primary-red;
+            }
+        }
+    }
+
+}
+
+.infodropbox {
+    padding: 1em;
+    padding-left: 1.2em;
+    background-color: $color-bg-infodropbox;
+    border: solid 1px #8a893c;
+    font-size: smaller;
+    TABLE {
+        max-width: 700px;
+        TH {
+            vertical-align: top;
+            text-align: left;
+            H3 {
+                text-transform: capitalize;
+                margin-top: 0;
+            }
+        }
+    }
+}

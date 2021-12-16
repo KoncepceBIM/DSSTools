@@ -1,0 +1,4 @@
+https://localhost:5001/swagger/v1/swagger.json
+
+docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli-v3 generate -i /local/swagger.json -l typescript-angular -o /local/out/
+

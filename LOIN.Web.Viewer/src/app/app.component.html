@@ -1,0 +1,98 @@
+
+<div class="topbar">
+
+    <div class="head">
+        <div ngDropdown [renderInPlace]="true" #repoDropdown="ngDropdown" >
+            <div ngDropdownControl >
+                <span class="text">Verze: {{ repoValue }}</span>
+                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            <div ngDropdownContent dropdownClass="slide-fade invert">
+                <ul class="select">
+                    <li *ngFor="let v of repolist" (click)="repo=v.key;repoValue=v.value; repoDropdown.close(); repoChange();">{{v.value}}</li>
+                </ul>
+            </div>
+        </div>
+                
+
+
+        <br>
+        <img class="logo" src="assets/images/bim-logo.svg">
+    </div>
+
+    <ul class="filter">
+        <!-- <li><app-filter-box #repo [name]="'Verze'" [nodes]="nodesRepositories" ></app-filter-box></li> -->
+        <li style="flex-grow: 2;"><app-filter-box #breaks [name]="'Datové šablony'" [nodes]="nodesBreakdown" [nodesSplit]="true" ></app-filter-box></li>
+        
+        <li><app-filter-box #actors [name]="'Aktéři'" [nodes]="nodesActors" ></app-filter-box></li>
+    
+        <li><app-filter-box #milestones [name]="'Stupeň projektové dokumentace'" [nodes]="nodesMilestones" ></app-filter-box></li>
+        <li><app-filter-box #reasons [name]="'Účely užití'" [nodes]="nodesReasons" ></app-filter-box></li>
+
+        <li class="cancel" *ngIf="breaks.selected.length || actors.selected.length || milestones.selected.length || reasons.selected.length">
+            <div class="">
+                <a class="button" (click)="deselectAll()" title="Zrušit všechny filtry">
+                    <svg class="icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                    </svg>
+                </a>
+            </div>
+        </li>
+    </ul>
+    
+    <div class="buttons-wrapper">
+        <div class="buttons-bar">
+            <div class="button search" (click)="runfilter()" ><span class="placeholder">Zobrazit</span><span class="text">Zobrazit</span> </div>
+            <div class="line">
+                <div class="button" (click)="exportIFC()" >Export IFC</div>
+                <div class="button" (click)="exportXLS()" >Export XLS</div>
+            </div>
+        </div>
+        <div class="help">
+            <a target="_blank" [href]="help_url">Stručný popis ovládání</a>
+        </div>
+    </div>
+
+</div>
+
+<br><br>
+
+
+<div class="output">
+
+    <div class="loading fa-3x" *ngIf="dataLoading">
+        <i class="fa fa-spinner fa-spin"></i>
+    </div>
+
+    <ul class="error" *ngIf="errors.length">
+        <h2>Omlouváme se, ale bohužel došlo k chybě</h2>
+        <li *ngFor="let e of errors">{{ e }}</li>
+    </ul>
+
+    <ng-container *ngIf="!dataLoading && !errors.length">
+
+        <div class="info" *ngIf="!selectedTree">
+            Pro zobrazení obsahu DSS zadejte pomocí filtrů rozsah požadovaných informací (minimálně vyberte rozsah datových šablon) a stiskněte tlačítko "ZOBRAZIT". 
+            <br>
+            <a target="_blank" [href]="help_url">Stručnou nápovědu k ovládání naleznete zde</a>
+        </div>
+
+        <ng-container *ngIf="selectedTree"  >
+
+            <ul class="bar2">
+                <li class="style" [class.active]="reqtab=='req'" (click)="reqtabChange('req')"><i class="fas  fa-list" title="Vlastnosti"></i><b>&nbsp;</b></li>
+                <li class="style" [class.active]="reqtab=='sets_cz'" (click)="reqtabChange('sets_cz')"><i class="fas fa-stream" title="Skupiny vlastností CZ"></i><b>DSS</b></li>
+                <!--
+                    <li class="style" [class.active]="reqtab=='sets_en'" (click)="reqtabChange('sets_en')"><i class="fas fa-stream" title="Skupiny vlastností EN"></i></li>
+                -->
+                <li class="style" [class.active]="reqtab=='sets_ifc'" (click)="reqtabChange('sets_ifc')"><i class="fas fa-stream" title="Skupiny vlastností IFC"></i><b>IFC</b></li>
+                <li class="style" [class.active]="ifc" (click)="ifc=!ifc" title="zobrazit IFC sloupce"> IFC <b>&nbsp;</b></li>
+            </ul>
+
+            <breakdown-requirements [tree]="selectedTree" [flat]="selectedFlatTree" [data]="dataTemplates" [style]="reqtab" [ifc]="ifc" ></breakdown-requirements>
+            
+        </ng-container>
+        
+    </ng-container>
+    
+</div>
