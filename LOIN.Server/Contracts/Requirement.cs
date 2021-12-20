@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using LOIN;
 using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Contracts
 {
-    public class Requirement: LoinItem
+    public class Requirement : LoinItem
     {
         private const string cs = "cs";
         private const string en = "en";
@@ -17,7 +18,7 @@ namespace LOIN.Server.Contracts
         public string DataType { get; set; }
         public string DataTypeCS { get; set; }
         public string DataTypeEN { get; set; }
-        
+
         public string SetName { get; set; }
         public string SetNameCS { get; set; }
         public string SetNameEN { get; set; }
@@ -33,7 +34,16 @@ namespace LOIN.Server.Contracts
 
         public List<string> Examples { get; set; }
 
-        public Requirement(IIfcPropertyTemplate property, IIfcPropertySetTemplate set): base(property)
+        public List<RequirementContext> Contexts { get; set; }
+
+        public Requirement(ContextMap contextMap, IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : this(property, set)
+        {
+            var id = property.GlobalId;
+            if (contextMap.TryGetValue(id, out var contexts))
+                Contexts = contexts;
+        }
+
+        public Requirement(IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : base(property)
         {
             // set might be null, it the requirement is assigned directly, not through a set
             SetName = set?.Name;
@@ -52,7 +62,7 @@ namespace LOIN.Server.Contracts
                 ValueType = simple.TemplateType?.ToString();
 
                 if (simple.PrimaryMeasureType.HasValue)
-                { 
+                {
                     DataType = simple.PrimaryMeasureType.Value.ToString();
                     DataTypeCS = simple.GetDataTypeName(cs);
                     DataTypeEN = simple.GetDataTypeName(en);
@@ -72,6 +82,59 @@ namespace LOIN.Server.Contracts
             }
             else
                 throw new NotSupportedException("Only simple property templates are supported.");
+        }
+    }
+
+    public class RequirementContext
+    {
+        public IEnumerable<LoinItem> Actors { get; set; }
+        public IEnumerable<LoinItem> Milestones { get; set; }
+        public IEnumerable<LoinItem> BreakdownItems { get; set; }
+        public IEnumerable<LoinItem> Reasons { get; set; }
+    }
+
+    public class ContextMap : Dictionary<string, List<RequirementContext>>
+    {
+        public ContextMap(ILoinModel model)
+        {
+            foreach (var loin in model.Requirements)
+            {
+                var ctx = new RequirementContext
+                {
+                    Actors = loin.Actors.Select(a => new LoinItem(a)).Distinct(LoinItemEqualityComparer.Comparer).ToList(),
+                    BreakdownItems = loin.BreakedownItems.Select(i => new LoinItem(i)).Distinct(LoinItemEqualityComparer.Comparer).ToList(),
+                    Milestones = loin.Milestones.Select(m => new LoinItem(m)).Distinct(LoinItemEqualityComparer.Comparer).ToList(),
+                    Reasons = loin.Reasons.Select(r => new LoinItem(r)).Distinct(LoinItemEqualityComparer.Comparer).ToList()
+                };
+                foreach (var requirement in loin.Requirements)
+                {
+                    var id = requirement.GlobalId;
+                    if (TryGetValue(id, out var contexts))
+                    {
+                        contexts.Add(ctx);
+                    }
+                    else
+                    {
+                        Add(id, new List<RequirementContext> { ctx });
+                    }
+
+                }
+            }
+        }
+    }
+
+    internal class LoinItemEqualityComparer : IEqualityComparer<LoinItem>
+    {
+        public static readonly LoinItemEqualityComparer Comparer = new LoinItemEqualityComparer();
+
+        public bool Equals([AllowNull] LoinItem x, [AllowNull] LoinItem y)
+        {
+            return string.Equals(x?.UUID, y?.UUID);
+        }
+
+        public int GetHashCode([DisallowNull] LoinItem obj)
+        {
+            return obj.UUID?.GetHashCode() ?? 0;
         }
     }
 }

@@ -24,13 +24,14 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.RequirementSet[]), StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery]bool expandContext = false)
         {
             try
             {
+                var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
                 var loins = ApplyContextFilter();
                 var requirementSets = loins.SelectMany(rs => rs.RequirementSets).Distinct()
-                    .Select(rs => new Contracts.RequirementSet(rs))
+                    .Select(rs => new Contracts.RequirementSet(ctxMap, rs))
                     .ToList();
                 return Ok(requirementSets);
             }
@@ -49,12 +50,13 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Contracts.RequirementSet), StatusCodes.Status200OK)]
-        public IActionResult GetSingle([FromRoute] int id)
+        public IActionResult GetSingle([FromRoute] int id, [FromQuery] bool expandContext = false)
         {
             try
             {
+                var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
                 var result = Model.Internal.Instances[id] as IIfcPropertySetTemplate;
-                return Ok(new Contracts.RequirementSet(result));
+                return Ok(new Contracts.RequirementSet(ctxMap, result));
             }
             catch (Exception)
             {

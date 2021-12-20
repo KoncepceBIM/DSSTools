@@ -8,12 +8,17 @@ namespace LOIN.Server.Contracts
 {
     public class RequirementSet: LoinItem
     {
-        public RequirementSet(IIfcPropertySetTemplate template): base(template)
+        public RequirementSet(IIfcPropertySetTemplate template) : this(null, template)
+        { 
+        }
+
+        public RequirementSet(ContextMap contextMap, IIfcPropertySetTemplate template): base(template)
         {
+
             if (template.HasPropertyTemplates.Count > 0)
             {
                 Requirements = template.HasPropertyTemplates
-                    .Select(p => new Requirement(p, template))
+                    .Select(p => contextMap != null ? new Requirement(contextMap, p, template) : new Requirement(p, template))
                     .ToList();
             }
         }

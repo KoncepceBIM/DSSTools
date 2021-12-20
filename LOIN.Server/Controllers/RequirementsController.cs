@@ -26,17 +26,18 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.Requirement[]), StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] bool expandContext = false)
         {
             try
             {
+                var newRequirement = GetRequirementFactory(expandContext);
                 var loins = ApplyContextFilter();
                 var requirements = loins
                    .SelectMany(r => r.RequirementSets).Distinct()
-                   .SelectMany(r => r.HasPropertyTemplates.Select(p => new Contracts.Requirement(p, r)));
+                   .SelectMany(r => r.HasPropertyTemplates.Select(p => newRequirement(p, r)));
                 var directRequirements = loins
                    .SelectMany(r => r.DirectRequirements).Distinct(PropertyEquality.Comparer)
-                   .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault()));
+                   .Select(r => newRequirement(r, r.PartOfPsetTemplate.FirstOrDefault()));
 
                 var all = requirements
                     .Union(directRequirements, RequirementEquality.Comparer)
@@ -84,18 +85,20 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Contracts.Requirement), StatusCodes.Status200OK)]
-        public IActionResult GetSingle([FromRoute] int id)
+        public IActionResult GetSingle([FromRoute] int id, [FromQuery] bool expandContext = false)
         {
             try
             {
+                var newRequirement = GetRequirementFactory(expandContext);
                 var result = Model.Internal.Instances[id] as IIfcPropertyTemplate;
                 var parent = result.PartOfPsetTemplate.FirstOrDefault();
-                return Ok(new Contracts.Requirement(result, parent));
+                return Ok(newRequirement(result, parent));
             }
             catch (Exception)
             {
                 return NotFound();
             }
         }
+
     }
 }

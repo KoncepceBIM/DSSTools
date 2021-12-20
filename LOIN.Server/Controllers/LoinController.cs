@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Controllers
 {
@@ -118,6 +119,16 @@ namespace LOIN.Server.Controllers
             }
 
             return loins;
+        }
+
+        protected Func<IIfcPropertyTemplate, IIfcPropertySetTemplate, Contracts.Requirement> GetRequirementFactory(bool shouldExpandContexts)
+        {
+            if (shouldExpandContexts)
+            {
+                var map = new Contracts.ContextMap(Model);
+                return (IIfcPropertyTemplate p, IIfcPropertySetTemplate ps) => new Contracts.Requirement(map, p, ps);
+            }
+            return (IIfcPropertyTemplate p, IIfcPropertySetTemplate ps) => new Contracts.Requirement(p, ps);
         }
     }
 }
