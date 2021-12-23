@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Controllers
@@ -29,9 +27,10 @@ namespace LOIN.Server.Controllers
             try
             {
                 var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
+                var ctx = expandContext ? BuildContext() : null;
                 var loins = ApplyContextFilter();
                 var requirementSets = loins.SelectMany(rs => rs.RequirementSets).Distinct()
-                    .Select(rs => new Contracts.RequirementSet(ctxMap, rs))
+                    .Select(rs => new Contracts.RequirementSet(ctxMap, ctx, rs))
                     .ToList();
                 return Ok(requirementSets);
             }
@@ -55,8 +54,9 @@ namespace LOIN.Server.Controllers
             try
             {
                 var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
+                var ctx = expandContext ? BuildContext() : null;
                 var result = Model.Internal.Instances[id] as IIfcPropertySetTemplate;
-                return Ok(new Contracts.RequirementSet(ctxMap, result));
+                return Ok(new Contracts.RequirementSet(ctxMap, ctx, result));
             }
             catch (Exception)
             {

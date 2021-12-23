@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using LOIN;
+using LOIN.Context;
 using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Contracts
@@ -36,11 +37,21 @@ namespace LOIN.Server.Contracts
 
         public List<RequirementContext> Contexts { get; set; }
 
-        public Requirement(ContextMap contextMap, IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : this(property, set)
+        public Requirement(ContextMap contextMap, IEnumerable<IContextEntity> filters, IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : this(property, set)
         {
             var id = property.GlobalId;
             if (contextMap.TryGetValue(id, out var contexts))
+            {
+                var filterTypes = filters.GroupBy(c => c.GetType());
+                foreach (var filterType in filterTypes)
+                {
+                    var identityCache = contexts.ToDictionary(ctx => ctx, ctx => ctx.GetAllIds());
+                    // continuous filtering refinement
+                    contexts = contexts.Where(ctx => filterType.Any(c => identityCache[ctx].Contains(c.Entity.EntityLabel))).ToList();
+                }
+
                 Contexts = contexts;
+            }
         }
 
         public Requirement(IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : base(property)
@@ -91,6 +102,13 @@ namespace LOIN.Server.Contracts
         public IEnumerable<LoinItem> Milestones { get; set; }
         public IEnumerable<LoinItem> BreakdownItems { get; set; }
         public IEnumerable<LoinItem> Reasons { get; set; }
+
+        internal HashSet<int> GetAllIds() => new HashSet<int>(
+            (Actors?.Select(a => a.Id) ?? Enumerable.Empty<int>())
+            .Concat(Milestones?.Select(a => a.Id) ?? Enumerable.Empty<int>())
+            .Concat(BreakdownItems?.Select(a => a.Id) ?? Enumerable.Empty<int>())
+            .Concat(Reasons?.Select(a => a.Id) ?? Enumerable.Empty<int>())
+            );
     }
 
     public class ContextMap : Dictionary<string, List<RequirementContext>>

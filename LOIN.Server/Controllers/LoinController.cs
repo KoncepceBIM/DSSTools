@@ -126,7 +126,8 @@ namespace LOIN.Server.Controllers
             if (shouldExpandContexts)
             {
                 var map = new Contracts.ContextMap(Model);
-                return (IIfcPropertyTemplate p, IIfcPropertySetTemplate ps) => new Contracts.Requirement(map, p, ps);
+                var ctx = BuildContext();
+                return (IIfcPropertyTemplate p, IIfcPropertySetTemplate ps) => new Contracts.Requirement(map, ctx, p, ps);
             }
             return (IIfcPropertyTemplate p, IIfcPropertySetTemplate ps) => new Contracts.Requirement(p, ps);
         }
