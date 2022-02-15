@@ -115,7 +115,8 @@ namespace LOIN.Server.Controllers
             foreach (var contextType in contextTypes)
             {
                 // continuous filtering refinement
-                loins = loins.Where(r => contextType.Any(c => c.IsContextFor(r)));
+                var lookUp = new HashSet<int>(contextType.SelectMany(c => c.RequirementsSetLookUp));
+                loins = loins.Where(r => lookUp.Contains(r.Entity.EntityLabel));
             }
 
             return loins;

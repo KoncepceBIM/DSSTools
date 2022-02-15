@@ -12,7 +12,10 @@ namespace LOIN.Context
     {
         IPersistEntity IContextEntity.Entity => Entity;
 
+        public bool IsContextFor(int requirementsLabel) => _cache.Contains(requirementsLabel);
         public bool IsContextFor(Requirements.RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
+
+        public HashSet<int> RequirementsSetLookUp => _cache;
 
         public bool RemoveFromContext(Requirements.RequirementsSet requirements)
         {

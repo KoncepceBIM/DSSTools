@@ -99,7 +99,9 @@ namespace LOIN.Context
         /// </summary>
         public bool HasRequirements => _cache.Any() || (_children.Count > 0 && _children.Any(c => c.HasRequirements));
 
+        public bool IsContextFor(int requirementsLabel) => _cache.Contains(requirementsLabel);
         public bool IsContextFor(RequirementsSet requirements) => _cache.Contains(requirements.Entity.EntityLabel);
+        public HashSet<int> RequirementsSetLookUp => _cache;
 
         public bool RemoveFromContext(RequirementsSet requirements)
         {

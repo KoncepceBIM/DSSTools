@@ -15,7 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Viewer.Views", "LOIN.V
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Comments", "LOIN.Comments\LOIN.Comments.csproj", "{D4B7647D-D18E-439C-8842-482725F5019E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN.Server", "LOIN.Server\LOIN.Server.csproj", "{F85BC444-9DD1-4A04-A10B-A9C7569414E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOIN.Server", "LOIN.Server\LOIN.Server.csproj", "{F85BC444-9DD1-4A04-A10B-A9C7569414E3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Profiling", "Profiling", "{C006E371-32DD-4891-9E01-FEBEA35B389A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOIN.Server.RequirementSetsProfiling", "LOIN.Server.RequirementSetsProfiling\LOIN.Server.RequirementSetsProfiling.csproj", "{E6932A97-CC69-41D0-AE72-A9B0531DE7A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,9 +55,16 @@ Global
 		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F85BC444-9DD1-4A04-A10B-A9C7569414E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6932A97-CC69-41D0-AE72-A9B0531DE7A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6932A97-CC69-41D0-AE72-A9B0531DE7A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6932A97-CC69-41D0-AE72-A9B0531DE7A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6932A97-CC69-41D0-AE72-A9B0531DE7A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E6932A97-CC69-41D0-AE72-A9B0531DE7A1} = {C006E371-32DD-4891-9E01-FEBEA35B389A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB9EC456-7356-4561-BED1-E03F91E00A00}
