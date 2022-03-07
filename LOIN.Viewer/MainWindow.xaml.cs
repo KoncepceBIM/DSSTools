@@ -4,6 +4,7 @@ using LOIN.Context;
 using LOIN.Requirements;
 using LOIN.Validation;
 using LOIN.Viewer.Views;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -144,71 +145,82 @@ namespace LOIN.Viewer
 
             var logger = XbimLogging.CreateLogger("MvdValidator");
 
-            using (var ifcStream = File.OpenRead(fileName))
-            using (var model = MemoryModel.OpenReadStep21(ifcStream, logger, null, ignoreTypes, false, false))
+            using var ifcStream = File.OpenRead(fileName);
+            using var model = MemoryModel.OpenReadStep21(ifcStream, logger, null, ignoreTypes, false, false);
+
+            List<MvdValidationResult> results = null;
+            try
             {
-                var results = MvdValidator
+                results = MvdValidator
                     .ValidateModel(mvd, model)
                     .ToList();
-                if (results.All(r => r.Concept == null && r.Result == ConceptTestResult.DoesNotApply))
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to run validation: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                logger.LogError(ex, "Failed to run validation");
+                return;
+            }
+
+            if (results.All(r => r.Concept == null && r.Result == ConceptTestResult.DoesNotApply))
+            {
+                MessageBox.Show("No applicable entities in the file", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var failed = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Entity).ToList();
+            var passed = results.Where(r => r.Result == ConceptTestResult.Pass).GroupBy(r => r.Entity).ToList();
+            var skipped = results.Where(r => r.Result == ConceptTestResult.DoesNotApply).GroupBy(r => r.Entity).ToList();
+
+            var bcf = new BCFArchive();
+
+            // store reports as documents
+            bcf.Documents.Add(WriteResults("failed.csv", failed.SelectMany(g => g)));
+            bcf.Documents.Add(WriteResults("passed.csv", passed.SelectMany(g => g)));
+            bcf.Documents.Add(WriteResults("skipped.csv", skipped.SelectMany(g => g)));
+
+            // store actual MVD as a document
+            var mvdStream = new MemoryStream();
+            mvd.Serialize(mvdStream);
+            bcf.Documents.Add(new DocumentFile { Name = "validation.mvdXML", Stream = mvdStream });
+
+            // create topics
+            var failedConcepts = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Concept.name).ToList();
+            var actor =
+                ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ??
+                Actors.FirstOrDefault()?.Name ??
+                "unknown@unknown.com";
+            foreach (var concept in failedConcepts)
+            {
+                var issueId = Guid.NewGuid();
+                var viewpointId = Guid.NewGuid();
+                var defViewpointId = Guid.NewGuid();
+                var components = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component
                 {
-                    MessageBox.Show("No applicable entities in the file", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                    IfcGuid = e.GlobalId,
+                    AuthoringToolId = e.OwnerHistory?.OwningApplication?.ApplicationIdentifier,
+                    OriginatingSystem = e.EntityLabel.ToString(),
+                }).ToList();
 
-                var failed = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Entity).ToList();
-                var passed = results.Where(r => r.Result == ConceptTestResult.Pass).GroupBy(r => r.Entity).ToList();
-                var skipped = results.Where(r => r.Result == ConceptTestResult.DoesNotApply).GroupBy(r => r.Entity).ToList();
-
-                var bcf = new BCFArchive();
-
-                // store reports as documents
-                bcf.Documents.Add(WriteResults("failed.csv", failed.SelectMany(g => g)));
-                bcf.Documents.Add(WriteResults("passed.csv", passed.SelectMany(g => g)));
-                bcf.Documents.Add(WriteResults("skipped.csv", skipped.SelectMany(g => g)));
-
-                // store actual MVD as a document
-                var mvdStream = new MemoryStream();
-                mvd.Serialize(mvdStream);
-                bcf.Documents.Add(new DocumentFile { Name = "validation.mvdXML", Stream = mvdStream });
-
-                // create topics
-                var failedConcepts = results.Where(r => r.Result == ConceptTestResult.Fail).GroupBy(r => r.Concept.name).ToList();
-                var actor =
-                    ContextSelector.Context.OfType<Actor>().FirstOrDefault()?.Name ??
-                    Actors.FirstOrDefault()?.Name ??
-                    "unknown@unknown.com";
-                foreach (var concept in failedConcepts)
+                var issue = new TopicFolder
                 {
-                    var issueId = Guid.NewGuid();
-                    var viewpointId = Guid.NewGuid();
-                    var defViewpointId = Guid.NewGuid();
-                    var components = concept.Select(c => c.Entity).OfType<IIfcRoot>().Select(e => new Component
+                    Id = issueId,
+                    Markup = new Markup
                     {
-                        IfcGuid = e.GlobalId,
-                        AuthoringToolId = e.OwnerHistory?.OwningApplication?.ApplicationIdentifier,
-                        OriginatingSystem = e.EntityLabel.ToString(),
-                    }).ToList();
-
-                    var issue = new TopicFolder
-                    {
-                        Id = issueId,
-                        Markup = new Markup
-                        {
-                            Header = new List<HeaderFile> {
+                        Header = new List<HeaderFile> {
                                 new HeaderFile {
                                     isExternal = true,
                                     Filename = Path.GetFileName(fileName),
                                     IfcProject = model.Instances.FirstOrDefault<IIfcProject>()?.GlobalId
                                 }
                             },
-                            Topic = new Topic
-                            {
-                                CreationDate = DateTime.Now,
-                                Guid = issueId.ToString(),
-                                Title = $"Failed validation of {concept.Key}",
-                                Description = $"This is automatically generater error report for DSS. This topic refers to all entities which should have {concept.Key} but it wasn't found.",
-                                DocumentReference = new List<TopicDocumentReference> {
+                        Topic = new Topic
+                        {
+                            CreationDate = DateTime.Now,
+                            Guid = issueId.ToString(),
+                            Title = $"Failed validation of {concept.Key}",
+                            Description = $"This is automatically generater error report for DSS. This topic refers to all entities which should have {concept.Key} but it wasn't found.",
+                            DocumentReference = new List<TopicDocumentReference> {
                                     new TopicDocumentReference {
                                         isExternal = false,
                                         ReferencedDocument = "../Documents/failed.csv"
@@ -217,9 +229,9 @@ namespace LOIN.Viewer
                                         isExternal = false,
                                         ReferencedDocument = "../Documents/validation.mvdXML"
                                     }},
-                                CreationAuthor = actor
-                            },
-                            Comment = new List<Comment> {
+                            CreationAuthor = actor
+                        },
+                        Comment = new List<Comment> {
                                 new Comment{
                                     Date = DateTime.Now,
                                     Author = actor,
@@ -227,7 +239,7 @@ namespace LOIN.Viewer
                                     Viewpoint = new CommentViewpoint{ Guid = viewpointId.ToString() }
                                 }
                             },
-                            Viewpoints = new List<ViewPoint> {
+                        Viewpoints = new List<ViewPoint> {
                                 new ViewPoint {
                                     Index = 0,
                                     Guid = defViewpointId.ToString(),
@@ -239,8 +251,8 @@ namespace LOIN.Viewer
                                     Viewpoint = $"{viewpointId.ToString()}.bcfv"
                                 }
                             }
-                        },
-                        ViewPoints = new List<VisualizationInfo> {
+                    },
+                    ViewPoints = new List<VisualizationInfo> {
                             new VisualizationInfo {
                                 Guid = defViewpointId.ToString(),
                                 Components = new Components {
@@ -268,26 +280,25 @@ namespace LOIN.Viewer
                                 },
                             }
                         }
-                    };
+                };
 
-                    bcf.Topics.Add(issue);
-                }
+                bcf.Topics.Add(issue);
+            }
 
-                using (var s = File.Create(bcfPath))
-                {
-                    bcf.Serialize(s);
-                }
+            using (var s = File.Create(bcfPath))
+            {
+                bcf.Serialize(s);
+            }
 
-                if (!failed.Any())
-                {
-                    MessageBox.Show($"All {passed.Count} applicable entities are valid. {skipped.Count} entities not applicable.  Reports are saved in '{bcfPath}'",
-                        "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show($"{failed.Count} applicable entities are invalid. {skipped.Count} entities not applicable. Reports are saved in '{bcfPath}'",
-                     "Invalid entities", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+            if (!failed.Any())
+            {
+                MessageBox.Show($"All {passed.Count} applicable entities are valid. {skipped.Count} entities not applicable.  Reports are saved in '{bcfPath}'",
+                    "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show($"{failed.Count} applicable entities are invalid. {skipped.Count} entities not applicable. Reports are saved in '{bcfPath}'",
+                 "Invalid entities", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -519,7 +530,7 @@ namespace LOIN.Viewer
         private mvdXML GetMvd(bool filtered, XbimSchemaVersion schema)
         {
             if (!filtered)
-                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", classificationPropertyName, null, 
+                return _model.GetMvd(schema, "cs", "LOIN", "LOIN requirements stored as MVD", "LOIN", classificationPropertyName, null,
                     pset => pset.Name != classificationPropertySetName);
 
             var breakedown = new HashSet<IContextEntity>(ContextSelector.Context.OfType<BreakdownItem>());
@@ -556,7 +567,7 @@ namespace LOIN.Viewer
                 },
 
                 // property set filter
-                ps => setRequirements.Contains(ps) && ps.Name != classificationPropertySetName, 
+                ps => setRequirements.Contains(ps) && ps.Name != classificationPropertySetName,
 
                 // property filter
                 p => requirements.Contains(p));

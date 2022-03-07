@@ -46,33 +46,33 @@ namespace LOIN.Validation
         public static IEnumerable<MvdValidationResult> ValidateModel(mvdXML mvd, IModel model)
         {
             // MVD validation rules are likely to traverse inverse relations
-            using (model.BeginEntityCaching())
-            using (model.BeginInverseCaching())
+            using var entityCache = model.BeginEntityCaching();
+            using var invCache = model.BeginInverseCaching();
+
+            var engine = new MvdEngine(mvd, model);
+            var objects = model.Instances
+                .OfType<IIfcObject>()
+                .ToList();
+            var validated = new HashSet<int>();
+
+            foreach (var root in engine.ConceptRoots)
             {
-                var engine = new MvdEngine(mvd, model);
-                var objects = model.Instances
-                    .OfType<IIfcObject>()
-                    .ToList();
-                var validated = new HashSet<int>();
-                foreach (var root in engine.ConceptRoots)
+                var applicable = objects.Where(o => root.AppliesTo(o));
+                foreach (var item in applicable)
                 {
-                    var applicable = objects.Where(o => root.AppliesTo(o));
-                    foreach (var item in applicable)
+                    validated.Add(item.EntityLabel);
+                    foreach (var concept in root.Concepts)
                     {
-                        validated.Add(item.EntityLabel);
-                        foreach (var concept in root.Concepts)
-                        {
-                            var passes = concept.Test(item, Concept.ConceptTestMode.Raw);
-                            yield return new MvdValidationResult(item, concept, passes);
-                        }
+                        var passes = concept.Test(item, Concept.ConceptTestMode.Raw);
+                        yield return new MvdValidationResult(item, concept, passes);
                     }
                 }
+            }
 
-                // report all IfcObjects which were not checked
-                foreach (var item in objects.Where(o => !validated.Contains(o.EntityLabel)))
-                {
-                    yield return new MvdValidationResult(item, null, ConceptTestResult.DoesNotApply);
-                }
+            // report all IfcObjects which were not checked
+            foreach (var item in objects.Where(o => !validated.Contains(o.EntityLabel)))
+            {
+                yield return new MvdValidationResult(item, null, ConceptTestResult.DoesNotApply);
             }
         }
 

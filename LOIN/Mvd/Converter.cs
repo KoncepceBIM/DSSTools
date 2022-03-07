@@ -84,7 +84,7 @@ namespace LOIN.Mvd
             foreach (var requirementSet in requirementSets)
             {
                 // skip if there are no actual required psets
-                var psets = requirementSet.RequirementSets.Where(RequirementSetsFilter).ToList();
+                var psets = requirementSet.Requirements.SelectMany(r => r.PartOfPsetTemplate).Where(RequirementSetsFilter).ToList();
                 if (!psets.Any())
                     continue;
 
