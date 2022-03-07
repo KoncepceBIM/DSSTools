@@ -5,6 +5,10 @@
     <UserSecretsId>137dc66a-6d5b-4d4d-951c-691ca1993a46</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Middleware\**" />
     <Content Remove="Middleware\**" />

@@ -42,13 +42,13 @@ namespace LOIN.Server.Contracts
             var id = property.GlobalId;
             if (contextMap.TryGetValue(id, out var contexts))
             {
-                var filterTypes = filters.GroupBy(c => c.GetType());
-                foreach (var filterType in filterTypes)
-                {
-                    var identityCache = contexts.ToDictionary(ctx => ctx, ctx => ctx.GetAllIds());
-                    // continuous filtering refinement
-                    contexts = contexts.Where(ctx => filterType.Any(c => identityCache[ctx].Contains(c.Entity.EntityLabel))).ToList();
-                }
+                // var filterTypes = filters.GroupBy(c => c.GetType());
+                // foreach (var filterType in filterTypes)
+                // {
+                //     var identityCache = contexts.ToDictionary(ctx => ctx, ctx => ctx.GetAllIds());
+                //     // continuous filtering refinement
+                //     contexts = contexts.Where(ctx => filterType.Any(c => identityCache[ctx].Contains(c.Entity.EntityLabel))).ToList();
+                // }
 
                 Contexts = contexts;
             }

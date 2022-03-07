@@ -29,7 +29,9 @@ namespace LOIN.Server.Controllers
                 var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
                 var ctx = expandContext ? BuildContext() : null;
                 var loins = ApplyContextFilter();
-                var requirementSets = loins.SelectMany(rs => rs.RequirementSets).Distinct()
+                var requirementSets = loins.SelectMany(rs => rs.Requirements)
+                    .Distinct()
+                    .SelectMany(r => r.PartOfPsetTemplate).GroupBy(ps => ps.Name)
                     .Select(rs => new Contracts.RequirementSet(ctxMap, ctx, rs))
                     .ToList();
                 return Ok(requirementSets);
