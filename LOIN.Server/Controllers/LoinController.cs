@@ -25,17 +25,13 @@ namespace LOIN.Server.Controllers
 
         protected HashSet<IContextEntity> BuildContext()
         {
-            if (!HttpContext.Request.Query.TryGetValue("actors", out StringValues actors))
-                actors = new StringValues();
-            if (!HttpContext.Request.Query.TryGetValue("reasons", out StringValues reasons))
-                reasons = new StringValues();
-            if (!HttpContext.Request.Query.TryGetValue("breakdown", out StringValues breakdown))
-                breakdown = new StringValues();
-            if (!HttpContext.Request.Query.TryGetValue("milestones", out StringValues milestones))
-                milestones = new StringValues();
+            var actors = GetFromRequest("actors");
+            var reasons = GetFromRequest("reasons");
+            var breakdown = GetFromRequest("breakdown");
+            var milestones = GetFromRequest("milestones");
 
             return BuildContext(
-                actors: actors.Count > 0 ? string.Join(",", actors) : null, 
+                actors: actors.Count > 0 ? string.Join(",", actors) : null,
                 reasons: reasons.Count > 0 ? string.Join(",", reasons) : null,
                 milestones: milestones.Count > 0 ? string.Join(",", milestones) : null,
                 breakdown: breakdown.Count > 0 ? string.Join(",", breakdown) : null
@@ -67,6 +63,15 @@ namespace LOIN.Server.Controllers
             }
 
             return ctx;
+        }
+
+        private StringValues GetFromRequest(string key)
+        {
+            if (HttpContext.Request.Query.TryGetValue(key, out StringValues values))
+                return values;
+            if (HttpContext.Request.Form.TryGetValue(key, out values))
+                return values;
+            return StringValues.Empty;
         }
 
         private IEnumerable<T> GetContext<T>(IEnumerable<T> source, string ids) where T : IContextEntity

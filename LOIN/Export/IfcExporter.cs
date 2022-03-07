@@ -12,7 +12,7 @@ namespace LOIN.Export
 {
     public static class IfcExporter
     {
-        public static Stream ExportContext(ILoinModel model, IEnumerable<IContextEntity> context)
+        public static Stream ExportContext(ILoinModel model, IEnumerable<IContextEntity> context, string fromUrl = null)
         {
             var contextTypes = context.GroupBy(c => c.GetType());
             var requirementSets = model.Requirements;
@@ -83,6 +83,9 @@ namespace LOIN.Export
             {
                 using (var txn = target.BeginTransaction("Copy part of LOIN"))
                 {
+                    if (!string.IsNullOrEmpty(fromUrl))
+                        target.Header.FileName.Name = fromUrl;
+
                     var map = new XbimInstanceHandleMap(source, target);
 
                     // use relations as roots, filter collections accordingly

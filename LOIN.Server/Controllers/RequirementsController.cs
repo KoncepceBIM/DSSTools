@@ -4,6 +4,7 @@ using LOIN.Server.Exceptions;
 using LOIN.Server.Swagger;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -62,10 +63,20 @@ namespace LOIN.Server.Controllers
         [FileResultContentType("application/octet-stream")]
         public IActionResult GetIFC()
         {
+            return GetIFCFromForm(null);
+        }
+
+        [HttpPost("export")]
+        [EnableLoinContext]
+        [FileResultContentType("application/octet-stream")]
+        public IActionResult GetIFCFromForm([FromForm]string fromUrl = null)
+        {
+            if (string.IsNullOrWhiteSpace(fromUrl))
+                fromUrl = HttpContext.Request.GetDisplayUrl();
             try
             {
                 var ctx = BuildContext();
-                var result = IfcExporter.ExportContext(Model, ctx);
+                var result = IfcExporter.ExportContext(Model, ctx, fromUrl);
                 var timestamp = DateTime.Now.ToString("s").Replace(" ", "_");
                 return File(result, "application/octet-stream", timestamp + ".ifc");
             }
