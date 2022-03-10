@@ -69,7 +69,7 @@ namespace LOIN.Server.Controllers
         {
             if (HttpContext.Request.Query.TryGetValue(key, out StringValues values))
                 return values;
-            if (HttpContext.Request.Form.TryGetValue(key, out values))
+            if (HttpContext.Request.HasFormContentType && HttpContext.Request.Form.TryGetValue(key, out values))
                 return values;
             return StringValues.Empty;
         }
