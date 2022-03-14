@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace LOIN.Server
+﻿namespace LOIN.Server
 {
-    public static class Constants
+    internal static class Constants
     {
         public const string RepositoryContextKey = "repository";
     }

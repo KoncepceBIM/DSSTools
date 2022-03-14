@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LOIN.Server.Swagger
 {
-    public class LoinContextParameterFilter : IOperationFilter
+    internal class LoinContextParameterFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {

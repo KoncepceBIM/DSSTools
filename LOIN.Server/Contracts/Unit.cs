@@ -8,7 +8,7 @@ using Xbim.Ifc4.Interfaces;
 
 namespace LOIN.Server.Contracts
 {
-    public static class Unit
+    internal static class Unit
     {
         public static string GetSymbol(IIfcUnit unit)
         {

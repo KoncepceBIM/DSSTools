@@ -4,7 +4,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace LOIN.Server.Swagger
 {
-    public class ODataParametersFilter : IOperationFilter
+    internal class ODataParametersFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {

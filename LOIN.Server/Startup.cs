@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace LOIN.Server
 {
-    public class Startup
+    internal class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -74,6 +74,12 @@ namespace LOIN.Server
                 opts.OperationFilter<ODataParametersFilter>();
                 opts.OperationFilter<LoinContextParameterFilter>();
                 opts.OperationFilter<FileResultContentTypeOperationFilter>();
+
+                var xmlFile = Path.ChangeExtension(typeof(Startup).Assembly.Location, ".xml");
+                if (File.Exists(xmlFile))
+                { 
+                    opts.IncludeXmlComments(xmlFile);
+                }
             });
         }
 

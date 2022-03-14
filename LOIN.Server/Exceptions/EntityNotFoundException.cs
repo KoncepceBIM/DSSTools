@@ -7,7 +7,7 @@ namespace LOIN.Server.Exceptions
 {
 
     [Serializable]
-    public class EntityNotFoundException : Exception
+    internal class EntityNotFoundException : Exception
     {
         public EntityNotFoundException(int entityLabel)
         {

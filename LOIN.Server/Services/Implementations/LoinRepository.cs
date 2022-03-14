@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LOIN.Server.Services.Implementations
 {
-    public class LoinRepository : ILoinRepository
+    internal class LoinRepository : ILoinRepository
     {
         private static readonly string BasePath = Path.Combine("Data", "Repositories");
         private const string RepositoryExtension = ".ifc";

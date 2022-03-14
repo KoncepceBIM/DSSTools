@@ -58,14 +58,24 @@ namespace LOIN.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns IFC file containing all the definitions based on the criteria
+        /// </summary>
+        /// <param name="fromUrl">Application URL used to call this endpoint. This URL will be used in the header of the IFC file.</param>
+        /// <returns>Binary IFC file</returns>
         [HttpGet("export")]
         [EnableLoinContext]
         [FileResultContentType("application/octet-stream")]
-        public IActionResult GetIFC()
+        public IActionResult GetIFC([FromQuery] string fromUrl = null)
         {
-            return GetIFCFromForm(null);
+            return GetIFCFromForm(fromUrl);
         }
 
+        /// <summary>
+        /// Returns IFC file containing all the definitions based on the criteria
+        /// </summary>
+        /// <param name="fromUrl">Application URL used to call this endpoint. This URL will be used in the header of the IFC file.</param>
+        /// <returns>Binary IFC file</returns>
         [HttpPost("export")]
         [EnableLoinContext]
         [FileResultContentType("application/octet-stream")]

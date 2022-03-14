@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LOIN.Server</name>
+    </assembly>
+    <members>
+        <member name="P:LOIN.Server.Contracts.LoinItem.Identifier">
+            <summary>
+            IFC Identifier
+            </summary>
+        </member>
+        <member name="T:LOIN.Server.Contracts.RequirementSet">
+            <summary>
+            Set of LOIN requirements
+            </summary>
+        </member>
+        <member name="M:LOIN.Server.Contracts.RequirementSet.#ctor(Xbim.Ifc4.Interfaces.IIfcPropertySetTemplate)">
+            <summary>
+            Constructs the requirement set view based on the IIfcPropertySetTemplate
+            </summary>
+            <param name="template">IIfcPropertySetTemplate</param>
+        </member>
+        <member name="M:LOIN.Server.Contracts.RequirementSet.#ctor(LOIN.Server.Contracts.ContextMap,System.Collections.Generic.IEnumerable{LOIN.Context.IContextEntity},System.Collections.Generic.IEnumerable{Xbim.Ifc4.Interfaces.IIfcPropertySetTemplate})">
+            <summary>
+            Constructs the requirement set view based on a set of IIfcPropertySetTemplate representing conceptually the same property set
+            </summary>
+            <param name="contextMap">Context map cache</param>
+            <param name="filter">Current context filter</param>
+            <param name="templates">List of templates</param>
+        </member>
+        <member name="P:LOIN.Server.Contracts.RequirementSet.Requirements">
+            <summary>
+            List of requirements
+            </summary>
+        </member>
+        <member name="M:LOIN.Server.Controllers.RequirementsController.GetIFC(System.String)">
+            <summary>
+            Returns IFC file containing all the definitions based on the criteria
+            </summary>
+            <param name="fromUrl">Application URL used to call this endpoint. This URL will be used in the header of the IFC file.</param>
+            <returns>Binary IFC file</returns>
+        </member>
+        <member name="M:LOIN.Server.Controllers.RequirementsController.GetIFCFromForm(System.String)">
+            <summary>
+            Returns IFC file containing all the definitions based on the criteria
+            </summary>
+            <param name="fromUrl">Application URL used to call this endpoint. This URL will be used in the header of the IFC file.</param>
+            <returns>Binary IFC file</returns>
+        </member>
+        <member name="T:LOIN.Server.Services.Interfaces.ILoinRepository">
+            <summary>
+            Repository of LOIN definition files
+            </summary>
+        </member>
+        <member name="M:LOIN.Server.Services.Interfaces.ILoinRepository.GetRepositoryIds">
+            <summary>
+            Gets a list of repository IDs
+            </summary>
+            <returns>Repository IDs</returns>
+        </member>
+        <member name="M:LOIN.Server.Services.Interfaces.ILoinRepository.OpenRepository(System.String)">
+            <summary>
+            Opens the repository
+            </summary>
+            <param name="id">Repository ID</param>
+            <returns>LOIN repository</returns>
+        </member>
+        <member name="T:LOIN.Server.Swagger.FileResultContentTypeAttribute">
+            <summary>
+            Indicates swashbuckle should expose the result of the method as a file in open api (see https://swagger.io/docs/specification/describing-responses/)
+            </summary>
+        </member>
+        <member name="P:LOIN.Server.Swagger.FileResultContentTypeAttribute.ContentType">
+            <summary>
+            Content type of the file e.g. image/png
+            </summary>
+        </member>
+    </members>
+</doc>

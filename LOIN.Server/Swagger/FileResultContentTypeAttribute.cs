@@ -12,7 +12,7 @@ namespace LOIN.Server.Swagger
     /// Indicates swashbuckle should expose the result of the method as a file in open api (see https://swagger.io/docs/specification/describing-responses/)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class FileResultContentTypeAttribute : Attribute
+    internal class FileResultContentTypeAttribute : Attribute
     {
         public FileResultContentTypeAttribute(string contentType)
         {
@@ -25,7 +25,7 @@ namespace LOIN.Server.Swagger
         public string ContentType { get; }
     }
 
-    public class FileResultContentTypeOperationFilter : IOperationFilter
+    internal class FileResultContentTypeOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
