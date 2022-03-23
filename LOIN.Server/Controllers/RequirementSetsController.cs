@@ -26,13 +26,12 @@ namespace LOIN.Server.Controllers
         {
             try
             {
-                var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
-                var ctx = expandContext ? BuildContext() : null;
+                var ctxMap = expandContext ? Contracts.ContextMap.ForModel(Model) : null;
                 var loins = ApplyContextFilter();
                 var requirementSets = loins.SelectMany(rs => rs.Requirements)
                     .Distinct()
                     .SelectMany(r => r.PartOfPsetTemplate).GroupBy(ps => ps.Name)
-                    .Select(rs => new Contracts.RequirementSet(ctxMap, ctx, rs))
+                    .Select(rs => new Contracts.RequirementSet(ctxMap, rs))
                     .ToList();
                 return Ok(requirementSets);
             }
@@ -55,10 +54,9 @@ namespace LOIN.Server.Controllers
         {
             try
             {
-                var ctxMap = expandContext ? new Contracts.ContextMap(Model) : null;
-                var ctx = expandContext ? BuildContext() : null;
+                var ctxMap = expandContext ? Contracts.ContextMap.ForModel(Model) : null;
                 var result = Model.Internal.Instances[id] as IIfcPropertySetTemplate;
-                return Ok(new Contracts.RequirementSet(ctxMap, ctx, result));
+                return Ok(new Contracts.RequirementSet(ctxMap, result));
             }
             catch (Exception)
             {
@@ -70,12 +68,13 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [ProducesResponseType(typeof(Contracts.Requirement[]), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetRequirements([FromRoute] int id)
+        public IActionResult GetRequirements([FromRoute] int id, [FromQuery] bool expandContext = false)
         {
             try
             {
                 var pset = Model.Internal.Instances[id] as IIfcPropertySetTemplate;
-                var dto = pset.HasPropertyTemplates.Select(p => new Contracts.Requirement(p, pset));
+                var ctxMap = expandContext ? Contracts.ContextMap.ForModel(Model) : null;
+                var dto = pset.HasPropertyTemplates.Select(p => new Contracts.Requirement(ctxMap, p, pset));
                 return Ok(dto);
             }
             catch (Exception)

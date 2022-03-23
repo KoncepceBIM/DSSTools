@@ -16,7 +16,7 @@ namespace LOIN.Server.Contracts
         /// Constructs the requirement set view based on the IIfcPropertySetTemplate
         /// </summary>
         /// <param name="template">IIfcPropertySetTemplate</param>
-        internal RequirementSet(IIfcPropertySetTemplate template) : this(null, null, template)
+        internal RequirementSet(IIfcPropertySetTemplate template) : this(null, template)
         {
         }
 
@@ -24,16 +24,15 @@ namespace LOIN.Server.Contracts
         /// Constructs the requirement set view based on a set of IIfcPropertySetTemplate representing conceptually the same property set
         /// </summary>
         /// <param name="contextMap">Context map cache</param>
-        /// <param name="filter">Current context filter</param>
         /// <param name="templates">List of templates</param>
-        internal RequirementSet(ContextMap contextMap, IEnumerable<IContextEntity> filter, IEnumerable<IIfcPropertySetTemplate> templates) : base(templates.FirstOrDefault())
+        internal RequirementSet(ContextMap contextMap, IEnumerable<IIfcPropertySetTemplate> templates) : base(templates.FirstOrDefault())
         {
             Requirements = templates.SelectMany(t => t.HasPropertyTemplates
-                .Select(p => contextMap != null ? new Requirement(contextMap, filter, p, t) : new Requirement(p, t)))
+                .Select(p => contextMap != null ? new Requirement(contextMap, p, t) : new Requirement(p, t)))
                 .ToList();
         }
 
-        internal RequirementSet(ContextMap contextMap, IEnumerable<IContextEntity> filter, IIfcPropertySetTemplate template) : this(contextMap, filter, new[] { template})
+        internal RequirementSet(ContextMap contextMap, IIfcPropertySetTemplate template) : this(contextMap, new[] { template})
         {
 
             

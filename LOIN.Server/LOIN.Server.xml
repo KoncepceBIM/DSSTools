@@ -20,12 +20,11 @@
             </summary>
             <param name="template">IIfcPropertySetTemplate</param>
         </member>
-        <member name="M:LOIN.Server.Contracts.RequirementSet.#ctor(LOIN.Server.Contracts.ContextMap,System.Collections.Generic.IEnumerable{LOIN.Context.IContextEntity},System.Collections.Generic.IEnumerable{Xbim.Ifc4.Interfaces.IIfcPropertySetTemplate})">
+        <member name="M:LOIN.Server.Contracts.RequirementSet.#ctor(LOIN.Server.Contracts.ContextMap,System.Collections.Generic.IEnumerable{Xbim.Ifc4.Interfaces.IIfcPropertySetTemplate})">
             <summary>
             Constructs the requirement set view based on a set of IIfcPropertySetTemplate representing conceptually the same property set
             </summary>
             <param name="contextMap">Context map cache</param>
-            <param name="filter">Current context filter</param>
             <param name="templates">List of templates</param>
         </member>
         <member name="P:LOIN.Server.Contracts.RequirementSet.Requirements">

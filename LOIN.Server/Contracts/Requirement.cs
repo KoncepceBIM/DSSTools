@@ -5,6 +5,7 @@ using System.Linq;
 using LOIN;
 using LOIN.Context;
 using Xbim.Ifc4.Interfaces;
+using Xbim.Common;
 
 namespace LOIN.Server.Contracts
 {
@@ -35,26 +36,18 @@ namespace LOIN.Server.Contracts
 
         public List<string> Examples { get; set; }
 
-        public List<RequirementContext> Contexts { get; set; }
+        public RequirementContext Context { get; set; }
 
-        public Requirement(ContextMap contextMap, IEnumerable<IContextEntity> filters, IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : this(property, set)
+        internal Requirement(ContextMap contextMap, IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : this(property, set)
         {
             var id = property.GlobalId;
-            if (contextMap.TryGetValue(id, out var contexts))
+            if (contextMap != null && contextMap.TryGetValue(id, out var context))
             {
-                // var filterTypes = filters.GroupBy(c => c.GetType());
-                // foreach (var filterType in filterTypes)
-                // {
-                //     var identityCache = contexts.ToDictionary(ctx => ctx, ctx => ctx.GetAllIds());
-                //     // continuous filtering refinement
-                //     contexts = contexts.Where(ctx => filterType.Any(c => identityCache[ctx].Contains(c.Entity.EntityLabel))).ToList();
-                // }
-
-                Contexts = contexts;
+                Context = context;
             }
         }
 
-        public Requirement(IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : base(property)
+        internal  Requirement(IIfcPropertyTemplate property, IIfcPropertySetTemplate set) : base(property)
         {
             // set might be null, it the requirement is assigned directly, not through a set
             SetName = set?.Name;
@@ -100,43 +93,51 @@ namespace LOIN.Server.Contracts
     {
         public IEnumerable<LoinItem> Actors { get; set; }
         public IEnumerable<LoinItem> Milestones { get; set; }
-        public IEnumerable<LoinItem> BreakdownItems { get; set; }
         public IEnumerable<LoinItem> Reasons { get; set; }
-
-        internal HashSet<int> GetAllIds() => new HashSet<int>(
-            (Actors?.Select(a => a.Id) ?? Enumerable.Empty<int>())
-            .Concat(Milestones?.Select(a => a.Id) ?? Enumerable.Empty<int>())
-            .Concat(BreakdownItems?.Select(a => a.Id) ?? Enumerable.Empty<int>())
-            .Concat(Reasons?.Select(a => a.Id) ?? Enumerable.Empty<int>())
-            );
     }
 
-    public class ContextMap : Dictionary<string, List<RequirementContext>>
+    internal class ContextMap : Dictionary<string, RequirementContext>
     {
-        public ContextMap(ILoinModel model)
+        public static ContextMap ForModel(ILoinModel model)
+        {
+            return model.Internal.GetCache("ContextMap", () => new ContextMap(model));
+        }
+
+
+        private ContextMap(ILoinModel model)
         {
             foreach (var loin in model.Requirements)
             {
                 var ctx = new RequirementContext
                 {
-                    Actors = loin.Actors.Select(a => new LoinItem(a)).Distinct(LoinItemEqualityComparer.Comparer).ToList(),
-                    BreakdownItems = loin.BreakedownItems.Select(i => new LoinItem(i)).Distinct(LoinItemEqualityComparer.Comparer).ToList(),
-                    Milestones = loin.Milestones.Select(m => new LoinItem(m)).Distinct(LoinItemEqualityComparer.Comparer).ToList(),
-                    Reasons = loin.Reasons.Select(r => new LoinItem(r)).Distinct(LoinItemEqualityComparer.Comparer).ToList()
+                    Actors = new HashSet<LoinItem>(loin.Actors.Select(a => new LoinItem(a)), LoinItemEqualityComparer.Comparer),
+                    Milestones = new HashSet<LoinItem>(loin.Milestones.Select(m => new LoinItem(m)), LoinItemEqualityComparer.Comparer),
+                    Reasons = new HashSet<LoinItem>(loin.Reasons.Select(r => new LoinItem(r)), LoinItemEqualityComparer.Comparer)
                 };
                 foreach (var requirement in loin.Requirements)
                 {
                     var id = requirement.GlobalId;
-                    if (TryGetValue(id, out var contexts))
+                    if (TryGetValue(id, out var context))
                     {
-                        contexts.Add(ctx);
+                        AddContextItems(context.Actors, ctx.Actors);
+                        AddContextItems(context.Milestones, ctx.Milestones);
+                        AddContextItems(context.Reasons, ctx.Reasons);
                     }
                     else
                     {
-                        Add(id, new List<RequirementContext> { ctx });
+                        Add(id, ctx );
                     }
 
                 }
+            }
+        }
+
+        private static void AddContextItems(IEnumerable<LoinItem> target, IEnumerable<LoinItem> source)
+        {
+            var inner = (HashSet<LoinItem>)target;
+            foreach (var item in source)
+            {
+                inner.Add(item);
             }
         }
     }

@@ -49,7 +49,7 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.GrouppedRequirementSets[]), StatusCodes.Status200OK)]
-        public IActionResult GetGrouppedRequirementSets(GroupingType groupingType = GroupingType.CS)
+        public IActionResult GetGrouppedRequirementSets(GroupingType groupingType = GroupingType.CS, [FromQuery] bool expandContext = false)
         {
             try
             {
@@ -60,16 +60,17 @@ namespace LOIN.Server.Controllers
 
                 var loins = ApplyContextFilter(ctx);
                 var result = new List<Contracts.GrouppedRequirementSets>();
+                var ctxMap = expandContext ? Contracts.ContextMap.ForModel(Model) : null;
                 foreach (var item in items)
                 {
                     var itemLoins = loins
                         .Where(rs => item.IsContextFor(rs)).ToList();
                     var requirements = itemLoins
                         .SelectMany(rs => rs.RequirementSets).Distinct()
-                        .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(r, rs)))
+                        .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(ctxMap, r, rs)))
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements)
                         .Distinct(PropertyEquality.Comparer)
-                        .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault())))
+                        .Select(r => new Contracts.Requirement(ctxMap, r, r.PartOfPsetTemplate.FirstOrDefault())))
                         .ToList();
                     if (requirements.Any())
                     {
@@ -135,8 +136,9 @@ namespace LOIN.Server.Controllers
         [EnableQuery]
         [EnableLoinContext]
         [ProducesResponseType(typeof(Contracts.GrouppedRequirements[]), StatusCodes.Status200OK)]
-        public IActionResult GetGrouppedRequirements([FromQuery]OrderingType ordering = OrderingType.CS)
+        public IActionResult GetGrouppedRequirements([FromQuery]OrderingType ordering = OrderingType.CS, [FromQuery] bool expandContext = false)
         {
+            var ctxMap = expandContext ? Contracts.ContextMap.ForModel(Model) : null;
             string getName(Contracts.Requirement r)
             {
                 return ordering switch
@@ -174,10 +176,10 @@ namespace LOIN.Server.Controllers
                         .Where(rs => item.IsContextFor(rs)).ToList();
                     var requirementSets = itemLoins
                         .SelectMany(rs => rs.RequirementSets).Distinct()
-                        .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(r,rs)))
+                        .SelectMany(rs => rs.HasPropertyTemplates.Select(r => new Contracts.Requirement(ctxMap, r,rs)))
                         .Union(itemLoins.SelectMany(l => l.DirectRequirements)
                         .Distinct(PropertyEquality.Comparer)
-                        .Select(r => new Contracts.Requirement(r, r.PartOfPsetTemplate.FirstOrDefault())))
+                        .Select(r => new Contracts.Requirement(ctxMap, r, r.PartOfPsetTemplate.FirstOrDefault())))
                         .ToList();
                     if (requirementSets.Any())
                         result.Add(new Contracts.GrouppedRequirements(
