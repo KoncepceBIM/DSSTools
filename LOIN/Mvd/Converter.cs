@@ -354,13 +354,13 @@ namespace LOIN.Mvd
                 @operator = TemplateRulesOperator.or,
                 Items = new object[]{
                     new TemplateRulesTemplateRule {
-                        Parameters = $"O_PName[Value]='{pName}' AND O_PSingleValue[Value]={pValue}"
+                        Parameters = $"O_PName[Value]='{pName}' AND O_PSingleValue[Value]='{pValue}'"
                     },
                     new TemplateRules {
                         @operator = TemplateRulesOperator.and,
                         Items = new object[]{
                             new TemplateRulesTemplateRule{
-                                Parameters = $"T_PName[Value]='{pName}' AND T_PSingleValue[Value]={pValue}"
+                                Parameters = $"T_PName[Value]='{pName}' AND T_PSingleValue[Value]='{pValue}'"
                             },
                             new TemplateRules{
                                 @operator = TemplateRulesOperator.not,
