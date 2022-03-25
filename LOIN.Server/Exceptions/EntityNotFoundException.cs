@@ -9,17 +9,17 @@ namespace LOIN.Server.Exceptions
     [Serializable]
     internal class EntityNotFoundException : Exception
     {
-        public EntityNotFoundException(int entityLabel)
+        public EntityNotFoundException(string entityLabel)
         {
             EntityLabel = entityLabel;
         }
 
-        public EntityNotFoundException(int entityLabel, string message) : base(message) 
+        public EntityNotFoundException(string entityLabel, string message) : base(message) 
         {
             EntityLabel = entityLabel;
         }
 
-        public EntityNotFoundException(int entityLabel, string message, Exception inner) : base(message, inner) 
+        public EntityNotFoundException(string entityLabel, string message, Exception inner) : base(message, inner) 
         {
             EntityLabel = entityLabel;
         }
@@ -28,6 +28,6 @@ namespace LOIN.Server.Exceptions
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 
-        public int EntityLabel { get; }
+        public string EntityLabel { get; }
     }
 }

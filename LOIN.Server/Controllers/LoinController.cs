@@ -79,15 +79,17 @@ namespace LOIN.Server.Controllers
             if (string.IsNullOrWhiteSpace(ids))
                 return Enumerable.Empty<T>();
 
-            var labels = ParseIds(ids);
-            if (labels.Count == 0)
+            var (labels, uuids )= ParseIds(ids);
+            if (labels.Count == 0 && uuids.Count == 0)
                 return Enumerable.Empty<T>();
 
-            var result = source.Where(s => labels.Contains(s.Entity.EntityLabel)).ToList();
-            if (labels.Count != result.Count)
+            var result = source.Where(s => labels.Contains(s.Entity.EntityLabel) || uuids.Contains(s.Id)).ToList();
+            if ((labels.Count + uuids.Count) > result.Count)
             {
-                var notFound = labels.Except(result.Select(r => r.Entity.EntityLabel)).FirstOrDefault();
-                throw new EntityNotFoundException(notFound, $"Context entity {notFound} doesn't exist");
+                var notFoundLabels = labels.Except(result.Select(r => r.Entity.EntityLabel));
+                var notFoundUUIDs = uuids.Except(result.Select(r => r.Id));
+                var notFound = string.Join(", ", notFoundLabels.Select(l => l.ToString()).Concat(notFoundUUIDs).ToArray());
+                throw new EntityNotFoundException(notFound, $"Context entity '{notFoundLabels}' doesn't exist");
             }
 
 
@@ -95,16 +97,19 @@ namespace LOIN.Server.Controllers
         }
 
 
-        private HashSet<int> ParseIds(string value)
+        private (HashSet<int>, HashSet<string>) ParseIds(string value)
         {
-            var ids = value.Split(new char[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
-            var result = new HashSet<int>(ids.Length);
-            foreach (var id in ids)
+            var parts = value.Split(new char[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var ids = new HashSet<int>();
+            var uuids = new HashSet<string>();
+            foreach (var part in parts)
             {
-                if (int.TryParse(id, out int intId))
-                    result.Add(intId);
+                if (int.TryParse(part, out int intId))
+                    ids.Add(intId);
+                else
+                    uuids.Add(part);
             }
-            return result;
+            return (ids, uuids);
         }
 
         protected IEnumerable<Requirements.RequirementsSet> ApplyContextFilter()
